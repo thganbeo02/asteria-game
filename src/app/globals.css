@@ -1,26 +1,116 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* =============================================================================
+   ASTERIA THEME - Custom Design Tokens
+   ============================================================================= */
+
+@theme {
+  /* Stat colors - RPG conventions */
+  --color-stat-hp: #e53e3e;
+  --color-stat-mana: #3b82f6;
+  --color-stat-atk: #f59e0b;
+  --color-stat-def: #6b7280;
+  --color-stat-crit: #fbbf24;
+  --color-stat-dodge: #a78bfa;
+  --color-stat-pen: #ef4444;
+
+  /* Rarity colors */
+  --color-rarity-common: #9ca3af;
+  --color-rarity-rare: #3b82f6;
+  --color-rarity-epic: #a855f7;
+  --color-rarity-legendary: #f59e0b;
+
+  /* Class colors */
+  --color-class-warrior: #dc2626;
+  --color-class-mage: #7c3aed;
+  --color-class-ranger: #16a34a;
+  --color-class-assassin: #475569;
+
+  /* Status effect colors */
+  --color-status-burn: #f97316;
+  --color-status-chill: #06b6d4;
+  --color-status-poison: #84cc16;
+  --color-status-stun: #eab308;
+  --color-status-shield: #60a5fa;
+
+  /* UI colors */
+  --color-bg-dark: #0a0a0f;
+  --color-bg-panel: #12121a;
+  --color-bg-hover: #1a1a25;
+  --color-border: #2a2a3a;
+  --color-border-light: #3a3a4a;
+  --color-text-primary: #e8e8f0;
+  --color-text-secondary: #9090a0;
+  --color-text-muted: #606070;
+
+  /* Animation durations */
+  --animate-damage-pop: damage-pop 0.6s ease-out forwards;
+  --animate-shake: shake 0.3s ease-in-out;
+  --animate-float: float 3s ease-in-out infinite;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* =============================================================================
+   KEYFRAMES
+   ============================================================================= */
+
+@keyframes damage-pop {
+  0% { opacity: 1; transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.2); }
+  100% { opacity: 0; transform: translateY(-40px) scale(0.8); }
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* =============================================================================
+   BASE STYLES
+   ============================================================================= */
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  @apply bg-bg-dark text-text-primary min-h-screen antialiased;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  @apply w-2;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-bg-dark;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-border rounded-full;
+}
+
+/* =============================================================================
+   COMPONENT CLASSES
+   ============================================================================= */
+
+@utility panel {
+  @apply bg-bg-panel border border-border rounded-lg;
+}
+
+@utility panel-hover {
+  @apply bg-bg-panel border border-border rounded-lg transition-colors hover:border-border-light hover:bg-bg-hover;
+}
+
+@utility btn {
+  @apply px-4 py-2 rounded-lg font-medium transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+}
+
+@utility btn-primary {
+  @apply btn bg-class-mage hover:bg-class-mage/80 text-white;
+}
+
+@utility btn-secondary {
+  @apply btn bg-bg-panel border border-border hover:bg-bg-hover hover:border-border-light;
 }

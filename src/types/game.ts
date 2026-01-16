@@ -1,5 +1,6 @@
 import { Difficulty, GamePhase, MonsterType } from "./common";
 import { ItemInstance } from "./item";
+import { MonsterBaseStats } from "./monster";
 
 /**
  * Persistent state across an entire run.
@@ -11,8 +12,13 @@ export interface RunState {
 
   // Counters
   encounterCount: number;         // Start from 1, total this run
-  internalEncounterCount: number; // Resets on level up
+  internalEncounterCount: number; // Resets to 1 on level up
   currentLevel: number;
+
+  // Monster scaling - snapshotted bases for each monster type
+  // Initialized to original baseStats at run start
+  // Updated on level-up to capture current encounter's stats as new stats
+  monsterSnapshots: Record<MonsterType, MonsterBaseStats>;
 
   // Economy
   crystals: number;
@@ -31,7 +37,7 @@ export interface RunState {
 
   // Shade-specific
   contractState?: {
-    currentTurnLiimit: number;
+    currentTurnLimit: number;
     currentTurn: number;
     crystalBonus: number;
     expBonus: number;

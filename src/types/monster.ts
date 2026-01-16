@@ -1,7 +1,10 @@
+import { StatusEffect } from "./combat";
 import { MonsterType } from "./common";
 
 /**
  * Base stats for a monster at encounter 0.
+ * NOTE: Monsters never appear with exactly these stats since
+ * encounters start at 1, not 0.
  */
 export interface MonsterBaseStats {
   hp: number;
@@ -27,7 +30,7 @@ export interface MonsterGrowth {
  * Monster AI behavior
  */
 export interface MonsterBehavior {
-  // Paterns of actions, eg. ["attack","attack","special"] if applicable
+  // Patterns of actions, eg. ["attack","attack","special"] if applicable
   pattern?: string[];
 
   // Special ability details
@@ -59,7 +62,7 @@ export interface MonsterDefinition {
 export interface MonsterState {
   definitionId: MonsterType;
   
-  // Calculated stats (base + growth)
+  // Calculated stats (snapshotBase + growth * internalEncounter)
   maxHp: number;
   hp: number;
   atk: number;

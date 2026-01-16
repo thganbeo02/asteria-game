@@ -3,6 +3,7 @@
  * These come from the GDD and don't change during a run.
  */
 
+import { StatusEffect } from "./combat";
 import { HeroClass } from "./common";
 
 export interface HeroBaseStats {
@@ -55,6 +56,7 @@ export interface Ability {
   id: string;
   name: string;
   description: string;
+  expandedDescription: string;
 
   // Scaling arrays: index = level - 1
   manaCost: number[];       // Mana cost at each level

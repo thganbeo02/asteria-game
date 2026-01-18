@@ -1,0 +1,95 @@
+import type { EconomySlice, GameSliceCreator } from "./types";
+
+// ECONOMY SLICE
+
+export const createEconomySlice: GameSliceCreator<EconomySlice> = (set, get) => ({
+  addCrystals: (amount) => {
+    set((state) => {
+      if (!state.run) return {};
+
+      return {
+        run: {
+          ...state.run,
+          crystals: state.run.crystals + amount,
+          crystalsEarned: state.run.crystalsEarned + amount,
+        },
+      };
+    });
+  },
+
+  spendCrystals: (amount) => {
+    const { run } = get();
+    if (!run || run.crystals < amount) return false;
+
+    set((state) => {
+      if (!state.run) return {};
+
+      return {
+        run: {
+          ...state.run,
+          crystals: state.run.crystals - amount,
+          crystalsSpent: state.run.crystalsSpent + amount,
+        },
+      };
+    });
+
+    return true;
+  },
+
+  addGold: (amount) => {
+    set((state) => {
+      if (!state.run) return {};
+
+      return {
+        run: {
+          ...state.run,
+          gold: state.run.gold + amount,
+        },
+      };
+    });
+  },
+
+  purchaseItem: (item) => {
+    set((state) => {
+      if (!state.run) return {};
+
+      return {
+        run: {
+          ...state.run,
+          purchasedItems: [...state.run.purchasedItems, item],
+        },
+      };
+    });
+  },
+
+  useHealthPotion: () => {
+    const { run } = get();
+    if (!run || run.healthPotionsUsedThisLevel >= 3) return false;
+
+    set((state) => {
+      if (!state.run) return {};
+
+      return {
+        run: {
+          ...state.run,
+          healthPotionsUsedThisLevel: state.run.healthPotionsUsedThisLevel + 1,
+        },
+      };
+    });
+
+    return true;
+  },
+
+  skipShop: () => {
+    set((state) => {
+      if (!state.run) return {};
+
+      return {
+        run: {
+          ...state.run,
+          shopsSkipped: state.run.shopsSkipped + 1,
+        },
+      };
+    });
+  },
+});

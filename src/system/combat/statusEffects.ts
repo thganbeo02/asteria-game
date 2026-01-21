@@ -1,0 +1,349 @@
+import { StatusEffect, StatusEffectType } from "@/types";
+import { calculatePercentDamage } from "./damageCalculator";
+
+export interface EffectDefinition {
+  type: StatusEffectType;
+  name: string;
+  stackable: boolean;
+  maxStacks: number;
+  defaultDuration: number;
+  tickTiming: "start" | "end" | "none";
+  description: (effect: StatusEffect) => string;
+}
+
+export const EFFECT_DEFINITIONS: Record<StatusEffectType, EffectDefinition> = {
+  burn: {
+    type: "burn",
+    name: "Burn",
+    stackable: false,
+    maxStacks: 1,
+    defaultDuration: 3,
+    tickTiming: "end",
+    description: (e) => `Taking ${e.value}% max HP as true damage each turn`,
+  },
+  chill: {
+    type: "chill",
+    name: "Chill",
+    stackable: false,
+    maxStacks: 1,
+    defaultDuration: 2,
+    tickTiming: "none",
+    description: (e) => `Dealing ${e.value}% less damage`,
+  },
+  poison: {
+    type: "poison",
+    name: "Poison",
+    stackable: true,
+    maxStacks: 5,
+    defaultDuration: 4,
+    tickTiming: "end",
+    description: (e) => `Taking ${e.value * e.stacks}% max HP as poison damage`,
+  },
+  stun: {
+    type: "stun",
+    name: "Stun",
+    stackable: false,
+    maxStacks: 1,
+    defaultDuration: 1,
+    tickTiming: "start",
+    description: () => "Cannot act this turn",
+  },
+  shield: {
+    type: "shield",
+    name: "Shield",
+    stackable: false,
+    maxStacks: 1,
+    defaultDuration: 2,
+    tickTiming: "none",
+    description: (e) => `Absorbing up to ${e.value} damage`,
+  },
+  fortify: {
+    type: "fortify",
+    name: "Fortify",
+    stackable: false,
+    maxStacks: 1,
+    defaultDuration: 3,
+    tickTiming: "none",
+    description: (e) => `DEF increased by ${e.value}%`,
+  },
+  momentum: {
+    type: "momentum",
+    name: "Arcane Momentum",
+    stackable: true,
+    maxStacks: 3,
+    defaultDuration: -1,
+    tickTiming: "none",
+    description: (e) => `Ability damage +${e.stacks * 10}%`,
+  },
+  evade: {
+    type: "evade",
+    name: "Evasion",
+    stackable: false,
+    maxStacks: 1,
+    defaultDuration: 1,
+    tickTiming: "none",
+    description: (e) => `${e.value}% chance to dodge next attack`,
+  },
+};
+
+/**
+ * Create a new status effect instance
+ */
+
+export function createStatusEffect(
+  type: StatusEffectType,
+  source: "hero" | "monster" | "item",
+  value: number,
+  duration?: number,
+  stacks: number = 1
+): StatusEffect {
+  const def = EFFECT_DEFINITIONS[type];
+
+  return {
+    type,
+    name: def.name,
+    duration: duration ?? def.defaultDuration,
+    stacks: Math.min(stacks, def.maxStacks),
+    value,
+    source,
+  };
+}
+
+// EFFECT APPLICATION
+
+/**
+ * Apply or stack an effect on an existing effects array
+ * Returns a NEW array (immutable).
+ */
+export function applyEffect(
+  currentEffects: StatusEffect[],
+  newEffect: StatusEffect
+): StatusEffect[] {
+  const def = EFFECT_DEFINITIONS[newEffect.type];
+  const existingIndex = currentEffects.findIndex(
+    (e) => e.type === newEffect.type
+  );
+
+  if (existingIndex === -1) {
+    return [...currentEffects, newEffect];
+  }
+
+  const existing = currentEffects[existingIndex];
+  const updated = [...currentEffects];
+
+  if (def.stackable) {
+    updated[existingIndex] = {
+      ...existing,
+      stacks: Math.min(existing.stacks + newEffect.stacks, def.maxStacks),
+      duration: Math.max(existing.duration, newEffect.duration),
+    };
+  } else {
+    updated[existingIndex] = {
+      ...existing,
+      duration: Math.max(existing.duration, newEffect.duration),
+      value: Math.max(existing.value, newEffect.value),
+    };
+  }
+
+  return updated;
+}
+
+/**
+ * Remove an effect by type
+ */
+export function removeEffect(
+  effects: StatusEffect[],
+  type: StatusEffectType
+): StatusEffect[] {
+  return effects.filter((e) => e.type !== type);
+}
+
+/**
+ * Check if an effect exists
+ */
+export function hasEffect(
+  effects: StatusEffect[],
+  type: StatusEffectType
+): boolean {
+  return effects.some((e) => e.type === type);
+}
+
+/**
+ * Get an effect by type
+ */
+export function getEffect(
+  effects: StatusEffect[],
+  type: StatusEffectType
+): StatusEffect | undefined {
+  return effects.find((e) => e.type === type);
+}
+
+// EFFECT PROCESSING
+
+export interface TickResult {
+  damage: number;
+  healing: number;
+  skipTurn: boolean;
+  messages: string[];
+}
+
+/**
+ * Process effects that tick at turn start/end
+ * Returns what happened (damage, skip or no, messages)
+ * Does NOT modify state - caller handles that
+ */
+export function processEffectTick(
+  effects: StatusEffect[],
+  maxHp: number,
+  timing: "start" | "end"
+): TickResult {
+  const result: TickResult = {
+    damage: 0,
+    healing: 0,
+    skipTurn: false,
+    messages: [],
+  };
+
+  for (const effect of effects) {
+    const def = EFFECT_DEFINITIONS[effect.type];
+
+    if (def.tickTiming !== timing) continue;
+
+    switch (effect.type) {
+      case "burn":
+        const burnDamage = calculatePercentDamage(maxHp, effect.value);
+        result.damage += burnDamage;
+        result.messages.push(`Burn deals ${burnDamage} damage!`);
+        break;
+
+      case "poison":
+        const poisonDamage = calculatePercentDamage(maxHp, effect.value);
+        result.damage += poisonDamage;
+        result.messages.push(
+          `Poison (${effect.stacks}) stacks deals ${poisonDamage} damage!`
+        );
+        break;
+
+      case "stun": 
+        if (timing === "start") {
+          result.skipTurn = true;
+          result.messages.push("Stunned! Turn skipped.");
+        }
+        break;
+    }
+  }
+
+  return result;
+}
+
+/**
+ * Tick down durations and return remaining effects + expired list.
+ */
+export function tickEffectDurations(
+  effects: StatusEffect[]
+): { remaining: StatusEffect[]; expired: StatusEffectType[] } {
+  const expired: StatusEffectType[] = [];
+
+  const remaining = effects
+    .map(effect => ({
+      ...effect,
+      duration: effect.duration === -1 ? -1 : effect.duration - 1,
+    }))
+    .filter(effect => {
+      if (effect.duration === 0) {
+        expired.push(effect.type);
+        return false;
+      }
+      return true;
+    });
+
+  return { remaining, expired };
+}
+
+// EFFECT MODIFIERS (for damage calculations)
+
+/**
+ * Get damage multiplier from effects.
+ * Called by damage calculator to adjust damage.
+ */
+export function getOutgoingDamageModifier(effects: StatusEffect[]): number {
+  let multiplier = 1.0;
+
+  for (const effect of effects) {
+    switch (effect.type) {
+      case "chill":
+        multiplier *= 1 - effect.value / 100;
+        break;
+      case "momentum":
+        multiplier *= 1 + (effect.stacks * 0.10);
+        break;
+    }
+  }
+
+  return multiplier;
+}
+
+/**
+ * Get DEF multiplier from effects.
+ */
+export function getDefenseModifier(effects: StatusEffect[]): number {
+  let multiplier = 1.0;
+
+  for (const effect of effects) {
+    switch (effect.type) {
+      case "fortify":
+        multiplier *= 1 + effect.value / 100;
+        break;
+    }
+  }
+
+  return multiplier;
+}
+
+/**
+ * Get bonus dodge chance from effects.
+ */
+export function getDodgeBonus(effects: StatusEffect[]): number {
+  let bonus = 0;
+
+  for (const effect of effects) {
+    switch (effect.type) {
+      case "evade":
+        bonus += effect.value;
+        break;
+    }
+  }
+
+  return bonus;
+}
+
+/**
+ * Process shield absorption.
+ * Returns how much was absorbed and the remaining damage.
+ */
+export function processShieldAbsorption(
+  effects: StatusEffect[],
+  incomingDamage: number
+): { remainingDamage: number; newEffects: StatusEffect[]; absorbed: number } {
+  const shieldIndex = effects.findIndex(e => e.type === "shield");
+
+  if (shieldIndex === -1) {
+    return { remainingDamage: incomingDamage, newEffects: effects, absorbed: 0 };
+  }
+
+  const shield = effects[shieldIndex];
+  const absorbed = Math.min(shield.value, incomingDamage);
+  const remainingDamage = incomingDamage - absorbed;
+  const remainingShield = shield.value - absorbed;
+
+  let newEffects: StatusEffect[];
+
+  if (remainingShield <= 0) {
+    newEffects = effects.filter((_, i) => i !== shieldIndex);
+  } else {
+    newEffects = [...effects];
+    newEffects[shieldIndex] = { ...shield, value: remainingShield };
+  }
+
+  return { remainingDamage, newEffects, absorbed };
+}

@@ -1,0 +1,466 @@
+import { useCombatStore, useGameStore } from "@/stores";
+import {
+  calculateHeroAbility,
+  calculateHeroBasicAttack,
+  calculateMonsterAttack,
+  HeroCombatStats,
+} from "./damageCalculator";
+import {
+  createStatusEffect,
+  getDefenseModifier,
+  getDodgeBonus,
+  getOutgoingDamageModifier,
+  hasEffect,
+  processEffectTick,
+  processShieldAbsorption,
+  tickEffectDurations,
+} from "./statusEffects";
+import { getEffectiveMonsterAtk, getMonsterAction, getNextPatternIndex, shouldDoubleAttack } from "./monsterAI";
+
+/**
+ * Orchestrates combat flow
+ * Reads from stores, calls systems for calculation, write results back to stores
+ */
+export class TurnManager {
+  // PLAYER TURN
+
+  /**
+   * Execute player's basic attack
+   */
+  static executeBasicAttack(): void {
+    const store = useCombatStore.getState();
+    const { hero, monster } = store;
+
+    if (!hero || !monster) return;
+
+    // Build stats object for dmg calc
+    const heroStats: HeroCombatStats = {
+      atk: hero.stats.atk,
+      bonusAtk: hero.stats.bonusAtk,
+      critChance: hero.stats.critChance,
+      bonusCritChance: hero.stats.bonusCritChance,
+      critMultiplier: hero.stats.critMultiplier,
+      bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+      penetration: hero.stats.penetration,
+      bonusPenetration: hero.stats.bonusPenetration,
+      dodge: hero.stats.dodge,
+      bonusDodge: hero.stats.bonusDodge,
+    };
+
+    // apply def modifier from monster effects
+    const defModifier = getDefenseModifier(monster.statusEffects);
+    const effectiveDef = Math.floor(monster.def * defModifier);
+    const result = calculateHeroBasicAttack(heroStats, effectiveDef);
+
+    // Update store with results
+    if (!result.isDodged) {
+      store.dealDamageToMonster(result.finalDamage);
+
+      store.addLogEntry({
+        actor: "hero",
+        action: "basic_attack",
+        damage: result.finalDamage,
+        isCrit: result.isCrit,
+        message: result.isCrit
+          ? `Critical hit for ${result.finalDamage} damage!`
+          : `Attack deals ${result.finalDamage} damage.`,
+      });
+
+      store.queueAnimation({
+        type: "damage",
+        target: "monster",
+        value: result.finalDamage,
+        isCrit: result.isCrit,
+      });
+    } else {
+      store.addLogEntry({
+        actor: "hero",
+        action: "basic_attack",
+        message: "Attack missed!",
+      });
+    }
+
+    // Restore mana on basic attack
+    store.restoreMana(hero.stats.manaRegen);
+
+    // Check victory or continue
+    this.checkVictoryOrContinue();
+  }
+
+  /**
+   * Execute player's ability
+   */
+  static executeAbility(abilityIndex: number): void {
+    const store = useCombatStore.getState();
+    const { hero, monster } = store;
+
+    if (!hero || !monster) return;
+
+    const ability = hero.abilities[abilityIndex];
+    if (!ability) return;
+
+    // Check cd
+    if (ability.currentCooldown > 0) {
+      store.addLogEntry({
+        actor: "hero",
+        action: ability.id,
+        message: `${ability.name} is on cooldown!`,
+      });
+      return;
+    }
+
+    // Check and spend mana
+    const manaCost = ability.manaCost[Math.min(hero.level - 1, 6)];
+    if (!store.spendMana(manaCost)) {
+      store.addLogEntry({
+        actor: "hero",
+        action: ability.id,
+        message: `Not enough mana for ${ability.name}!`,
+      });
+      return;
+    }
+
+    store.setAbilityCooldown(abilityIndex, ability.cooldown);
+
+    // Calculate dmg
+    const scaling =
+      (ability.damageScaling?.[Math.min(hero.level - 1, 6)] ?? 100) / 100;
+    const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
+
+    const heroStats: HeroCombatStats = {
+      atk: Math.floor((hero.stats.atk + hero.stats.bonusAtk) * dmgModifier),
+      bonusAtk: 0, // Already applied above
+      critChance: hero.stats.critChance,
+      bonusCritChance: hero.stats.bonusCritChance,
+      critMultiplier: hero.stats.critMultiplier,
+      bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+      penetration: hero.stats.penetration,
+      bonusPenetration: hero.stats.bonusPenetration,
+      dodge: hero.stats.dodge,
+      bonusDodge: hero.stats.bonusDodge,
+    };
+
+    const defModifier = getDefenseModifier(monster.statusEffects);
+    const effectiveDef = Math.floor(monster.def * defModifier);
+
+    const result = calculateHeroAbility(heroStats, effectiveDef, scaling);
+
+    // Apply damage
+    if (!result.isDodged && result.finalDamage > 0) {
+      store.dealDamageToMonster(result.finalDamage);
+
+      store.addLogEntry({
+        actor: "hero",
+        action: ability.id,
+        damage: result.finalDamage,
+        isCrit: result.isCrit,
+        message: `${ability.name} deals ${result.finalDamage} damage!`,
+      });
+
+      store.queueAnimation({
+        type: "damage",
+        target: "monster",
+        value: result.finalDamage,
+        isCrit: result.isCrit,
+      });
+    }
+
+    // Check victory or continue
+    this.checkVictoryOrContinue();
+  }
+
+  // MONSTER TURN
+
+  /**
+   * Execute monster's turn
+   */
+  static executeMonsterTurn(): void {
+    const store = useCombatStore.getState();
+    const { hero, monster } = store;
+
+    if (!hero || !monster) return;
+
+    // Check if stunned
+    if (hasEffect(monster.statusEffects, "stun")) {
+      store.addLogEntry({
+        actor: "monster",
+        action: "stunned",
+        message: "Monster is stunned and cannot act!",
+      });
+      this.endRound();
+      return;
+    }
+
+    const decision = getMonsterAction(monster);
+
+    // Execute based on action type
+    if (decision.action.type === "wait") {
+      store.addLogEntry({
+        actor: "monster",
+        action: "wait",
+        message: decision.message,
+      });
+    } else {
+      // Attack or special
+      this.executeMonsterAttack(decision.action.multiplier);
+
+      // Handle special effects
+      if (decision.action.effect) {
+        this.handleMonsterEffect(decision.action.effect);
+      }
+
+      // Double attack for Orc
+      if (shouldDoubleAttack(monster)) {
+        store.addLogEntry({
+          actor: "monster",
+          action: "rage",
+          message: "Berserker Rage! Attacking again!",
+        });
+        this.executeMonsterAttack(decision.action.multiplier);
+      }
+    }
+
+    // Advance pattern
+    const newIndex = getNextPatternIndex(monster);
+    store.advanceMonsterPattern();
+
+    // Check defeat or continue
+    const updated = useCombatStore.getState();
+    if (updated.hero && updated.hero.stats.hp <= 0) {
+      this.handleDefeat();
+    } else {
+      this.endRound();
+    }
+  }
+
+  /**
+   * Execute a single monster attack
+   */
+  private static executeMonsterAttack(multiplier: number): void {
+    const store = useCombatStore.getState();
+    const { hero, monster } = store;
+
+    if (!hero || !monster) return;
+
+    // Get effective stats
+    const monsterAtk = getEffectiveMonsterAtk(monster);
+    const chillModifier = getOutgoingDamageModifier(monster.statusEffects);
+    const effectiveAtk = Math.floor(monsterAtk * chillModifier);
+
+    const heroDef = hero.stats.def + hero.stats.bonusDef;
+    const defModifier = getDefenseModifier(hero.statusEffects);
+    const effectiveDef = Math.floor(heroDef * defModifier);
+
+    const heroDodge =
+      hero.stats.dodge +
+      hero.stats.bonusDodge +
+      getDodgeBonus(hero.statusEffects);
+
+    const result = calculateMonsterAttack(
+      effectiveAtk,
+      effectiveDef,
+      heroDodge,
+      multiplier,
+    );
+
+    if (result.isDodged) {
+      store.addLogEntry({
+        actor: "monster",
+        action: "attack",
+        message: "You dodged the attack!",
+      });
+      return;
+    }
+
+    // Process shield absorption
+    const shieldResult = processShieldAbsorption(
+      hero.statusEffects,
+      result.finalDamage,
+    );
+
+    if (shieldResult.absorbed > 0) {
+      store.addLogEntry({
+        actor: "monster",
+        action: "attack_shield",
+        damage: shieldResult.absorbed,
+        message: `Shield absorbs ${shieldResult.absorbed} damage!`,
+      });
+
+      // Update hero's shield status (reduced or broken)
+      useCombatStore.setState((state) => ({
+        hero: state.hero
+          ? { ...state.hero, statusEffects: shieldResult.newEffects }
+          : null,
+      }));
+    }
+
+    if (shieldResult.remainingDamage > 0) {
+      store.dealDamageToHero(shieldResult.remainingDamage);
+
+      store.addLogEntry({
+        actor: "monster",
+        action: "attack",
+        damage: shieldResult.remainingDamage,
+        message: `Monster deals ${shieldResult.remainingDamage} damage!`,
+      });
+
+      store.queueAnimation({
+        type: "damage",
+        target: "hero",
+        value: shieldResult.remainingDamage,
+      });
+    }
+  }
+
+  /**
+   * Handle monster special effects
+   */
+  private static handleMonsterEffect(effect: string): void {
+    const store = useCombatStore.getState();
+
+    switch (effect) {
+      case "apply_burn":
+        const burn = createStatusEffect("burn", "monster", 5, 3);
+        store.applyStatusToHero(burn);
+        store.addLogEntry({
+          actor: "monster",
+          action: "burn",
+          statusApplied: "burn",
+          message: "You are burning!",
+        });
+        break;
+
+      case "lifesteal_50":
+        // Would need to track last damage dealt
+        break;
+
+      case "double_attack":
+        // Handled in executeMonsterTurn
+        break;
+    }
+  }
+
+  // ROUND END
+
+  private static endRound(): void {
+    const store = useCombatStore.getState();
+    const {hero,monster} = store;
+
+    if (!hero || !monster) return;
+
+    // Process end-of-turn DoTs for hero
+    const heroMaxHp = hero.stats.maxHp + hero.stats.bonusMaxHp;
+    const heroTick = processEffectTick(hero.statusEffects,heroMaxHp,"end");
+
+    if (heroTick.damage > 0) {
+      store.dealDamageToHero(heroTick.damage);
+      heroTick.messages.forEach(msg => {
+        store.addLogEntry({
+          actor: "hero",
+          action: "dot_damage",
+          damage: heroTick.damage,
+          message: msg,
+        })
+      })
+    }
+
+    // Process end-of-turn DoTs for monster
+    const monsterTick = processEffectTick(monster.statusEffects, monster.maxHp, "end");
+
+    if (monsterTick.damage > 0) {
+      store.dealDamageToMonster(monsterTick.damage);
+      monsterTick.messages.forEach(msg => {
+        store.addLogEntry({
+          actor: "monster",
+          action: "dot_damage",
+          damage: monsterTick.damage,
+          message: msg,
+        })
+      })
+    }
+
+    // Tick durations
+    const heroEffectResult = tickEffectDurations(hero.statusEffects);
+    const monsterEffectResult = tickEffectDurations(monster.statusEffects);
+    
+    // Update effects in store
+    useCombatStore.setState((state) => ({
+      hero: state.hero ? { ...state.hero, statusEffects: heroEffectResult.remaining } : null,
+      monster: state.monster ? { ...state.monster, statusEffects: monsterEffectResult.remaining } : null,
+    }));
+
+    // Tick cooldowns
+    store.tickCooldowns();
+
+    // Check for deaths from DoT
+    const updated = useCombatStore.getState();
+
+    if (updated.hero && updated.hero.stats.hp <= 0) {
+      this.handleDefeat();
+      return;
+    }
+
+    if (updated.monster && updated.monster.hp <= 0) {
+      this.handleVictory();
+      return;
+    }
+
+    // Start next player turn
+    store.setTurnPhase("player_turn");
+    store.incrementTurn();
+  }
+
+  // VICTORY / DEFEAT
+
+  private static checkVictoryOrContinue(): void {
+    const { monster } = useCombatStore.getState();
+
+    if (monster && monster.hp <= 0) {
+      this.handleVictory();
+    } else {
+      useCombatStore.getState().setTurnPhase("monster_turn");
+      setTimeout(() => this.executeMonsterTurn(), 500);
+    }
+  }
+
+  static handleVictory(): void {
+    const combat = useCombatStore.getState();
+    const game = useGameStore.getState();
+    const { monster } = combat;
+    const { run } = game;
+
+    if (!monster || !run) return;
+
+    game.recordKill(monster.definitionId);
+
+    game.addCrystals(monster.crystalReward);
+
+    const scoreMultiplier =
+      run.difficulty === "easy" ? 1.0 :
+      run.difficulty === "medium" ? 1.5 : 2.0;
+    game.addScore(Math.floor(10 * scoreMultiplier));
+
+    combat.addLogEntry({
+      actor: "hero",
+      action: "victory",
+      message: `Victory! Earned ${monster.crystalReward} crystals.`,
+    });
+
+    combat.setTurnPhase("combat_end");
+    game.setPhase("victory");
+  }
+
+  static handleDefeat(): void {
+    const combat = useCombatStore.getState();
+    const game = useGameStore.getState();
+
+    combat.addLogEntry({
+      actor: "hero",
+      action: "defeat",
+      message: "You have been defeated..."
+    })
+
+    combat.setTurnPhase("combat_end");
+    game.endRun(false);
+  }
+}

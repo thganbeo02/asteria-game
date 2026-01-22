@@ -17,9 +17,10 @@ export type MonsterType =
   | "dragon";
 
 export type StatusEffectType = 
-  | "burn"      // Damage over time
+  | "burn"      // DoT
   | "chill"     // Reduces enemy damage
-  | "poison"    // Damage over time (different source)
+  | "poison"    // DoT
+  | "bleed"     // DoT
   | "stun"      // Skip turn
   | "shield"    // Absorbs damage
   | "fortify"   // Bran's DEF buff

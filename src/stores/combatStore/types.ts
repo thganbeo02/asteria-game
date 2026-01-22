@@ -27,6 +27,7 @@ export interface MonsterSlice {
   spawnMonster: (difficulty: Difficulty) => void;
   dealDamageToMonster: (amount: number) => void;
   applyStatusToMonster: (effect: StatusEffect) => void;
+  healMonster: (amount: number) => void;
   removeMonsterStatus: (type: StatusEffect["type"]) => void;
   advanceMonsterPattern: () => void;
   clearMonster: () => void;

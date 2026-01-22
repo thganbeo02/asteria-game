@@ -2,6 +2,7 @@ import type { MonsterSlice, SliceCreator } from "./types";
 import type { StatusEffect, Difficulty } from "@/types";
 import { selectRandomMonster, MONSTERS } from "@/data/monsters";
 import { useGameStore } from "@/stores/gameStore";
+import { applyHealing } from "@/systems/combat/damageCalculator";
 
 // MONSTER SLICE
 
@@ -34,10 +35,18 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
 
     const finalStats = {
       hp: Math.round(snapshotBase.hp + growth.hp[difficulty][idx] * encounters),
-      atk: Math.round(snapshotBase.atk + growth.atk[difficulty][idx] * encounters),
-      def: Math.round(snapshotBase.def + growth.def[difficulty][idx] * encounters),
-      crystal: Math.round(snapshotBase.crystal + growth.crystal[difficulty][idx] * encounters),
-      exp: Math.round(snapshotBase.exp + growth.exp[difficulty][idx] * encounters),
+      atk: Math.round(
+        snapshotBase.atk + growth.atk[difficulty][idx] * encounters,
+      ),
+      def: Math.round(
+        snapshotBase.def + growth.def[difficulty][idx] * encounters,
+      ),
+      crystal: Math.round(
+        snapshotBase.crystal + growth.crystal[difficulty][idx] * encounters,
+      ),
+      exp: Math.round(
+        snapshotBase.exp + growth.exp[difficulty][idx] * encounters,
+      ),
     };
 
     set({
@@ -79,7 +88,7 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
       if (!state.monster) return {};
 
       const existingIndex = state.monster.statusEffects.findIndex(
-        e => e.type === effect.type
+        (e) => e.type === effect.type,
       );
 
       let newEffects: StatusEffect[];
@@ -109,7 +118,33 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
       return {
         monster: {
           ...state.monster,
-          statusEffects: state.monster.statusEffects.filter(e => e.type !== type),
+          statusEffects: state.monster.statusEffects.filter(
+            (e) => e.type !== type,
+          ),
+        },
+      };
+    });
+  },
+
+  // When Vampire heals from Life Drain:
+  healMonster: (amount) => {
+    set((state) => {
+      if (!state.monster) return state;
+
+      // Apply Grievous Wounds if monster is burned
+      const effectiveHealing = applyHealing(
+        amount,
+        state.monster.statusEffects,
+      );
+      const newHp = Math.min(
+        state.monster.maxHp,
+        state.monster.hp + effectiveHealing,
+      );
+
+      return {
+        monster: {
+          ...state.monster,
+          hp: newHp,
         },
       };
     });

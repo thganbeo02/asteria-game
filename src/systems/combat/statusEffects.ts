@@ -1,5 +1,9 @@
 import { StatusEffect, StatusEffectType } from "@/types";
-import { calculatePercentDamage } from "./damageCalculator";
+import {
+  calculatePoisonDamage,
+  calculateBurnDamage,
+  calculateBleedDamage,
+} from "./damageCalculator";
 
 export interface EffectDefinition {
   type: StatusEffectType;
@@ -19,7 +23,8 @@ export const EFFECT_DEFINITIONS: Record<StatusEffectType, EffectDefinition> = {
     maxStacks: 1,
     defaultDuration: 3,
     tickTiming: "end",
-    description: (e) => `Taking ${e.value}% max HP as true damage each turn`,
+    description: (e) =>
+      `Taking ${e.value}% max HP as fire damage. Healing reduced by 40%.`,
   },
   chill: {
     type: "chill",
@@ -38,6 +43,15 @@ export const EFFECT_DEFINITIONS: Record<StatusEffectType, EffectDefinition> = {
     defaultDuration: 4,
     tickTiming: "end",
     description: (e) => `Taking ${e.value * e.stacks}% max HP as poison damage`,
+  },
+  bleed: {
+    type: "bleed",
+    name: "Bleed",
+    stackable: false,
+    maxStacks: 1,
+    defaultDuration: 3,
+    tickTiming: "end",
+    description: (e) => `Taking ${e.value}% of attacker's ATK as bleed damage`,
   },
   stun: {
     type: "stun",
@@ -89,13 +103,13 @@ export const EFFECT_DEFINITIONS: Record<StatusEffectType, EffectDefinition> = {
 /**
  * Create a new status effect instance
  */
-
 export function createStatusEffect(
   type: StatusEffectType,
   source: "hero" | "monster" | "item",
   value: number,
   duration?: number,
-  stacks: number = 1
+  stacks: number = 1,
+  snapshotAtk?: number,
 ): StatusEffect {
   const def = EFFECT_DEFINITIONS[type];
 
@@ -106,6 +120,7 @@ export function createStatusEffect(
     stacks: Math.min(stacks, def.maxStacks),
     value,
     source,
+    snapshotAtk,
   };
 }
 
@@ -117,11 +132,11 @@ export function createStatusEffect(
  */
 export function applyEffect(
   currentEffects: StatusEffect[],
-  newEffect: StatusEffect
+  newEffect: StatusEffect,
 ): StatusEffect[] {
   const def = EFFECT_DEFINITIONS[newEffect.type];
   const existingIndex = currentEffects.findIndex(
-    (e) => e.type === newEffect.type
+    (e) => e.type === newEffect.type,
   );
 
   if (existingIndex === -1) {
@@ -153,7 +168,7 @@ export function applyEffect(
  */
 export function removeEffect(
   effects: StatusEffect[],
-  type: StatusEffectType
+  type: StatusEffectType,
 ): StatusEffect[] {
   return effects.filter((e) => e.type !== type);
 }
@@ -163,7 +178,7 @@ export function removeEffect(
  */
 export function hasEffect(
   effects: StatusEffect[],
-  type: StatusEffectType
+  type: StatusEffectType,
 ): boolean {
   return effects.some((e) => e.type === type);
 }
@@ -173,7 +188,7 @@ export function hasEffect(
  */
 export function getEffect(
   effects: StatusEffect[],
-  type: StatusEffectType
+  type: StatusEffectType,
 ): StatusEffect | undefined {
   return effects.find((e) => e.type === type);
 }
@@ -192,10 +207,16 @@ export interface TickResult {
  * Returns what happened (damage, skip or no, messages)
  * Does NOT modify state - caller handles that
  */
+export interface TickContext {
+  maxHp: number;
+  currentHp: number;
+  def: number;
+}
+
 export function processEffectTick(
   effects: StatusEffect[],
-  maxHp: number,
-  timing: "start" | "end"
+  context: TickContext,
+  timing: "start" | "end",
 ): TickResult {
   const result: TickResult = {
     damage: 0,
@@ -211,20 +232,25 @@ export function processEffectTick(
 
     switch (effect.type) {
       case "burn":
-        const burnDamage = calculatePercentDamage(maxHp, effect.value);
+        const burnDamage = calculateBurnDamage(context.maxHp, effect.value, context.def);
         result.damage += burnDamage;
         result.messages.push(`Burn deals ${burnDamage} damage!`);
         break;
 
       case "poison":
-        const poisonDamage = calculatePercentDamage(maxHp, effect.value);
+        const poisonDamage = calculatePoisonDamage(context.currentHp, effect.value, effect.stacks);
         result.damage += poisonDamage;
         result.messages.push(
-          `Poison (${effect.stacks}) stacks deals ${poisonDamage} damage!`
+          `Poison (${effect.stacks} stacks) deals ${poisonDamage} damage!`,
         );
         break;
 
-      case "stun": 
+      case "bleed":
+        const bleedDamage = calculateBleedDamage(effect.snapshotAtk, effect.value);
+        result.damage += bleedDamage;
+        result.messages.push(`Enemy bleeds out for ${bleedDamage} damage!`)
+
+      case "stun":
         if (timing === "start") {
           result.skipTurn = true;
           result.messages.push("Stunned! Turn skipped.");
@@ -239,17 +265,18 @@ export function processEffectTick(
 /**
  * Tick down durations and return remaining effects + expired list.
  */
-export function tickEffectDurations(
-  effects: StatusEffect[]
-): { remaining: StatusEffect[]; expired: StatusEffectType[] } {
+export function tickEffectDurations(effects: StatusEffect[]): {
+  remaining: StatusEffect[];
+  expired: StatusEffectType[];
+} {
   const expired: StatusEffectType[] = [];
 
   const remaining = effects
-    .map(effect => ({
+    .map((effect) => ({
       ...effect,
       duration: effect.duration === -1 ? -1 : effect.duration - 1,
     }))
-    .filter(effect => {
+    .filter((effect) => {
       if (effect.duration === 0) {
         expired.push(effect.type);
         return false;
@@ -275,7 +302,7 @@ export function getOutgoingDamageModifier(effects: StatusEffect[]): number {
         multiplier *= 1 - effect.value / 100;
         break;
       case "momentum":
-        multiplier *= 1 + (effect.stacks * 0.10);
+        multiplier *= 1 + effect.stacks * 0.1;
         break;
     }
   }
@@ -323,12 +350,16 @@ export function getDodgeBonus(effects: StatusEffect[]): number {
  */
 export function processShieldAbsorption(
   effects: StatusEffect[],
-  incomingDamage: number
+  incomingDamage: number,
 ): { remainingDamage: number; newEffects: StatusEffect[]; absorbed: number } {
-  const shieldIndex = effects.findIndex(e => e.type === "shield");
+  const shieldIndex = effects.findIndex((e) => e.type === "shield");
 
   if (shieldIndex === -1) {
-    return { remainingDamage: incomingDamage, newEffects: effects, absorbed: 0 };
+    return {
+      remainingDamage: incomingDamage,
+      newEffects: effects,
+      absorbed: 0,
+    };
   }
 
   const shield = effects[shieldIndex];

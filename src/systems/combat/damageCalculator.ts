@@ -1,4 +1,5 @@
 import { DAMAGE_FORMULA_CONSTANT, MINIMUM_DAMAGE } from "@/lib/constants";
+import { StatusEffect } from "@/types";
 
 // TYPES
 
@@ -41,7 +42,7 @@ export function rollChance(chance: number): boolean {
 /**
  * Calculate effect DEF after penetration
  */
-export function calculateEffectDef(
+export function calculateEffectiveDef(
   baseDef: number,
   penetration: number
 ): number {
@@ -92,7 +93,7 @@ export function calculateDamage(context: DamageContext): DamageResult {
 
   // 2. Post mitigation damage 
   const baseDamage = attackerAtk * damageMultiplier;
-  const effectiveDef = calculateEffectDef(defenderDef, penetration);
+  const effectiveDef = calculateEffectiveDef(defenderDef, penetration);
   const defIgnored = defenderDef - effectiveDef;
   const postMitigatedDamage = applyDamageFormula(baseDamage, effectiveDef);
 
@@ -215,4 +216,79 @@ export function calculateTrueDamage(
       afterBonus: amount,
     },
   };
+}
+
+// DoT DAMAGE HELPERS
+
+/**
+ * Poison damage (% Current HP)
+ * True damage, ignores DEF.
+ * 
+ * @param currentHp - Target's current HP
+ * @param percent - Damage as percent
+ * @param stacks - Number of poison stacks
+ */
+export function calculatePoisonDamage(
+  currentHp: number,
+  percent: number,
+  stacks: number
+): number {
+  const damage = currentHp * (percent * stacks) / 100;
+  return Math.max(MINIMUM_DAMAGE, Math.floor(damage));
+}
+
+/**
+ * Burn damage (% Max HP, reduced by DEF)
+ * Penetration does NOT affect burn
+ * Also applies Grievous Wounds (40% healing reduction) - handled separately
+ * 
+ * @param maxHp - Target's max HP
+ * @param percent - Damage as percentage
+ * @param targetDef - Target's defense (full DEF applied, no penetration)
+ */
+export function calculateBurnDamage(
+  maxHp: number,
+  percent: number,
+  targetDef: number
+): number {
+  const rawDamage = maxHp * percent / 100;
+    const reducedDamage = applyDamageFormula(rawDamage, targetDef);
+  
+  return Math.max(MINIMUM_DAMAGE, Math.floor(reducedDamage));
+}
+
+/**
+ * Burned targets receive 40% less healing.
+ * 
+ * @param baseHealing - Raw healing amount
+ * @param effects - Target's current status effects
+ */
+export function applyHealing(
+  baseHealing: number,
+  effects: StatusEffect[]
+): number {
+  let healing = baseHealing;
+  
+  // Grievous Wounds from Burn
+  const hasBurn = effects.some(e => e.type === "burn");
+  if (hasBurn) {
+    healing *= 0.6; // 40% reduction
+  }
+  
+  return Math.floor(healing);
+}
+
+/**
+ * Bleed damage (% of attacker's ATK when applied)
+ * True damage
+ * 
+ * @param snapshotAtk - Attacker's ATK at time of application
+ * @param percent - Damage as percentage of ATK
+ */
+export function calculateBleedDamage(
+  snapshotAtk: number,
+  percent: number
+): number {
+  const damage = snapshotAtk * percent / 100;
+  return Math.max(MINIMUM_DAMAGE, Math.floor(damage));
 }

@@ -7,6 +7,9 @@ export interface StatusEffect {
   stacks: number;     // For stackable effects
   value: number;      // Effect magnitude (damage %, reduction %, etc.)
   source: "hero" | "monster" | "item";
+
+  /** For ATK-scaling effects (Bleed). Captured when effect is applied. */
+  snapshotAtk?: number;
 }
 
 /**

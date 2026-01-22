@@ -1,6 +1,7 @@
 import { createHeroState, getHeroDefinition } from "@/data/heroes";
 import { HeroSlice, SliceCreator } from "./types";
 import { StatusEffect } from "@/types";
+import { applyHealing } from "@/systems/combat/damageCalculator";
 
 export const createHeroSlice: SliceCreator<HeroSlice> = (set,get) => ({
   hero: null,
@@ -56,7 +57,9 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set,get) => ({
       if (!state.hero) return {};
 
       const maxHp = state.hero.stats.maxHp + state.hero.stats.bonusMaxHp;
-      const newHp = Math.min(maxHp, state.hero.stats.hp + amount);
+      const effectiveHealing = applyHealing(amount, state.hero.statusEffects);
+      const newHp = Math.min(maxHp, state.hero.stats.hp + effectiveHealing);
+
 
       return {
         hero: {

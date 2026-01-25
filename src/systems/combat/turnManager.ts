@@ -15,7 +15,12 @@ import {
   processShieldAbsorption,
   tickEffectDurations,
 } from "./statusEffects";
-import { getEffectiveMonsterAtk, getMonsterAction, getNextPatternIndex, shouldDoubleAttack } from "./monsterAI";
+import {
+  getEffectiveMonsterAtk,
+  getMonsterAction,
+  getNextPatternIndex,
+  shouldDoubleAttack,
+} from "./monsterAI";
 
 /**
  * Orchestrates combat flow
@@ -344,49 +349,62 @@ export class TurnManager {
 
   private static endRound(): void {
     const store = useCombatStore.getState();
-    const {hero,monster} = store;
+    const { hero, monster } = store;
 
     if (!hero || !monster) return;
 
     // Process end-of-turn DoTs for hero
     const heroMaxHp = hero.stats.maxHp + hero.stats.bonusMaxHp;
-    const heroTick = processEffectTick(hero.statusEffects,heroMaxHp,"end");
+    const heroDef = hero.stats.def + hero.stats.bonusDef;
+    const heroTick = processEffectTick(
+      hero.statusEffects,
+      { maxHp: heroMaxHp, currentHp: hero.stats.hp, def: heroDef },
+      "end",
+    );
 
     if (heroTick.damage > 0) {
       store.dealDamageToHero(heroTick.damage);
-      heroTick.messages.forEach(msg => {
+      heroTick.messages.forEach((msg) => {
         store.addLogEntry({
           actor: "hero",
           action: "dot_damage",
           damage: heroTick.damage,
           message: msg,
-        })
-      })
+        });
+      });
     }
 
     // Process end-of-turn DoTs for monster
-    const monsterTick = processEffectTick(monster.statusEffects, monster.maxHp, "end");
+    const monsterTick = processEffectTick(
+      monster.statusEffects,
+      { maxHp: monster.maxHp, currentHp: monster.hp, def: monster.def },
+      "end",
+    );
 
     if (monsterTick.damage > 0) {
       store.dealDamageToMonster(monsterTick.damage);
-      monsterTick.messages.forEach(msg => {
+      monsterTick.messages.forEach((msg) => {
         store.addLogEntry({
           actor: "monster",
           action: "dot_damage",
           damage: monsterTick.damage,
           message: msg,
-        })
-      })
+        });
+      });
     }
 
     // Tick durations
     const heroEffectResult = tickEffectDurations(hero.statusEffects);
     const monsterEffectResult = tickEffectDurations(monster.statusEffects);
-    
+
     // Update effects in store
     useCombatStore.setState((state) => ({
-      hero: state.hero ? { ...state.hero, statusEffects: heroEffectResult.remaining } : null,
-      monster: state.monster ? { ...state.monster, statusEffects: monsterEffectResult.remaining } : null,
+      hero: state.hero
+        ? { ...state.hero, statusEffects: heroEffectResult.remaining }
+        : null,
+      monster: state.monster
+        ? { ...state.monster, statusEffects: monsterEffectResult.remaining }
+        : null,
     }));
 
     // Tick cooldowns
@@ -436,8 +454,7 @@ export class TurnManager {
     game.addCrystals(monster.crystalReward);
 
     const scoreMultiplier =
-      run.difficulty === "easy" ? 1.0 :
-      run.difficulty === "medium" ? 1.5 : 2.0;
+      run.difficulty === "easy" ? 1.0 : run.difficulty === "medium" ? 1.5 : 2.0;
     game.addScore(Math.floor(10 * scoreMultiplier));
 
     combat.addLogEntry({
@@ -457,8 +474,8 @@ export class TurnManager {
     combat.addLogEntry({
       actor: "hero",
       action: "defeat",
-      message: "You have been defeated..."
-    })
+      message: "You have been defeated...",
+    });
 
     combat.setTurnPhase("combat_end");
     game.endRun(false);

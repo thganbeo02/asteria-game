@@ -33,20 +33,47 @@
   --color-status-stun: #eab308;
   --color-status-shield: #60a5fa;
 
-  /* UI colors */
-  --color-bg-dark: #0a0a0f;
-  --color-bg-panel: #12121a;
-  --color-bg-hover: #1a1a25;
-  --color-border: #2a2a3a;
-  --color-border-light: #3a3a4a;
-  --color-text-primary: #e8e8f0;
-  --color-text-secondary: #9090a0;
-  --color-text-muted: #606070;
-
   /* Animation durations */
   --animate-damage-pop: damage-pop 0.6s ease-out forwards;
   --animate-shake: shake 0.3s ease-in-out;
   --animate-float: float 3s ease-in-out infinite;
+}
+
+@theme inline {
+  --color-bg-dark: var(--ui-bg-dark);
+  --color-bg-panel: var(--ui-bg-panel);
+  --color-bg-hover: var(--ui-bg-hover);
+  --color-border: var(--ui-border);
+  --color-border-light: var(--ui-border-light);
+  --color-text-primary: var(--ui-text-primary);
+  --color-text-secondary: var(--ui-text-secondary);
+  --color-text-muted: var(--ui-text-muted);
+}
+
+/* =============================================================================
+   UI COLORS - Light default, .dark to override
+   ============================================================================= */
+
+:root {
+  --ui-bg-dark: #f8f8fc;
+  --ui-bg-panel: #ffffff;
+  --ui-bg-hover: #f0f0f5;
+  --ui-border: #e0e0e8;
+  --ui-border-light: #d0d0d8;
+  --ui-text-primary: #1a1a2e;
+  --ui-text-secondary: #5a5a70;
+  --ui-text-muted: #9090a0;
+}
+
+.dark {
+  --ui-bg-dark: #0a0a0f;
+  --ui-bg-panel: #12121a;
+  --ui-bg-hover: #1a1a25;
+  --ui-border: #2a2a3a;
+  --ui-border-light: #3a3a4a;
+  --ui-text-primary: #e8e8f0;
+  --ui-text-secondary: #9090a0;
+  --ui-text-muted: #606070;
 }
 
 /* =============================================================================

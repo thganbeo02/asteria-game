@@ -36,11 +36,14 @@ export interface MonsterSlice {
 export interface TurnSlice {
   turnPhase: TurnPhase;
   turnCount: number;
+  skipTurnsUsed: number;    // 0-3, resets per encounter
 
   // Actions
   setTurnPhase: (phase: TurnPhase) => void;
   incrementTurn: () => void;
   resetTurn: () => void;
+  skipTurn: () => boolean;  // Returns false if no skips remaining
+  resetSkipTurns: () => void;
 }
 
 export interface LogSlice {

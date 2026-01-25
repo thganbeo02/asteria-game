@@ -22,6 +22,7 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
 
     // Select random monster based on level
     const monsterDef = selectRandomMonster(currentLevel);
+    get().resetSkipTurns();
 
     // Get snapshotted base stats
     const snapshotBase = gameStore.getMonsterSnapshot(monsterDef.id);

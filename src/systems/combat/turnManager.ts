@@ -150,8 +150,12 @@ export class TurnManager {
 
     const result = calculateHeroAbility(heroStats, effectiveDef, scaling);
 
-    // Apply damage
-    if (!result.isDodged && result.finalDamage > 0) {
+    // Shield abilities (like Frost Barrier) don't deal damage on cast
+    // They deal damage when the shield breaks or expires
+    const isShieldAbility = ability.tags?.includes("shield") ?? false;
+
+    // Apply damage (skip for shield abilities)
+    if (!isShieldAbility && !result.isDodged && result.finalDamage > 0) {
       store.dealDamageToMonster(result.finalDamage);
 
       store.addLogEntry({
@@ -170,8 +174,101 @@ export class TurnManager {
       });
     }
 
+    // Process ability tags for additional effects
+    this.processAbilityEffects(ability.tags ?? [], hero, store, scaling);
+
     // Check victory or continue
     this.checkVictoryOrContinue();
+  }
+
+  /**
+   * Process ability-specific effects based on tags
+   */
+  private static processAbilityEffects(
+    tags: string[],
+    hero: NonNullable<ReturnType<typeof useCombatStore.getState>["hero"]>,
+    store: ReturnType<typeof useCombatStore.getState>,
+    abilityScaling?: number,
+  ): void {
+    const maxHp = hero.stats.maxHp + hero.stats.bonusMaxHp;
+    const heroAtk = hero.stats.atk + hero.stats.bonusAtk;
+
+    for (const tag of tags) {
+      switch (tag) {
+        case "shield":
+          // Frost Barrier: Shield absorbs 40% of max HP for 2 turns
+          // Shatter damage stored in snapshotAtk for when shield breaks/expires
+          const shieldValue = Math.floor(maxHp * 0.4);
+          const shatterDamage = Math.floor(heroAtk * (abilityScaling ?? 1));
+          const shieldEffect = createStatusEffect("shield", "hero", shieldValue, 2, 1, shatterDamage);
+          store.applyStatusToHero(shieldEffect);
+          store.addLogEntry({
+            actor: "hero",
+            action: "shield",
+            statusApplied: "shield",
+            message: `Frost Barrier absorbs up to ${shieldValue} damage!`,
+          });
+          store.queueAnimation({
+            type: "buff",
+            target: "hero",
+            value: shieldValue,
+          });
+          break;
+
+        case "burn":
+          // Apply Burn to monster: 5% max HP damage for 3 turns
+          const burnEffect = createStatusEffect("burn", "hero", 5, 3);
+          store.applyStatusToMonster(burnEffect);
+          store.addLogEntry({
+            actor: "hero",
+            action: "burn",
+            statusApplied: "burn",
+            message: "Enemy is burning!",
+          });
+          break;
+
+        // Note: "chill" is intentionally not handled here
+        // Chill is applied when Frost Barrier shield breaks or expires
+      }
+    }
+  }
+
+  /**
+   * Handle Frost Barrier shatter effect (when shield breaks or expires)
+   */
+  private static handleShieldShatter(shatterDamage: number, reason: "broken" | "expired"): void {
+    const store = useCombatStore.getState();
+    const { monster } = store;
+
+    if (!monster) return;
+
+    const reasonText = reason === "broken" ? "Shield broken!" : "Shield expired!";
+
+    // Deal shatter damage to monster
+    if (shatterDamage > 0) {
+      store.dealDamageToMonster(shatterDamage);
+      store.addLogEntry({
+        actor: "hero",
+        action: "shield_shatter",
+        damage: shatterDamage,
+        message: `${reasonText} Frost Barrier shatters for ${shatterDamage} damage!`,
+      });
+      store.queueAnimation({
+        type: "damage",
+        target: "monster",
+        value: shatterDamage,
+      });
+    }
+
+    // Apply Chill to monster: 15% less damage for 2 turns
+    const chillEffect = createStatusEffect("chill", "hero", 15, 2);
+    store.applyStatusToMonster(chillEffect);
+    store.addLogEntry({
+      actor: "hero",
+      action: "chill",
+      statusApplied: "chill",
+      message: "Enemy is chilled! Dealing 15% less damage.",
+    });
   }
 
   // MONSTER TURN
@@ -277,6 +374,10 @@ export class TurnManager {
       return;
     }
 
+    // Check for existing shield before processing
+    const existingShield = hero.statusEffects.find((e) => e.type === "shield");
+    const shatterDamage = existingShield?.snapshotAtk ?? 0;
+
     // Process shield absorption
     const shieldResult = processShieldAbsorption(
       hero.statusEffects,
@@ -291,7 +392,7 @@ export class TurnManager {
         message: `Shield absorbs ${shieldResult.absorbed} damage!`,
       });
 
-      // Update hero's shield status (reduced or broken)
+      // Update hero's shield status (reduced to 0 if broken, for UI animation)
       useCombatStore.setState((state) => ({
         hero: state.hero
           ? { ...state.hero, statusEffects: shieldResult.newEffects }
@@ -314,6 +415,23 @@ export class TurnManager {
         target: "hero",
         value: shieldResult.remainingDamage,
       });
+    }
+
+    // Trigger shatter effect if shield was broken
+    if (shieldResult.shieldBroken) {
+      // Remove shield after animation completes (350ms for CSS transition)
+      setTimeout(() => {
+        useCombatStore.setState((state) => ({
+          hero: state.hero
+            ? {
+                ...state.hero,
+                statusEffects: state.hero.statusEffects.filter((e) => e.type !== "shield"),
+              }
+            : null,
+        }));
+      }, 350);
+
+      this.handleShieldShatter(shatterDamage, "broken");
     }
   }
 
@@ -397,15 +515,75 @@ export class TurnManager {
     const heroEffectResult = tickEffectDurations(hero.statusEffects);
     const monsterEffectResult = tickEffectDurations(monster.statusEffects);
 
-    // Update effects in store
-    useCombatStore.setState((state) => ({
-      hero: state.hero
-        ? { ...state.hero, statusEffects: heroEffectResult.remaining }
-        : null,
-      monster: state.monster
-        ? { ...state.monster, statusEffects: monsterEffectResult.remaining }
-        : null,
-    }));
+    // Check if shield expired
+    const shieldExpired = heroEffectResult.expired.includes("shield");
+
+    if (shieldExpired) {
+      // Shield expired - need to animate in two steps:
+      // 1. First let monster attack animation complete (shield already reduced)
+      // 2. Then animate shield going to 0 (expiration)
+      // 3. Then remove shield and trigger shatter
+
+      // Get fresh state to capture shield value after monster attack
+      const freshHero = useCombatStore.getState().hero;
+      const currentShield = freshHero?.statusEffects.find((e) => e.type === "shield");
+      const shatterDamage = currentShield?.snapshotAtk ?? 0;
+
+      // Update other effects (not shield) immediately
+      const otherEffects = heroEffectResult.remaining.filter((e) => e.type !== "shield");
+
+      useCombatStore.setState((state) => ({
+        hero: state.hero
+          ? {
+              ...state.hero,
+              // Keep shield as-is for now (shows damage absorbed), remove other expired
+              statusEffects: state.hero.statusEffects.filter(
+                (e) => e.type === "shield" || otherEffects.some((o) => o.type === e.type)
+              )
+            }
+          : null,
+        monster: state.monster
+          ? { ...state.monster, statusEffects: monsterEffectResult.remaining }
+          : null,
+      }));
+
+      // Step 1: After monster attack animation completes, set shield to 0
+      setTimeout(() => {
+        useCombatStore.setState((state) => ({
+          hero: state.hero
+            ? {
+                ...state.hero,
+                statusEffects: state.hero.statusEffects.map((e) =>
+                  e.type === "shield" ? { ...e, value: 0 } : e
+                ),
+              }
+            : null,
+        }));
+
+        // Step 2: After shield-to-0 animation completes, remove shield
+        setTimeout(() => {
+          useCombatStore.setState((state) => ({
+            hero: state.hero
+              ? {
+                  ...state.hero,
+                  statusEffects: state.hero.statusEffects.filter((e) => e.type !== "shield"),
+                }
+              : null,
+          }));
+          this.handleShieldShatter(shatterDamage, "expired");
+        }, 350);
+      }, 350);
+    } else {
+      // No shield expiration, update normally
+      useCombatStore.setState((state) => ({
+        hero: state.hero
+          ? { ...state.hero, statusEffects: heroEffectResult.remaining }
+          : null,
+        monster: state.monster
+          ? { ...state.monster, statusEffects: monsterEffectResult.remaining }
+          : null,
+      }));
+    }
 
     // Tick cooldowns
     store.tickCooldowns();

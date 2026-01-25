@@ -25,6 +25,11 @@ export function HeroPanel() {
   const currentMana = stats.mana;
   const maxMana = stats.maxMana + stats.bonusMaxMana;
 
+  // Extract shield value from status effects
+  // Pass undefined when no shield (hides bar), or the value (including 0 for break animation)
+  const shieldEffect = hero.statusEffects.find((e) => e.type === "shield");
+  const shieldAmount = shieldEffect?.value;
+
   const displayStats = [
     { label: "ATK", value: stats.atk + stats.bonusAtk },
     { label: "DEF", value: stats.def + stats.bonusDef },
@@ -55,6 +60,7 @@ export function HeroPanel() {
         max={maxHp}
         label="Vitality (HP)"
         variant="health"
+        shield={shieldAmount}
       />
 
       {/* Mana Bar */}

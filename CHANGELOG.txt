@@ -1,0 +1,140 @@
+================================================================================
+ASTERIA GAME - CHANGELOG
+================================================================================
+
+--------------------------------------------------------------------------------
+2026-01-25 - Shield Bar UI & Frost Barrier Implementation
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Frost Barrier ability (Lyra) was not applying shield effect when cast
+- No visual indicator for active shields in the UI
+
+CHANGES:
+
+1. src/components/ui/HealthBar.tsx
+   - Added optional `shield` prop to HealthBarProps interface
+   - Shield bar renders below health bar only when shield > 0
+   - Shield amount displayed in cyan next to HP values: "85 / 85 (+34)"
+   - Shield bar uses cyan color scheme (bg-cyan-400 / bg-cyan-950)
+   - Bar width calculated as percentage of max HP
+
+2. src/components/combat/HeroPanel.tsx
+   - Extract shield value from hero.statusEffects (type === "shield")
+   - Pass shieldAmount to HealthBar component
+
+3. src/systems/combat/turnManager.ts
+   - Added processAbilityEffects() method
+   - Processes ability tags after damage calculation
+   - Handles "shield" tag: applies 40% max HP shield for 2 turns
+   - Handles "burn" tag: applies 5% max HP DoT for 3 turns
+   - Logs and animations queued for each effect applied
+
+--------------------------------------------------------------------------------
+2026-01-25 - Frost Barrier Shatter Fix & Bar Height Increase
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Frost Barrier was applying chill immediately on cast instead of on shatter
+- Bar heights were too thin
+
+CHANGES:
+
+1. src/components/ui/HealthBar.tsx
+   - Doubled health bar height: h-2 -> h-4
+   - Doubled shield bar height: h-1.5 -> h-3
+
+2. src/systems/combat/turnManager.ts
+   - Removed immediate "chill" application from processAbilityEffects()
+   - Added handleShieldShatter() method to trigger shatter effects
+   - Shield now stores shatter damage in snapshotAtk field when created
+   - processAbilityEffects() now receives abilityScaling parameter
+
+   Shield break detection (executeMonsterAttack):
+   - Captures existing shield and shatter damage before absorption
+   - Detects when shield is fully absorbed (broken)
+   - Calls handleShieldShatter() with reason "broken"
+
+   Shield expire detection (endRound):
+   - Captures existing shield and shatter damage before duration tick
+   - Checks if "shield" appears in expired effects list
+   - Calls handleShieldShatter() with reason "expired"
+
+   handleShieldShatter() behavior:
+   - Logs whether shield was "broken" or "expired"
+   - Deals shatter damage to monster (based on ability scaling)
+   - Applies Chill to monster (15% less damage for 2 turns)
+
+NOTES:
+- Frost Barrier now correctly follows its description:
+  1. On cast: Creates shield absorbing 40% max HP (no damage)
+  2. On shatter (broken OR expired): Deals shatter damage, applies Chill
+- Shatter damage is pre-calculated on cast and stored on the shield effect
+
+--------------------------------------------------------------------------------
+2026-01-25 - Frost Barrier No Initial Damage Fix
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Frost Barrier was dealing damage on cast, but should only deal damage on shatter
+
+CHANGES:
+
+1. src/systems/combat/turnManager.ts (executeAbility)
+   - Added isShieldAbility check: `ability.tags?.includes("shield")`
+   - Shield abilities skip the immediate damage application
+   - Damage is only dealt when handleShieldShatter() is called
+
+NOTES:
+- Frost Barrier behavior is now:
+  1. On cast: Creates shield (40% max HP), NO damage
+  2. On shatter: Deals 60-120% ATK damage + applies Chill
+
+--------------------------------------------------------------------------------
+2026-01-25 - Shield Bar Animation System
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Shield bar needed smooth animations for damage absorption, breaking, and expiration
+- React state batching was causing animations to be skipped
+
+CHANGES:
+
+1. src/components/ui/HealthBar.tsx
+   - Shows bar when shield is defined (including value 0)
+   - Hides bar when shield becomes undefined
+   - Shield text (+X) only shows when value > 0
+   - CSS transition (duration-300) handles smooth animations
+
+2. src/components/combat/HeroPanel.tsx
+   - Passes `shieldEffect?.value` (undefined when no shield, 0 when broken)
+
+3. src/systems/combat/statusEffects.ts (processShieldAbsorption)
+   - Returns `shieldBroken` flag
+   - When shield breaks, keeps it at value 0 (not removed immediately)
+
+4. src/systems/combat/turnManager.ts (executeMonsterAttack)
+   - When shield breaks: set value to 0, wait 350ms, then remove
+   - This allows bar to animate to 0% before disappearing
+
+5. src/systems/combat/turnManager.ts (endRound)
+   - When shield expires: two-step animation with delays
+   - Step 1: Keep shield at current value (show damage absorption)
+   - Step 2: After 350ms, set value to 0 (show expiration drain)
+   - Step 3: After 350ms, remove shield and trigger shatter
+
+STATE FLOW (shield breaks):
+1. Monster attacks, shield absorbs all remaining damage
+2. Shield value set to 0 → bar animates to 0%
+3. After 350ms → shield removed, bar disappears
+4. Shatter effect triggers (damage + chill)
+
+STATE FLOW (shield expires):
+1. Monster attacks → shield absorbs partial damage (28 → 22)
+2. Bar animates to ~26% (damage absorption)
+3. End of turn detects expiration, keeps shield at 22
+4. After 350ms → shield value set to 0
+5. Bar animates to 0% (expiration drain)
+6. After 350ms → shield removed, bar disappears
+7. Shatter effect triggers (damage + chill)
+

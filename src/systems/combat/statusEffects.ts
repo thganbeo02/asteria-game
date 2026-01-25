@@ -248,7 +248,8 @@ export function processEffectTick(
       case "bleed":
         const bleedDamage = calculateBleedDamage(effect.snapshotAtk, effect.value);
         result.damage += bleedDamage;
-        result.messages.push(`Enemy bleeds out for ${bleedDamage} damage!`)
+        result.messages.push(`Enemy bleeds out for ${bleedDamage} damage!`);
+        break;
 
       case "stun":
         if (timing === "start") {
@@ -347,11 +348,13 @@ export function getDodgeBonus(effects: StatusEffect[]): number {
 /**
  * Process shield absorption.
  * Returns how much was absorbed and the remaining damage.
+ * When shield breaks, it's kept at value 0 for UI animation.
+ * Caller should remove it after animation delay.
  */
 export function processShieldAbsorption(
   effects: StatusEffect[],
   incomingDamage: number,
-): { remainingDamage: number; newEffects: StatusEffect[]; absorbed: number } {
+): { remainingDamage: number; newEffects: StatusEffect[]; absorbed: number; shieldBroken: boolean } {
   const shieldIndex = effects.findIndex((e) => e.type === "shield");
 
   if (shieldIndex === -1) {
@@ -359,6 +362,7 @@ export function processShieldAbsorption(
       remainingDamage: incomingDamage,
       newEffects: effects,
       absorbed: 0,
+      shieldBroken: false,
     };
   }
 
@@ -366,15 +370,11 @@ export function processShieldAbsorption(
   const absorbed = Math.min(shield.value, incomingDamage);
   const remainingDamage = incomingDamage - absorbed;
   const remainingShield = shield.value - absorbed;
+  const shieldBroken = remainingShield <= 0;
 
-  let newEffects: StatusEffect[];
+  // Always update shield value (keep at 0 if broken for UI animation)
+  const newEffects = [...effects];
+  newEffects[shieldIndex] = { ...shield, value: Math.max(0, remainingShield) };
 
-  if (remainingShield <= 0) {
-    newEffects = effects.filter((_, i) => i !== shieldIndex);
-  } else {
-    newEffects = [...effects];
-    newEffects[shieldIndex] = { ...shield, value: remainingShield };
-  }
-
-  return { remainingDamage, newEffects, absorbed };
+  return { remainingDamage, newEffects, absorbed, shieldBroken };
 }

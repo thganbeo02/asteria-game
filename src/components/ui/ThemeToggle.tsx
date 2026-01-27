@@ -14,7 +14,8 @@ export function ThemeToggle({ className }: ThemeToggleProps) {
 
   // Wait for client mount to avoid hydration mismatch
   useEffect(() => {
-    setMounted(true);
+    const t = setTimeout(() => setMounted(true), 0);
+    return () => clearTimeout(t);
   }, []);
 
   // Placeholder with same dimensions prevents layout shift

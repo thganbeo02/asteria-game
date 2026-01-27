@@ -4,6 +4,7 @@ import { createHeroSlice } from "./heroSlice";
 import { createMonsterSlice } from "./monsterSlice";
 import { createTurnSlice } from "./turnSlice";
 import { createLogSlice } from "./logSlice";
+import { TurnManager } from "@/systems/combat/turnManager";
 
 // =============================================================================
 // COMBINED COMBAT STORE
@@ -74,6 +75,18 @@ export const useCombatStore = create<CombatStore>((set, get) => ({
         monster: state.monster ? { ...state.monster, statusEffects: newEffects } : null,
       }));
     }
+  },
+
+  // -------------------------------------------------------------------------
+  // PLAYER ACTIONS (delegate to TurnManager)
+  // -------------------------------------------------------------------------
+
+  basicAttack: () => {
+    TurnManager.executeBasicAttack();
+  },
+
+  useAbility: (abilityIndex: number) => {
+    TurnManager.executeAbility(abilityIndex);
   },
 }));
 

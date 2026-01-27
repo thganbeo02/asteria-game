@@ -141,3 +141,51 @@ body {
 @utility btn-secondary {
   @apply btn bg-bg-panel border border-border hover:bg-bg-hover hover:border-border-light;
 }
+
+/* =============================================================================
+   LIQUID GLASS (used only by HeroPanel/MonsterPanel)
+   ============================================================================= */
+
+.liquid-panel {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 18px !important;
+  background: color-mix(in oklab, var(--ui-bg-panel) 64%, transparent) !important;
+  border: 1px solid color-mix(in oklab, var(--ui-border-light) 70%, transparent) !important;
+  box-shadow:
+    0 18px 60px color-mix(in oklab, black 18%, transparent),
+    inset 0 1px 0 color-mix(in oklab, white 55%, transparent) !important;
+  -webkit-backdrop-filter: blur(16px) saturate(150%) !important;
+  backdrop-filter: blur(16px) saturate(150%) !important;
+}
+
+.liquid-panel::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+  pointer-events: none;
+  background:
+    radial-gradient(70% 55% at 18% 10%, rgba(255, 255, 255, 0.65) 0%, rgba(255, 255, 255, 0) 60%),
+    radial-gradient(70% 55% at 82% 92%, rgba(124, 58, 237, 0.14) 0%, rgba(124, 58, 237, 0) 62%);
+  opacity: 0.9;
+}
+
+.liquid-tile {
+  position: relative !important;
+  overflow: hidden !important;
+  border-radius: 14px !important;
+  background: color-mix(in oklab, var(--ui-bg-hover) 55%, transparent) !important;
+  border: 1px solid color-mix(in oklab, var(--ui-border-light) 55%, transparent) !important;
+  box-shadow: 0 14px 35px color-mix(in oklab, black 14%, transparent) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+}
+
+.liquid-tile::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(60% 40% at 30% 20%, rgba(255, 255, 255, 0.55) 0%, rgba(255, 255, 255, 0) 65%);
+  opacity: 0.75;
+}

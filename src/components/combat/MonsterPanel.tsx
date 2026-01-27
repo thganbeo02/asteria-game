@@ -20,7 +20,7 @@ export function MonsterPanel() {
   if (!definition) return null;
 
   return (
-    <div className="panel p-6 flex flex-col gap-5">
+    <div className="liquid-panel p-6 flex flex-col gap-5">
       {/* Monster Identity */}
       <div className="flex items-center justify-end gap-4">
         <div className="text-right">
@@ -31,7 +31,7 @@ export function MonsterPanel() {
         </div>
 
         {/* Avatar Placeholder */}
-        <div className="w-14 h-14 rounded-xl bg-red-500/10 border border-red-500/30 flex items-center justify-center">
+        <div className="liquid-tile w-14 h-14 flex items-center justify-center">
           <span className="text-2xl">👹</span>
         </div>
       </div>

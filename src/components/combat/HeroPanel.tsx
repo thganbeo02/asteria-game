@@ -38,11 +38,11 @@ export function HeroPanel() {
   ];
 
   return (
-    <div className="panel p-6 flex flex-col gap-5">
+    <div className="liquid-panel p-6 flex flex-col gap-5">
       {/* Hero Identity */}
       <div className="flex items-center gap-4">
         {/* Avatar Placeholder */}
-        <div className="w-14 h-14 rounded-xl bg-bg-hover border border-border flex items-center justify-center">
+        <div className="liquid-tile w-14 h-14 flex items-center justify-center">
           <span className="text-2xl">⚔️</span>
         </div>
 

@@ -62,6 +62,10 @@ export interface CombatStore extends HeroSlice, MonsterSlice, TurnSlice, LogSlic
   initCombat: (heroId: string, difficulty: Difficulty) => void;
   clearCombat: () => void;
   tickStatusEffects: () => void;
+
+  // Player actions (delegate to TurnManager)
+  basicAttack: () => void;
+  useAbility: (abilityIndex: number) => void;
 }
 
 export type SliceCreator<T> = (

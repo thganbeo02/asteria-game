@@ -130,7 +130,7 @@ STATE FLOW (shield breaks):
 4. Shatter effect triggers (damage + chill)
 
 STATE FLOW (shield expires):
-1. Monster attacks → shield absorbs partial damage (28 → 22)
+1. Monster attacks → shield absorbs partial damage (example: 28 → 22)
 2. Bar animates to ~26% (damage absorption)
 3. End of turn detects expiration, keeps shield at 22
 4. After 350ms → shield value set to 0
@@ -138,3 +138,34 @@ STATE FLOW (shield expires):
 6. After 350ms → shield removed, bar disappears
 7. Shatter effect triggers (damage + chill)
 
+
+--------------------------------------------------------------------------------
+2026-01-27 - Liquid Glass Panels & Turn Counter Carousel
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Hero/Monster panels needed a distinct "liquid glass" surface without changing the whole UI theme
+- Turn counter animation was sliding the entire row instead of shifting the window (1 | 2 | 3 -> 2 | 3 | 4)
+
+CHANGES:
+
+1. src/app/globals.css
+   - Added `.liquid-panel` class (blur + saturation + translucent background + highlight sheen)
+   - Added `.liquid-tile` class for avatar tiles (smaller glass surface)
+
+2. src/components/combat/HeroPanel.tsx
+   - Switched panel container to `liquid-panel`
+   - Switched avatar container to `liquid-tile`
+
+3. src/components/combat/MonsterPanel.tsx
+   - Switched panel container to `liquid-panel`
+   - Switched avatar container to `liquid-tile`
+
+4. src/components/combat/CombatHeader.tsx
+   - Reworked turn counter into a slot-based carousel
+   - Left value exits, remaining values shift left via layout animation, new value enters on the right
+   - Uses smooth fade + slight blur for enter/exit to avoid hard motion
+
+5. src/components/combat/ActionBar.tsx
+   - Renamed local variable `useAbility` -> `castAbility` to avoid React Hooks lint false-positive
+   - No functional change (still calls combatStore.useAbility)

@@ -30,13 +30,12 @@ export function ActionBar() {
   const turnPhase = useCombatStore((state) => state.turnPhase);
   const skipTurnsUsed = useCombatStore((state) => state.skipTurnsUsed);
   const basicAttack = useCombatStore((state) => state.basicAttack);
-  const useAbility = useCombatStore((state) => state.useAbility);
+  const castAbility = useCombatStore((state) => state.useAbility);
   const skipTurn = useCombatStore((state) => state.skipTurn);
 
   if (!hero) return null;
 
   const isPlayerTurn = turnPhase === "player_turn";
-  const definition = getHeroDefinition(hero.definitionId);
   const skipsRemaining = 3 - skipTurnsUsed;
 
   return (
@@ -88,7 +87,7 @@ export function ActionBar() {
                 <Button
                   variant={canUse ? "primary" : "secondary"}
                   size="lg"
-                  onClick={() => useAbility(index)}
+                  onClick={() => castAbility(index)}
                   disabled={!canUse}
                   className={cn(
                     "min-w-[100px] relative",

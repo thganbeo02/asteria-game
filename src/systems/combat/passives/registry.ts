@@ -46,9 +46,6 @@ const camiraPassives: PassiveHandler = {
   onBasicAttackResolved: (ctx: BasicAttackResolvedContext) => {
     const store = useCombatStore.getState();
     const { hero, monster } = store;
-    
-    // Debug logging
-    // console.log("Passive trigger check:", { heroId: hero?.definitionId, isDodged: ctx.result.isDodged, damage: ctx.result.finalDamage });
 
     if (!hero || !monster) return;
     if (hero.definitionId !== "camira") return;

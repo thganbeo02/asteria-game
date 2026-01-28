@@ -15,6 +15,9 @@ import {
   processShieldAbsorption,
   tickEffectDurations,
 } from "./statusEffects";
+import { abilityRegistry } from "./abilities/registry";
+import { applyAbilityTags } from "./abilities/tags";
+import { triggerOnBasicAttackResolved, triggerOnCrit } from "./passives/registry";
 import {
   getEffectiveMonsterAtk,
   getMonsterAction,
@@ -77,6 +80,23 @@ export class TurnManager {
         value: result.finalDamage,
         isCrit: result.isCrit,
       });
+
+      if (result.isCrit && result.finalDamage > 0) {
+        triggerOnCrit({
+          hero,
+          monster,
+          source: "basic_attack",
+          damage: result.finalDamage,
+        });
+      }
+
+      triggerOnBasicAttackResolved({
+        hero,
+        monster,
+        heroStats,
+        effectiveMonsterDef: effectiveDef,
+        result,
+      });
     } else {
       store.addLogEntry({
         actor: "hero",
@@ -127,6 +147,13 @@ export class TurnManager {
 
     store.setAbilityCooldown(abilityIndex, ability.cooldown);
 
+    const abilityHandler = abilityRegistry[ability.id];
+    if (abilityHandler) {
+      abilityHandler({ hero, monster, ability, abilityIndex });
+      this.checkVictoryOrContinue();
+      return;
+    }
+
     // Calculate dmg
     const scaling =
       (ability.damageScaling?.[Math.min(hero.level - 1, 6)] ?? 100) / 100;
@@ -155,16 +182,23 @@ export class TurnManager {
     const isShieldAbility = ability.tags?.includes("shield") ?? false;
 
     // Apply damage (skip for shield abilities)
-    if (!isShieldAbility && !result.isDodged && result.finalDamage > 0) {
-      store.dealDamageToMonster(result.finalDamage);
+    if (!isShieldAbility) {
+      if (result.isDodged) {
+        store.addLogEntry({
+          actor: "hero",
+          action: ability.id,
+          message: `${ability.name} was dodged!`,
+        });
+      } else if (result.finalDamage > 0) {
+        store.dealDamageToMonster(result.finalDamage);
 
-      store.addLogEntry({
-        actor: "hero",
-        action: ability.id,
-        damage: result.finalDamage,
-        isCrit: result.isCrit,
-        message: `${ability.name} deals ${result.finalDamage} damage!`,
-      });
+        store.addLogEntry({
+          actor: "hero",
+          action: ability.id,
+          damage: result.finalDamage,
+          isCrit: result.isCrit,
+          message: `${ability.name} deals ${result.finalDamage} damage!`,
+        });
 
       store.queueAnimation({
         type: "damage",
@@ -172,66 +206,29 @@ export class TurnManager {
         value: result.finalDamage,
         isCrit: result.isCrit,
       });
-    }
 
-    // Process ability tags for additional effects
-    this.processAbilityEffects(ability.tags ?? [], hero, store, scaling);
+      if (result.isCrit) {
+        triggerOnCrit({
+          hero,
+          monster,
+          source: "ability",
+          abilityId: ability.id,
+          damage: result.finalDamage,
+        });
+      }
+    }
+  }
+
+    // Tag-driven effects
+    if (ability.tags?.length) {
+      applyAbilityTags(ability.tags, { hero, monster, ability, abilityIndex, abilityScaling: scaling });
+    }
 
     // Check victory or continue
     this.checkVictoryOrContinue();
   }
 
-  /**
-   * Process ability-specific effects based on tags
-   */
-  private static processAbilityEffects(
-    tags: string[],
-    hero: NonNullable<ReturnType<typeof useCombatStore.getState>["hero"]>,
-    store: ReturnType<typeof useCombatStore.getState>,
-    abilityScaling?: number,
-  ): void {
-    const maxHp = hero.stats.maxHp + hero.stats.bonusMaxHp;
-    const heroAtk = hero.stats.atk + hero.stats.bonusAtk;
-
-    for (const tag of tags) {
-      switch (tag) {
-        case "shield":
-          // Frost Barrier: Shield absorbs 40% of max HP for 2 turns
-          // Shatter damage stored in snapshotAtk for when shield breaks/expires
-          const shieldValue = Math.floor(maxHp * 0.4);
-          const shatterDamage = Math.floor(heroAtk * (abilityScaling ?? 1));
-          const shieldEffect = createStatusEffect("shield", "hero", shieldValue, 2, 1, shatterDamage);
-          store.applyStatusToHero(shieldEffect);
-          store.addLogEntry({
-            actor: "hero",
-            action: "shield",
-            statusApplied: "shield",
-            message: `Frost Barrier absorbs up to ${shieldValue} damage!`,
-          });
-          store.queueAnimation({
-            type: "buff",
-            target: "hero",
-            value: shieldValue,
-          });
-          break;
-
-        case "burn":
-          // Apply Burn to monster: 5% max HP damage for 3 turns
-          const burnEffect = createStatusEffect("burn", "hero", 5, 3);
-          store.applyStatusToMonster(burnEffect);
-          store.addLogEntry({
-            actor: "hero",
-            action: "burn",
-            statusApplied: "burn",
-            message: "Enemy is burning!",
-          });
-          break;
-
-        // Note: "chill" is intentionally not handled here
-        // Chill is applied when Frost Barrier shield breaks or expires
-      }
-    }
-  }
+  // Tag processing has been moved to src/systems/combat/abilities
 
   /**
    * Handle Frost Barrier shatter effect (when shield breaks or expires)
@@ -278,9 +275,13 @@ export class TurnManager {
    */
   static executeMonsterTurn(): void {
     const store = useCombatStore.getState();
+    const game = useGameStore.getState();
     const { hero, monster } = store;
 
+    if (game.phase !== "combat") return;
+    if (store.turnPhase !== "monster_turn") return;
     if (!hero || !monster) return;
+    if (hero.stats.hp <= 0 || monster.hp <= 0) return;
 
     // Check if stunned
     if (hasEffect(monster.statusEffects, "stun")) {
@@ -344,6 +345,8 @@ export class TurnManager {
 
     if (!hero || !monster) return;
 
+    const hadEvade = hero.statusEffects.some((e) => e.type === "evade");
+
     // Get effective stats
     const monsterAtk = getEffectiveMonsterAtk(monster);
     const chillModifier = getOutgoingDamageModifier(monster.statusEffects);
@@ -366,12 +369,19 @@ export class TurnManager {
     );
 
     if (result.isDodged) {
+      if (hadEvade) {
+        store.removeHeroStatus("evade");
+      }
       store.addLogEntry({
         actor: "monster",
         action: "attack",
         message: "You dodged the attack!",
       });
       return;
+    }
+
+    if (hadEvade) {
+      store.removeHeroStatus("evade");
     }
 
     // Check for existing shield before processing
@@ -633,7 +643,10 @@ export class TurnManager {
 
     const scoreMultiplier =
       run.difficulty === "easy" ? 1.0 : run.difficulty === "medium" ? 1.5 : 2.0;
-    game.addScore(Math.floor(10 * scoreMultiplier));
+    
+    // Score based on monster base score * difficulty
+    const baseScore = monster.scoreReward || 10; // Fallback to 10 if missing
+    game.addScore(Math.floor(baseScore * scoreMultiplier));
 
     combat.addLogEntry({
       actor: "hero",

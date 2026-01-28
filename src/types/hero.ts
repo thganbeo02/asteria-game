@@ -4,7 +4,7 @@
  */
 
 import { StatusEffect } from "./combat";
-import { HeroClass } from "./common";
+import { AbilityTag, HeroClass } from "./common";
 
 export interface HeroBaseStats {
   maxHp: number;
@@ -64,7 +64,7 @@ export interface Ability {
   currentCooldown: number;  // Turns until usable
 
   damageScaling?: number[];
-  tags?: string[];
+  tags?: AbilityTag[];
 }
 
 /**

@@ -34,7 +34,7 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
     // encounters start at 1, so first monster gets growth * 1
     const encounters = internalEncounter;
 
-    const finalStats = {
+      const finalStats = {
       hp: Math.round(snapshotBase.hp + growth.hp[difficulty][idx] * encounters),
       atk: Math.round(
         snapshotBase.atk + growth.atk[difficulty][idx] * encounters,
@@ -48,6 +48,7 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
       exp: Math.round(
         snapshotBase.exp + growth.exp[difficulty][idx] * encounters,
       ),
+      score: monsterDef.baseStats.score || 0,
     };
 
     set({
@@ -59,11 +60,13 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
         def: finalStats.def,
         crystalReward: finalStats.crystal,
         expReward: finalStats.exp,
+        scoreReward: finalStats.score,
         statusEffects: [],
         turnCount: 0,
         patternIndex: 0,
       },
     });
+
 
     get().addLogEntry({
       actor: "monster",

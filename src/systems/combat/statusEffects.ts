@@ -246,7 +246,7 @@ export function processEffectTick(
         break;
 
       case "bleed":
-        const bleedDamage = calculateBleedDamage(effect.snapshotAtk, effect.value);
+        const bleedDamage = calculateBleedDamage(effect.snapshotAtk ?? 0, effect.value);
         result.damage += bleedDamage;
         result.messages.push(`Enemy bleeds out for ${bleedDamage} damage!`);
         break;

@@ -16,6 +16,7 @@ export const SLIME: MonsterDefinition = {
     def: 2,
     crystal: 8,
     exp: 25,
+    score: 2,
   },
 
   growth: {
@@ -64,6 +65,7 @@ export const WOLF: MonsterDefinition = {
     def: 1,
     crystal: 10,
     exp: 30,
+    score: 2,
   },
 
   growth: {
@@ -117,6 +119,7 @@ export const ZOMBIE: MonsterDefinition = {
     def: 5,
     crystal: 12,
     exp: 40,
+    score: 3,
   },
   
   growth: {
@@ -164,6 +167,7 @@ export const SKELETON: MonsterDefinition = {
     def: 1,
     crystal: 16,
     exp: 48,
+    score: 3,
   },
   
   growth: {
@@ -216,6 +220,7 @@ export const MIMIC: MonsterDefinition = {
     def: 7,
     crystal: 32,
     exp: 52,
+    score: 5,
   },
   
   growth: {
@@ -256,12 +261,175 @@ export const MIMIC: MonsterDefinition = {
   },
 };
 
+export const VAMPIRE: MonsterDefinition = {
+  id: "vampire",
+  name: "Vampire",
+  description: "Undead noble. Drains life to sustain itself.",
+  minLevel: 4,
+  
+  baseStats: {
+    hp: 50,
+    atk: 12,
+    def: 6,
+    crystal: 38,
+    exp: 64,
+    score: 7,
+  },
+  
+  growth: {
+    hp: {
+      easy:   [2, 4, 7, 10, 14, 18, 23],
+      medium: [3, 6, 9, 13, 17, 22, 28],
+      hard:   [4, 8, 12, 16, 21, 27, 34],
+    },
+    atk: {
+      easy:   [2, 4, 6, 9, 12, 16, 21],
+      medium: [3, 5, 8, 11, 15, 20, 26],
+      hard:   [4, 7, 10, 14, 19, 25, 32],
+    },
+    def: {
+      easy:   [1, 2, 3, 4, 6, 8, 10],
+      medium: [1.5, 2.5, 4, 5.5, 7, 9, 12],
+      hard:   [2, 3.5, 5, 7, 9, 12, 15],
+    },
+    crystal: {
+      easy:   [5, 8, 11, 15, 19, 24, 30],
+      medium: [6, 10, 14, 18, 23, 29, 37],
+      hard:   [8, 12, 17, 22, 28, 36, 45],
+    },
+    exp: {
+      easy:   [4, 6, 8, 11, 14, 18, 23],
+      medium: [5, 7, 10, 13, 17, 22, 28],
+      hard:   [6, 9, 12, 16, 21, 27, 34],
+    },
+  },
+  
+  behavior: {
+    pattern: ["attack", "life_drain", "attack", "life_drain"],
+    specialAbility: {
+      name: "Life Drain",
+      description: "80% ATK damage, heals 50% of damage dealt",
+      trigger: "pattern",
+    },
+  },
+};
+
+export const ORC: MonsterDefinition = {
+  id: "orc",
+  name: "Orc",
+  description: "Berserker. Gets stronger as HP drops.",
+  minLevel: 5,
+  
+  baseStats: {
+    hp: 68,
+    atk: 15,
+    def: 8,
+    crystal: 28,
+    exp: 78,
+    score: 8,
+  },
+  
+  growth: {
+    hp: {
+      easy:   [4, 7, 11, 15, 20, 26, 33],
+      medium: [5, 9, 14, 19, 25, 32, 40],
+      hard:   [7, 12, 17, 23, 30, 38, 48],
+    },
+    atk: {
+      easy:   [3, 5, 8, 11, 15, 20, 26],
+      medium: [4, 7, 10, 14, 19, 25, 32],
+      hard:   [5, 9, 13, 18, 24, 31, 40],
+    },
+    def: {
+      easy:   [1, 2, 3.5, 5, 7, 9, 12],
+      medium: [1.5, 3, 4.5, 6.5, 8.5, 11, 14],
+      hard:   [2, 4, 6, 8, 11, 14, 18],
+    },
+    crystal: {
+      easy:   [3, 5, 7, 10, 13, 17, 22],
+      medium: [4, 6, 9, 12, 16, 21, 27],
+      hard:   [5, 8, 11, 15, 20, 26, 33],
+    },
+    exp: {
+      easy:   [5, 7, 10, 14, 18, 23, 29],
+      medium: [6, 9, 12, 16, 21, 27, 34],
+      hard:   [8, 11, 15, 20, 26, 33, 42],
+    },
+  },
+  
+  behavior: {
+    pattern: ["attack"],
+    specialAbility: {
+      name: "Berserker Rage",
+      description: "At 50% HP: +30% ATK, attacks twice",
+      trigger: "hp_threshold",
+      triggerValue: 50,
+    },
+  },
+};
+
+export const DRAGON: MonsterDefinition = {
+  id: "dragon",
+  name: "Dragon",
+  description: "Apex predator. Massive stats, devastating breath.",
+  minLevel: 6,
+  
+  baseStats: {
+    hp: 78,
+    atk: 20,
+    def: 12,
+    crystal: 45,
+    exp: 99,
+    score: 10,
+  },
+  
+  growth: {
+    hp: {
+      easy:   [5, 9, 14, 19, 25, 32, 40],
+      medium: [7, 12, 18, 24, 31, 39, 49],
+      hard:   [9, 15, 22, 29, 38, 48, 60],
+    },
+    atk: {
+      easy:   [4, 7, 11, 15, 20, 26, 33],
+      medium: [5, 9, 14, 19, 25, 32, 40],
+      hard:   [7, 12, 18, 24, 31, 40, 50],
+    },
+    def: {
+      easy:   [2, 3.5, 5, 7, 9, 12, 15],
+      medium: [2.5, 4.5, 6.5, 9, 12, 15, 19],
+      hard:   [3.5, 6, 8.5, 11.5, 15, 19, 24],
+    },
+    crystal: {
+      easy:   [6, 9, 13, 17, 22, 28, 35],
+      medium: [8, 12, 16, 21, 27, 34, 43],
+      hard:   [10, 15, 20, 26, 34, 43, 54],
+    },
+    exp: {
+      easy:   [6, 9, 13, 17, 22, 28, 35],
+      medium: [8, 12, 16, 21, 27, 34, 43],
+      hard:   [10, 14, 19, 25, 32, 40, 50],
+    },
+  },
+  
+  behavior: {
+    pattern: ["attack", "attack", "fire_breath"],
+    specialAbility: {
+      name: "Fire Breath",
+      description: "200% ATK + applies Burn for 3 turns",
+      trigger: "pattern",
+    },
+  },
+};
+
 export const MONSTERS: Record<MonsterType, MonsterDefinition> = {
   slime: SLIME,
   wolf: WOLF,
   zombie: ZOMBIE,
   skeleton: SKELETON,
   mimic: MIMIC,
+  vampire: VAMPIRE,
+  orc: ORC,
+  dragon: DRAGON,
 };
 
 export const ALL_MONSTERS = Object.values(MONSTERS);

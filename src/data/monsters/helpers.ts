@@ -32,6 +32,7 @@ export function calculateMonsterStats(
     def: Math.round(def.baseStats.def + g.def[difficulty][idx] * internalEncounter),
     crystalReward: Math.round(def.baseStats.crystal + g.crystal[difficulty][idx] * internalEncounter),
     expReward: Math.round(def.baseStats.exp + g.exp[difficulty][idx] * internalEncounter),
+    scoreReward: def.baseStats.score || 0,
   };
 }
 

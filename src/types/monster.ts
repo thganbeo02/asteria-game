@@ -12,6 +12,7 @@ export interface MonsterBaseStats {
   def: number;
   crystal: number;  // Crystal reward
   exp: number;      // EXP reward
+  score?: number;   // Score reward
 }
 
 /**
@@ -69,6 +70,7 @@ export interface MonsterState {
   def: number;
   crystalReward: number;
   expReward: number;
+  scoreReward: number;
   
   statusEffects: StatusEffect[];
   

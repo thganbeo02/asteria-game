@@ -39,3 +39,17 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Project Rules & Metadata
+.cursor/
+.superdesign/
+.windsurfrules
+AGENTS.md
+CLAUDE.md
+
+# Testing & Balance Reports
+docs/
+tests/
+**/*.test.ts
+**/*.test.tsx
+vitest.config.mts

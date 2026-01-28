@@ -50,6 +50,31 @@ export function performAbility(abilityIndex: number): void {
 }
 
 /**
+ * Player skips their turn (if skips remain).
+ * This must also trigger the monster's turn.
+ */
+export function performSkipTurn(): void {
+  const game = useGameStore.getState();
+  const combat = useCombatStore.getState();
+
+  if (game.phase !== "combat") {
+    console.warn("Cannot skip: not in combat");
+    return;
+  }
+
+  if (combat.turnPhase !== "player_turn") {
+    console.warn("Cannot skip: not player turn");
+    return;
+  }
+
+  const didSkip = combat.skipTurn();
+  if (!didSkip) return;
+
+  // Mirror the hero-action flow: schedule monster turn with a short delay.
+  setTimeout(() => TurnManager.executeMonsterTurn(), 500);
+}
+
+/**
  * Proceed to next encounter after victory.
  */
 export function proceedToNextEncounter(): void {
@@ -57,6 +82,11 @@ export function proceedToNextEncounter(): void {
   const combat = useCombatStore.getState();
 
   if (!game.run) return;
+
+  if (game.phase !== "victory" || combat.turnPhase !== "combat_end") {
+    console.warn("Cannot proceed: encounter not finished");
+    return;
+  }
 
   // Increment encounter counter
   game.incrementEncounter();
@@ -69,6 +99,10 @@ export function proceedToNextEncounter(): void {
   if ((encounterCount - 1) % shopFrequency === 0 && encounterCount > 1) {
     game.setPhase("shop");
   } else {
+    // Reset encounter UI state (do not re-init hero)
+    combat.clearLog();
+    combat.resetTurn();
+
     // Spawn next monster
     combat.spawnMonster(game.run.difficulty);
     game.setPhase("combat");

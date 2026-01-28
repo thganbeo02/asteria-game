@@ -35,9 +35,9 @@ export const CAMIRA: HeroDefinition = {
   passive: {
     name: "Deadeye Hustle",
     description:
-      "Every 3rd attack hits harder. Crits restore Mana and reduce Rapid Fire CD.",
+      "Every 3rd basic attack hits harder. Crits restore Mana and reduce Rapid Fire CD.",
     expandedDescription: `Camira's survival instincts and precision make every shot count.
-      Every 3rd attack, she deals bonus 30-60% ATK damage (based on level).
+      Every 3rd basic attack, she deals bonus 30-60% ATK damage (based on level).
       On Crit, she restores 2-5 Mana and reduces the cooldown of Rapid Fire by 1 turn.`,
   },
 
@@ -71,8 +71,8 @@ From Level 5: Also gain 12-15 random max HP.`,
       name: "Jackpot Arrow",
       description: "Magic arrow. Massive crystal bonus on kill.",
       expandedDescription: `Fire a magic arrow: 140-260% ATK, ignoring 30-60% DEF.
-On Kill: Gain 25-1600 bonus crystals.
-Each use grants +3% crit chance and crit damage (max 8 stacks = +24%).`,
+      On Kill: Gain 20-600 bonus crystals.
+      Each use grants +3% crit chance and crit damage (max 8 stacks = +24%).`,
       manaCost: [18, 22, 26, 30, 34, 38, 42],
       cooldown: 4,
       currentCooldown: 0,

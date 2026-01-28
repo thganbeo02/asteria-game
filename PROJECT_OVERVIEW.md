@@ -16,7 +16,7 @@ A single-player RPG where you:
 **Core mechanics:**
 - Turn-based combat with basic attacks + 3 abilities per hero
 - Status effects (burn, poison, bleed, chill, stun, shield, etc.)
-- Monster AI with attack patterns (slime, wolf, zombie, skeleton, mimic + 3 more planned)
+- Monster AI with attack patterns (8 monster types implemented)
 - Damage formula: `ATK × 200 / (200 + DEF)` with penetration, crits, dodge
 - Difficulty scaling (easy/medium/hard) affects monster growth and rewards
 - Meta progression: gold persists between runs for unlocking heroes
@@ -30,14 +30,18 @@ src/
 ├── app/              # Next.js App Router (page.tsx, layout.tsx)
 ├── components/
 │   ├── combat/       # CombatLayout, ActionBar, HeroPanel, MonsterPanel, etc.
+│   ├── screens/      # ShopScreen, DeathScreen, RunSummaryScreen
 │   └── ui/           # Reusable: Button, HealthBar, Tooltip, StatDisplay
 ├── data/
 │   ├── heroes/       # Hero definitions (lyra.ts, bran.ts, etc.)
-│   └── monsters/     # Monster definitions
+│   ├── monsters/     # Monster definitions
+│   └── items/        # Item definitions (Empty)
 ├── stores/
 │   ├── combatStore/  # Slices: hero, monster, turn, log
 │   └── gameStore/    # Slices: run, economy, meta (persisted)
 ├── systems/combat/   # Pure logic: damageCalculator, statusEffects, turnManager, monsterAI
+│   ├── abilities/    # Tag handlers
+│   └── passives/     # Hero passive logic
 ├── types/            # TypeScript interfaces
 └── lib/              # Utilities (cn, constants)
 ```
@@ -58,7 +62,11 @@ src/
 hero_select → combat → victory → shop → combat → ... → level_up → combat → ... → death → run_summary
 ```
 
-Currently only **combat** phase is implemented in the UI. The page auto-starts a test run with Lyra on easy.
+**Current State:**
+- **Hero Select**: Implemented (Basic).
+- **Combat**: Fully functional.
+- **Shop**: UI implemented, but no items data.
+- **Victory/Death**: Screens implemented.
 
 ---
 
@@ -75,6 +83,15 @@ Currently only **combat** phase is implemented in the UI. The page auto-starts a
 | `BattleArena` | ✅ | Central visual, turn phase highlighting |
 | `ActionBar` | ✅ | Basic attack, abilities with cooldown/mana, skip turn |
 | `CombatLog` | ✅ | Scrollable history, color-coded entries |
+
+### Screens — ✅ Complete
+
+| Screen | Status | Notes |
+|--------|--------|-------|
+| `HeroSelect` | ✅ | Basic implementation in `page.tsx` |
+| `ShopScreen` | ✅ | UI exists, waiting for items data |
+| `DeathScreen` | ✅ | Summary stats, restart button |
+| `RunSummaryScreen` | ✅ | Victory/End run details |
 
 ### Reusable UI Components — ✅ Complete
 
@@ -108,13 +125,15 @@ Currently only **combat** phase is implemented in the UI. The page auto-starts a
 | `damageCalculator` | ✅ | ATK/DEF formula, crit, pen, dodge, DoTs |
 | `statusEffects` | ✅ | 9 effects, stacking, shield absorption |
 | `monsterAI` | ✅ | Pattern-based, HP triggers, specials |
+| `passives` | ✅ | Wired up in TurnManager (e.g. Camira) |
 
 ### Data Definitions — ✅ Mostly Complete
 
 | Data | Status | Notes |
 |------|--------|-------|
 | Heroes (4) | ✅ | Bran, Lyra, Camira, Shade fully defined |
-| Monsters (5) | ⚠️ | slime, wolf, zombie, skeleton, mimic — 3 more in types but not defined |
+| Monsters (8) | ✅ | All 8 monsters defined (slime, wolf, zombie, skeleton, mimic, vampire, orc, dragon) |
+| Items | ❌ | Directory exists, but no definitions |
 
 ### Ability Effects — ⚠️ Partial
 
@@ -123,23 +142,19 @@ Currently only **combat** phase is implemented in the UI. The page auto-starts a
 | `burn` tag | ✅ | Applies 5% max HP burn for 3 turns |
 | `shield` tag | ✅ | Frost Barrier: 40% max HP shield, shatter + chill |
 | `chill` tag | ✅ | Applied on shield break/expire |
-| `stun` tag | ❌ | Not wired up (Bran's Shield Slam) |
-| `bleed` tag | ❌ | Not wired up |
-| `fortify` tag | ❌ | Not wired up (Bran's Fortify) |
+| `stun` tag | ❌ | Not wired up in `tags.ts` |
+| `bleed` tag | ❌ | Helper exists, not wired in `tags.ts` |
+| `fortify` tag | ❌ | Not wired in `tags.ts` |
 
 ### Missing Features
 
 | Feature | Priority | Notes |
 |---------|----------|-------|
-| Hero select screen | **P1** | Hardcoded to start combat immediately |
-| Victory/death screens | **P1** | Phase transitions exist but no UI |
-| Shop UI | **P2** | Types exist, no component or items data |
+| Items Data | **P1** | Need items for Shop to function |
+| Remaining Ability Tags | **P1** | Stun, Bleed, Fortify need handlers |
 | Keyboard controls | **P2** | ActionBar hints SPACE but no listener |
-| Hero passives | **P2** | Defined but not triggered |
 | Animation system | **P3** | framer-motion installed, queue exists, nothing consumes it |
 | Sound system | **P3** | Settings exist, no audio |
-| Missing monsters | **P3** | vampire, orc, dragon in types but not defined |
-| Items data | **P3** | Only types exist |
 
 ---
 
@@ -147,12 +162,8 @@ Currently only **combat** phase is implemented in the UI. The page auto-starts a
 
 | Priority | Task |
 |----------|------|
-| **P1** | Add hero select screen |
-| **P1** | Build victory/death screens |
-| **P1** | Wire up remaining ability tags (stun, bleed, fortify) |
+| **P1** | Create Item definitions and populate Shop |
+| **P1** | Wire up `stun`, `bleed`, and `fortify` ability tags |
 | **P2** | Add keyboard shortcuts (SPACE to skip, 1-3 for abilities) |
-| **P2** | Implement hero passives |
-| **P2** | Build shop UI and items data |
-| **P3** | Hook up animation system |
-| **P3** | Add remaining monsters |
-| **P3** | Add sound system |
+| **P3** | Implement Animation System (consume queue) |
+| **P3** | Add Sound Effects |

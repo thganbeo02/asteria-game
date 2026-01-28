@@ -169,3 +169,202 @@ CHANGES:
 5. src/components/combat/ActionBar.tsx
    - Renamed local variable `useAbility` -> `castAbility` to avoid React Hooks lint false-positive
    - No functional change (still calls combatStore.useAbility)
+
+
+--------------------------------------------------------------------------------
+2026-01-28 - Run Loop (Victory -> Continue), Phase Router, Shop/Death Screens
+--------------------------------------------------------------------------------
+
+ISSUE:
+- After winning, there was no reliable "continue" flow (player could get stuck in victory/combat_end).
+- The app rendered CombatLayout for all phases, so shop/death/summary phases had no real screens.
+- Skip Turn flipped to monster_turn but never executed the monster turn.
+
+CHANGES:
+
+1. src/systems/combat/combatActions.ts
+   - proceedToNextEncounter() now guards: only works when phase is "victory" and turnPhase is "combat_end"
+   - When continuing directly to combat: resets encounter UI state (clearLog + resetTurn) before spawning next monster
+   - Added performSkipTurn() to ensure skipping schedules the monster turn (same delay as normal hero->monster transition)
+
+2. src/components/combat/ActionBar.tsx
+   - Skip Turn button now calls performSkipTurn() (fixes "stuck in monster_turn" bug)
+
+3. src/systems/combat/turnManager.ts
+   - executeMonsterTurn() now hard-guards against stale timeouts:
+     - returns early unless game.phase === "combat" and turnPhase === "monster_turn"
+
+4. src/app/page.tsx
+   - Added phase-based routing:
+     - combat/victory: CombatLayout
+     - shop: ShopScreen
+     - death: DeathScreen
+     - run_summary: RunSummaryScreen
+     - hero_select: placeholder hero/difficulty picker
+
+5. src/components/screens/ShopScreen.tsx
+   - WIP shop screen with guaranteed escape hatch:
+     - Continue to Fight (no encounter increment)
+     - Skip Shop (increments shopsSkipped, then continues)
+
+6. src/components/screens/DeathScreen.tsx
+   - Minimal death screen with run stats and actions:
+     - Try Again
+     - Hero Select
+
+7. src/components/screens/RunSummaryScreen.tsx
+   - Minimal summary screen for ending a run intentionally:
+     - Start New Run
+     - Hero Select
+
+
+--------------------------------------------------------------------------------
+2026-01-28 - Victory UI (In-Arena Card, No Modal Overlay)
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Victory UI as a modal overlay felt heavy and could interfere with the layout.
+- Victory panel size was pushing side panels.
+
+CHANGES:
+
+1. src/components/combat/BattleArena.tsx
+   - Replaced the portrait/VS block with a centered Victory card when:
+     - game.phase === "victory" AND turnPhase === "combat_end"
+   - Buttons:
+     - Next Encounter / Enter Shop (computed from next encounter + shop frequency)
+     - End Run
+   - Later tweaks:
+     - Reduced width (max-w-md) and padding to avoid pushing side columns
+     - Removed the extra run info block per UX feedback
+
+2. src/components/combat/CombatLayout.tsx
+   - Removed VictoryOverlay mount
+
+3. src/components/combat/VictoryOverlay.tsx
+   - Deleted (no longer used)
+
+
+--------------------------------------------------------------------------------
+2026-01-28 - Camira Full Kit Implementation
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Camira's passive and all abilities were defined in data but not implemented in combat.
+
+CHANGES:
+
+1. src/systems/combat/turnManager.ts
+   - Implemented Camira:
+     - Passive: every 3rd BASIC attack deals bonus damage
+     - Passive: on crit restores 2-5 mana and reduces Rapid Fire cooldown by 1
+     - Rapid Fire: two hits + lifesteal based on total damage
+     - Forest Agility: evade buff for next incoming attack + permanent ATK/DEF, and level 5+ random permanent Max HP
+     - Jackpot Arrow: extra penetration, crit stacking per use, bonus crystals on kill
+   - Ensured evade is consumed after the next monster attack attempt
+
+
+--------------------------------------------------------------------------------
+2026-01-28 - Long-Term Combat Architecture Refactor (Ability/Passive Registries)
+--------------------------------------------------------------------------------
+
+ISSUE:
+- TurnManager was starting to accumulate hero-specific branching (not scalable when adding heroes).
+- Ability tags were freeform strings, so typos or unimplemented tags silently did nothing.
+- Mixing orchestration (turn flow) with ability mechanics makes future features harder to add and test.
+
+WHY THIS CHANGE:
+- Separates "combat flow" from "content logic" so adding heroes is mostly adding data + small handlers.
+- Creates a single place to implement shared mechanics (tags) once and reuse across heroes.
+- Adds compile-time safety for tags, preventing silent no-ops from typos.
+
+CHANGES:
+
+1. src/types/common.ts
+   - Added AbilityTag union type to define the allowed set of ability tags
+
+2. src/types/hero.ts
+   - Ability.tags now uses AbilityTag[] instead of string[]
+
+3. New: src/systems/combat/abilities/registry.ts
+   - Ability-id registry for custom abilities (currently holds Camira handlers)
+   - Allows future heroes to add complex mechanics without bloating TurnManager
+
+4. New: src/systems/combat/abilities/tags.ts
+   - Tag handler registry for reusable effects
+   - Migrated existing tag behaviors:
+     - burn
+     - shield
+
+5. New: src/systems/combat/abilities/types.ts
+   - Shared types for ability execution context/handlers
+
+6. New: src/systems/combat/passives/registry.ts
+   - Passive hook registry (by heroId)
+   - Camira passive moved here (onCrit + onBasicAttackResolved)
+
+7. New: src/systems/combat/passives/types.ts
+   - Passive hook types (onCrit, onBasicAttackResolved)
+
+8. src/systems/combat/turnManager.ts
+   - Removed Camira-specific branching from core flow
+   - Execution now:
+     - Checks abilityRegistry[ability.id] for custom handlers
+     - Otherwise runs generic damage pipeline + applyAbilityTags(tags)
+     - Passive hooks fire via triggerOnCrit / triggerOnBasicAttackResolved
+
+
+--------------------------------------------------------------------------------
+2026-01-28 - Build / TypeScript Fixes
+--------------------------------------------------------------------------------
+
+ISSUE:
+- next build failing due to type errors and missing MonsterType keys.
+
+CHANGES:
+
+1. src/systems/combat/statusEffects.ts
+   - Bleed tick now guards snapshotAtk (undefined -> 0) to satisfy TS and prevent runtime NaNs
+
+2. src/data/monsters/definitions.ts
+   - Added missing monster definitions/exports for vampire/orc/dragon and included them in MONSTERS
+
+--------------------------------------------------------------------------------
+2026-01-28 - Testing Infrastructure, Balance Tools & Score System Refactor
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Camira kit had text/value mismatches for Jackpot Arrow and Passive triggers
+- No way to verify hero balance or mechanic implementation without manual play
+- Score system was flat (10 points per kill), making monster types irrelevant for scoring
+- No automated testing suite configured
+
+CHANGES:
+
+1. HERO REFINEMENT (Camira)
+   - Updated `src/data/heroes/camira.ts`: Fixed Jackpot Arrow crystal text (20-600 vs 25-1600)
+   - Updated `src/data/heroes/camira.ts`: Clarified passive text to "Every 3rd basic attack"
+   - Added comprehensive unit tests in `tests/camira.test.ts` for all abilities/passives
+
+2. SIMULATION & BALANCE ENGINE
+   - Created `tests/utils/simulation.ts`: Headless game loop for high-speed automated runs
+   - Implemented smart decision engine for Camira (kill-range detection, mana reservation)
+   - Added `tests/benchmark.test.ts`: automated multi-strat benchmark suite
+   - Added `docs/BALANCE_AND_TESTING.md`: Documentation for balance workflows
+   - Configured auto-report generation in `docs/balance/` for hero analysis
+
+3. SCORE SYSTEM REFACTOR
+   - Updated `src/types/monster.ts`: Added `score` to base stats and `scoreReward` to state
+   - Updated `src/data/monsters/definitions.ts`: Implemented unique scores per monster type
+   - Updated `src/stores/combatStore/monsterSlice.ts`: Wired monster score to runtime state
+   - Updated `src/systems/combat/turnManager.ts`: Refactored victory scoring:
+     `score = monster.scoreReward * difficultyMultiplier`
+
+4. COMBAT ENGINE INSTRUMENTATION
+   - Added logging for dodged/missed abilities in `TurnManager.ts` and `registry.ts`
+   - Improved log parsing in simulation to track crits, dodges, and jackpot efficiency
+
+5. PROJECT CLEANUP
+   - Standardized on `vitest.config.mts`, removed duplicate config
+   - Added `benchmark` and `benchmark:hero` scripts to `package.json`
+   - Cleaned up build artifacts and updated `.gitignore`

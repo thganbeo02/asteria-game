@@ -4,6 +4,7 @@ import { useCombatStore } from "@/stores";
 import { getHeroDefinition } from "@/data/heroes";
 import { Button, Tooltip } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { performSkipTurn } from "@/systems/combat/combatActions";
 
 interface PassiveTooltipProps {
   heroId: string;
@@ -31,7 +32,6 @@ export function ActionBar() {
   const skipTurnsUsed = useCombatStore((state) => state.skipTurnsUsed);
   const basicAttack = useCombatStore((state) => state.basicAttack);
   const castAbility = useCombatStore((state) => state.useAbility);
-  const skipTurn = useCombatStore((state) => state.skipTurn);
 
   if (!hero) return null;
 
@@ -132,7 +132,7 @@ export function ActionBar() {
           <Button
             variant="ghost"
             size="md"
-            onClick={() => skipTurn()}
+            onClick={() => performSkipTurn()}
             disabled={!isPlayerTurn || skipsRemaining <= 0}
           >
             Skip Turn ({skipsRemaining}/3)

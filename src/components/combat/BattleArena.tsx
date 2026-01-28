@@ -1,20 +1,68 @@
 "use client";
 
-import { useCombatStore } from "@/stores";
-import { getHeroDefinition } from "@/data/heroes";
-import { MONSTERS } from "@/data/monsters";
+import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
+import { DIFFICULTY_CONFIG } from "@/lib/constants";
+import { proceedToNextEncounter } from "@/systems/combat/combatActions";
+import { useCombatStore, useGameStore } from "@/stores";
 
 export function BattleArena() {
-  const hero = useCombatStore((state) => state.hero);
   const monster = useCombatStore((state) => state.monster);
   const turnPhase = useCombatStore((state) => state.turnPhase);
-
-  const heroDefinition = hero ? getHeroDefinition(hero.definitionId) : null;
-  const monsterDefinition = monster ? MONSTERS[monster.definitionId] : null;
+  const phase = useGameStore((state) => state.phase);
+  const run = useGameStore((state) => state.run);
 
   const isPlayerTurn = turnPhase === "player_turn";
   const isMonsterTurn = turnPhase === "monster_turn";
+  const isVictory = phase === "victory" && turnPhase === "combat_end";
+
+  if (isVictory && run && monster) {
+    const nextEncounter = run.encounter + 1;
+    const shopFrequency = DIFFICULTY_CONFIG[run.difficulty].shopFrequency;
+    const willShop = (nextEncounter - 1) % shopFrequency === 0 && nextEncounter > 1;
+
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 py-8">
+        <div
+          className={cn(
+            "w-full max-w-md",
+            "rounded-2xl border border-border bg-bg-panel",
+            "p-5",
+          )}
+        >
+          <div className="flex items-start justify-between gap-4">
+            <div>
+              <div className="text-amber-400 font-bold text-2xl">Victory</div>
+              <div className="text-text-secondary mt-1">
+                Earned <span className="font-semibold text-text-primary">{monster.crystalReward}</span> crystals.
+              </div>
+            </div>
+
+            <div className="text-right">
+              <div className="text-xs uppercase tracking-widest text-text-muted">Up Next</div>
+              <div className="text-text-primary font-semibold">
+                {willShop ? "Shop" : `Encounter ${nextEncounter}`}
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-5 flex flex-col sm:flex-row gap-3 sm:justify-end">
+            <Button
+              variant="secondary"
+              size="lg"
+              onClick={() => useGameStore.getState().endRun(true)}
+            >
+              End Run
+            </Button>
+
+            <Button variant="primary" size="lg" onClick={() => proceedToNextEncounter()}>
+              {willShop ? "Enter Shop" : "Next Encounter"}
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center gap-8 py-8">

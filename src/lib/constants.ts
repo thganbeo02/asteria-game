@@ -29,13 +29,13 @@ export const DIFFICULTY_CONFIG: Record<Difficulty, {
     goldMultiplier: 1.0,
   },
   medium: {
-    shopFrequency: 4,
-    skipBonus: 30,
+    shopFrequency: 3,
+    skipBonus: 40,
     goldMultiplier: 1.5,
   },
   hard: {
-    shopFrequency: 5,
-    skipBonus: 40,
+    shopFrequency: 3,
+    skipBonus: 60,
     goldMultiplier: 2.0,
   },
 }

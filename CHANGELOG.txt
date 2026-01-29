@@ -439,7 +439,15 @@ CHANGES:
    - Updated docs/BALANCE_AND_TESTING.md to reflect current Vitest + benchmark workflow and report outputs.
      - docs/BALANCE_AND_TESTING.md
 
-SUGGESTED NEXT FEATURES (today)
-- Premium class items: implement the 3 premium slots per shop (Section 12 tables) + real purchase effects.
-- Shop value shaping: add more common options per category (reduce "solved" dominance of Whetstone/Mana Crystal).
-- Run objective: define a real "clear" condition (boss / encounter target) so benchmarks can include meaningful success rates.
+7. COMBAT ACTION TOOLTIP UX
+   - Added a tooltip mode toggle in the Action Bar (Expanded default, Brief optional).
+     - src/components/combat/ActionBar.tsx
+   - Expanded tooltips now show level-resolved, stat-based values for passives and abilities across heroes (including
+     contextual values like enemy missing HP and Shade contract state), with tightened paragraph-style copy and bolded
+     key stats.
+     - src/components/combat/ActionTooltips.tsx
+
+ SUGGESTED NEXT FEATURES (today)
+ - Premium class items: implement the 3 premium slots per shop (Section 12 tables) + real purchase effects.
+ - Shop value shaping: add more common options per category (reduce "solved" dominance of Whetstone/Mana Crystal).
+ - Run objective: define a real "clear" condition (boss / encounter target) so benchmarks can include meaningful success rates.

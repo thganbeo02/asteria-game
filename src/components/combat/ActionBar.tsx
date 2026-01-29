@@ -1,37 +1,26 @@
 "use client";
 
-import { useCombatStore } from "@/stores";
-import { getHeroDefinition } from "@/data/heroes";
+import { useState } from "react";
+
+import { useCombatStore, useGameStore } from "@/stores";
 import { Button, Tooltip } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { performSkipTurn } from "@/systems/combat/combatActions";
-
-interface PassiveTooltipProps {
-  heroId: string;
-}
-
-function PassiveTooltipContent({ heroId }: PassiveTooltipProps) {
-  const definition = getHeroDefinition(heroId);
-  if (!definition) return null;
-
-  return (
-    <div className="max-w-sm">
-      <div className="font-semibold text-class-mage mb-1">
-        {definition.passive.name}
-      </div>
-      <p className="text-text-secondary text-sm whitespace-pre-wrap">
-        {definition.passive.expandedDescription}
-      </p>
-    </div>
-  );
-}
+import {
+  AbilityTooltipContent,
+  PassiveTooltipContent,
+  TooltipMode,
+} from "@/components/combat/ActionTooltips";
 
 export function ActionBar() {
+  const [tooltipMode, setTooltipMode] = useState<TooltipMode>("expanded");
   const hero = useCombatStore((state) => state.hero);
+  const monster = useCombatStore((state) => state.monster);
   const turnPhase = useCombatStore((state) => state.turnPhase);
   const skipTurnsUsed = useCombatStore((state) => state.skipTurnsUsed);
   const basicAttack = useCombatStore((state) => state.basicAttack);
   const castAbility = useCombatStore((state) => state.useAbility);
+  const contractState = useGameStore((state) => state.run?.contractState);
 
   if (!hero) return null;
 
@@ -45,7 +34,9 @@ export function ActionBar() {
         <div className="flex items-center gap-3">
           {/* Basic Attack with Passive Tooltip */}
           <Tooltip
-            content={<PassiveTooltipContent heroId={hero.definitionId} />}
+            content={
+              <PassiveTooltipContent hero={hero} mode={tooltipMode} contractState={contractState} />
+            }
             position="top"
           >
             <Button
@@ -71,16 +62,13 @@ export function ActionBar() {
               <Tooltip
                 key={ability.id}
                 content={
-                  <div className="max-w-xs">
-                    <div className="font-semibold text-class-mage">{ability.name}</div>
-                    <p className="text-text-secondary text-sm mt-1">
-                      {ability.description}
-                    </p>
-                    <div className="flex gap-3 mt-2 text-xs text-text-muted">
-                      <span>💧 {manaCost} MP</span>
-                      <span>⏱️ {ability.cooldown} turn CD</span>
-                    </div>
-                  </div>
+                  <AbilityTooltipContent
+                    hero={hero}
+                    abilityIndex={index}
+                    mode={tooltipMode}
+                    monster={monster}
+                    contractState={contractState}
+                  />
                 }
                 position="top"
               >
@@ -129,6 +117,18 @@ export function ActionBar() {
 
         {/* Skip Turn Button */}
         <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="md"
+            onClick={() =>
+              setTooltipMode((m) => (m === "brief" ? "expanded" : "brief"))
+            }
+            disabled={!hero}
+            className="whitespace-nowrap"
+          >
+            Tooltips: {tooltipMode === "brief" ? "Brief" : "Expanded"}
+          </Button>
+
           <Button
             variant="ghost"
             size="md"

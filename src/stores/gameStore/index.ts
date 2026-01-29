@@ -4,6 +4,7 @@ import type { GameStore } from "./types";
 import { createRunSlice } from "./runSlice";
 import { createEconomySlice } from "./economySlice";
 import { createMetaSlice } from "./metaSlice";
+import { createShopSlice } from "./shopSlice";
 
 // =============================================================================
 // COMBINED GAME STORE
@@ -16,6 +17,7 @@ export const useGameStore = create<GameStore>()(
       ...createRunSlice(set, get),
       ...createEconomySlice(set, get),
       ...createMetaSlice(set, get),
+      ...createShopSlice(set, get),
     }),
     {
       name: "asteria-game-storage",

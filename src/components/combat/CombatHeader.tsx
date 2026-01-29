@@ -2,14 +2,43 @@
 
 import { useCombatStore } from "@/stores";
 import { useGameStore } from "@/stores";
+import { EXP_THRESHOLDS, MAX_LEVEL } from "@/lib/constants";
 import { ThemeToggle } from "../ui/ThemeToggle";
 import { AnimatePresence, motion } from "framer-motion";
+
+function expProgress(exp: number, level: number): {
+  label: string;
+  tooltip: string;
+  pct: number;
+} {
+  if (level >= MAX_LEVEL) {
+    return { label: "MAX", tooltip: "Max level", pct: 1 };
+  }
+
+  // Thresholds are cumulative.
+  // Show progress within the current level: (exp - prevThreshold) / (next - prev).
+  const prevThreshold = (EXP_THRESHOLDS as Record<number, number>)[level] ?? 0;
+  const nextThreshold = (EXP_THRESHOLDS as Record<number, number>)[level + 1] ?? prevThreshold;
+  const current = Math.max(0, exp - prevThreshold);
+  const needed = Math.max(1, nextThreshold - prevThreshold);
+  const pct = Math.max(0, Math.min(1, current / needed));
+  return {
+    label: `${Math.floor(pct * 100)}%`,
+    tooltip: `${current} / ${needed}`,
+    pct,
+  };
+}
 
 export function CombatHeader() {
   const turnCount = useCombatStore((state) => state.turnCount);
   const run = useGameStore((state) => state.run);
+  const hero = useCombatStore((state) => state.hero);
 
   if (!run) return null;
+
+  const level = hero?.level ?? run.currentLevel;
+  const exp = run.exp ?? 0;
+  const xp = expProgress(exp, level);
 
   return (
     <header className="flex items-center justify-between px-6 py-4 border-b border-border">
@@ -105,14 +134,39 @@ export function CombatHeader() {
         </div>
       </div>
 
-      {/* Encounter Info */}
-      <div className="flex flex-col items-end">
-        <span className="text-xs text-text-muted uppercase tracking-widest">
-          Encounter
-        </span>
-        <span className="text-text-secondary font-semibold">
-          {run.encounter} · Level {run.currentLevel}
-        </span>
+      {/* Run Info */}
+      <div className="flex flex-col items-end gap-2">
+        <div className="flex flex-col items-end">
+          <span className="text-xs text-text-muted uppercase tracking-widest">
+            Encounter
+          </span>
+          <span className="text-text-secondary font-semibold">
+            {run.encounter} · Level {level}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <div className="text-[10px] uppercase tracking-widest text-text-muted">Crystals</div>
+            <div className="text-text-primary font-semibold tabular-nums">{run.crystals}</div>
+          </div>
+
+          <div className="text-right">
+            <div className="text-[10px] uppercase tracking-widest text-text-muted">EXP</div>
+            <div className="flex items-center gap-2">
+              <div
+                className="h-2.5 w-28 rounded-full bg-bg-dark/40 overflow-hidden border border-border"
+                title={xp.tooltip}
+              >
+                <div
+                  className="h-full bg-teal-500"
+                  style={{ width: `${xp.pct * 100}%` }}
+                />
+              </div>
+              <div className="text-xs text-text-muted tabular-nums w-10 text-right">{xp.label}</div>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div>

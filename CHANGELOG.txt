@@ -368,3 +368,78 @@ CHANGES:
    - Standardized on `vitest.config.mts`, removed duplicate config
    - Added `benchmark` and `benchmark:hero` scripts to `package.json`
    - Cleaned up build artifacts and updated `.gitignore`
+
+
+--------------------------------------------------------------------------------
+2026-01-29 - Shop System (Random Stat Items), Benchmark Report Generator & Balance Tuning
+--------------------------------------------------------------------------------
+
+ISSUE:
+- Shop flow existed but was WIP: no real shop inventory, purchases didn't apply stats, and skip bonus rules were incomplete.
+- Balance benchmarks were hard to trust: missing shop attribution, confusing end-state semantics, skip mode ambiguity, and unstable/overwritten reports.
+- Mana items were overperforming in simulations; shop cadence needed iteration.
+
+CHANGES:
+
+1. SHOP SYSTEM (items, generation, purchases)
+   - Added Random Stat item definitions (Offense/Defense/Ability) with level-scaling stats and costs.
+     - src/data/items/definitions.ts
+     - src/data/items/index.ts
+   - Added shop offer generation: guaranteed category coverage, per-skip epic odds, potion offer, premium placeholders.
+     - src/systems/shop/generateShopOffers.ts
+   - Added shop slice to game store and wired shop state/actions.
+     - src/stores/gameStore/shopSlice.ts
+     - src/stores/gameStore/index.ts
+     - src/stores/gameStore/types.ts
+   - Purchases now apply to the hero immediately (including Max HP/Mana increasing current HP/Mana).
+     - src/stores/combatStore/heroSlice.ts
+     - src/stores/combatStore/types.ts
+   - Shop UI now shows real offers, stock, and potion usage; skip button removed from inside shop.
+     - src/components/screens/ShopScreen.tsx
+
+2. SHOP FLOW UX
+   - Victory now always shows "Next Encounter" and opens a shop prompt modal when a shop is available.
+   - Modal provides: Enter Shop / Skip (+bonus crystals scaled by level).
+     - src/components/combat/BattleArena.tsx
+   - Fixed off-by-one/stale-state bug where entering shop could incorrectly advance to combat.
+     - src/systems/combat/combatActions.ts
+
+3. PROGRESSION + HUD
+   - Added run EXP tracking and a simple EXP progress bar (hover shows current/needed).
+     - src/stores/gameStore/types.ts
+     - src/stores/gameStore/runSlice.ts
+     - src/systems/combat/turnManager.ts
+     - src/components/combat/CombatHeader.tsx
+   - Header now shows crystals and EXP progress.
+
+4. BENCHMARK REPORT GENERATOR (MARKDOWN)
+   - Implemented deterministic, sectioned benchmark summary report generation to docs/balance/.
+   - Added hard validation for SHOP_SKIP_MODE (never|alternate|other).
+   - Added skip modes:
+     - never: enter every shop
+     - alternate: enter first shop, then every other
+     - other: skip first shop, then every other
+   - Added reporting for:
+     - progression percentiles (Avg/P50/P90)
+     - economy conversion (crystals from skips/spent/end)
+     - shop behavior (opportunities vs entries, skip %, zero-buy %, item-only affordability)
+     - affordability diagnostics (wallet/cost bands, affordable item counts, best item score)
+     - Camira attribution (casts/enc, mana spend/restore, Rapid Fire healing, Jackpot bonus crystals)
+   - Report filenames are collision-safe and include MMDDYY, hero, runs, skip mode, and HHMMSS.
+     - tests/utils/simulation.ts
+     - tests/benchmark.test.ts
+
+5. BALANCE TUNING
+   - Shop cadence unified to every 3 encounters for all difficulties.
+     - src/lib/constants.ts
+   - Updated Ability-category shop items (Mana Crystal / Arcane Focus / Wellspring Heart) stats/costs.
+     - src/data/items/definitions.ts
+
+6. DOCS
+   - Updated docs/BALANCE_AND_TESTING.md to reflect current Vitest + benchmark workflow and report outputs.
+     - docs/BALANCE_AND_TESTING.md
+
+SUGGESTED NEXT FEATURES (today)
+- Premium class items: implement the 3 premium slots per shop (Section 12 tables) + real purchase effects.
+- Shop value shaping: add more common options per category (reduce "solved" dominance of Whetstone/Mana Crystal).
+- Run objective: define a real "clear" condition (boss / encounter target) so benchmarks can include meaningful success rates.

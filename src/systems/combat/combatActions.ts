@@ -77,7 +77,7 @@ export function performSkipTurn(): void {
 /**
  * Proceed to next encounter after victory.
  */
-export function proceedToNextEncounter(): void {
+export function proceedToNextEncounter(decision: "auto" | "shop" | "skip_shop" = "auto"): void {
   const game = useGameStore.getState();
   const combat = useCombatStore.getState();
 
@@ -88,25 +88,35 @@ export function proceedToNextEncounter(): void {
     return;
   }
 
+  const currentEncounter = game.run.encounter;
+  const nextEncounter = currentEncounter + 1;
+
   // Increment encounter counter
   game.incrementEncounter();
 
-  // Check for shop
   const shopFrequency = DIFFICULTY_CONFIG[game.run.difficulty].shopFrequency;
-  const encounterCount = game.run.encounter;
+  const shopWouldTrigger = (nextEncounter - 1) % shopFrequency === 0 && nextEncounter > 1;
 
-  // Shop triggers after every N encounters (not on first)
-  if ((encounterCount - 1) % shopFrequency === 0 && encounterCount > 1) {
+  const goToShop = decision === "shop" ? true : decision === "skip_shop" ? false : shopWouldTrigger;
+  const skipShop = decision === "skip_shop";
+
+  if (goToShop) {
     game.setPhase("shop");
-  } else {
-    // Reset encounter UI state (do not re-init hero)
-    combat.clearLog();
-    combat.resetTurn();
-
-    // Spawn next monster
-    combat.spawnMonster(game.run.difficulty);
-    game.setPhase("combat");
+    game.openShop();
+    return;
   }
+
+  if (skipShop) {
+    game.skipShop();
+  }
+
+  // Reset encounter UI state (do not re-init hero)
+  combat.clearLog();
+  combat.resetTurn();
+
+  // Spawn next monster
+  combat.spawnMonster(game.run.difficulty);
+  game.setPhase("combat");
 }
 
 /**

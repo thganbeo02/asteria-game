@@ -1,6 +1,6 @@
-import { createHeroState, getHeroDefinition } from "@/data/heroes";
+import { createHeroState } from "@/data/heroes";
 import { HeroSlice, SliceCreator } from "./types";
-import { StatusEffect } from "@/types";
+import { ItemStats, StatusEffect } from "@/types";
 import { applyHealing } from "@/systems/combat/damageCalculator";
 
 export const createHeroSlice: SliceCreator<HeroSlice> = (set,get) => ({
@@ -93,6 +93,61 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set,get) => ({
           stats: {
             ...state.hero.stats,
             [stat]: (state.hero.stats[stat] as number) + amount,
+          },
+        },
+      };
+    });
+  },
+
+  applyItemStats: (stats: ItemStats) => {
+    set((state) => {
+      if (!state.hero) return {};
+
+      const h = state.hero;
+      const s = h.stats;
+
+      const bonusAtk = s.bonusAtk + (stats.atk ?? 0);
+      const bonusDef = s.bonusDef + (stats.def ?? 0);
+      const bonusMaxHp = s.bonusMaxHp + (stats.maxHp ?? 0);
+      const bonusMaxMana = s.bonusMaxMana + (stats.maxMana ?? 0);
+      const manaRegen = s.manaRegen + (stats.manaRegen ?? 0);
+      const bonusCritChance = s.bonusCritChance + (stats.critChance ?? 0);
+      const bonusCritMultiplier = s.bonusCritMultiplier + (stats.critMultiplier ?? 0);
+      const bonusDodge = s.bonusDodge + (stats.dodge ?? 0);
+      const bonusPenetration = s.bonusPenetration + (stats.penetration ?? 0);
+
+      const oldMaxHp = s.maxHp + s.bonusMaxHp;
+      const oldMaxMana = s.maxMana + s.bonusMaxMana;
+      const newMaxHp = s.maxHp + bonusMaxHp;
+      const newMaxMana = s.maxMana + bonusMaxMana;
+
+      // GDD: buying max HP / max Mana also increases current HP / Mana by the same delta.
+      const hpDelta = (stats.maxHp ?? 0);
+      const manaDelta = (stats.maxMana ?? 0);
+
+      const newHp = Math.min(newMaxHp, Math.max(0, s.hp + hpDelta));
+      const newMana = Math.min(newMaxMana, Math.max(0, s.mana + manaDelta));
+
+      // Clamp in case an item ever reduces maxima (shouldn't happen with current content)
+      const clampedHp = Math.min(newMaxHp, newHp);
+      const clampedMana = Math.min(newMaxMana, newMana);
+
+      return {
+        hero: {
+          ...h,
+          stats: {
+            ...s,
+            manaRegen,
+            bonusAtk,
+            bonusDef,
+            bonusMaxHp,
+            bonusMaxMana,
+            bonusCritChance,
+            bonusCritMultiplier,
+            bonusDodge,
+            bonusPenetration,
+            hp: oldMaxHp === newMaxHp ? s.hp : clampedHp,
+            mana: oldMaxMana === newMaxMana ? s.mana : clampedMana,
           },
         },
       };

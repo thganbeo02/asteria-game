@@ -33,6 +33,8 @@ function createInitialRunState(heroId: string, difficulty: Difficulty): RunState
     crystalsSpent: 0,
     gold: 0,
 
+    exp: 0,
+
     score: 0,
     monstersKilled: {
       slime: 0,
@@ -153,6 +155,7 @@ export const createRunSlice: GameSliceCreator<RunSlice> = (set, get) => ({
           internalEncounter: 1,
           monsterSnapshots: newSnapshots,
           healthPotionsUsedThisLevel: 0,
+          shopsSkipped: 0,
         },
       };
     });
@@ -182,6 +185,19 @@ export const createRunSlice: GameSliceCreator<RunSlice> = (set, get) => ({
         run: {
           ...state.run,
           score: state.run.score + points,
+        },
+      };
+    });
+  },
+
+  addExp: (amount) => {
+    set((state) => {
+      if (!state.run) return {};
+
+      return {
+        run: {
+          ...state.run,
+          exp: state.run.exp + amount,
         },
       };
     });

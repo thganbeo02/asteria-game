@@ -18,6 +18,8 @@ import {
 import { abilityRegistry } from "./abilities/registry";
 import { applyAbilityTags } from "./abilities/tags";
 import { triggerOnBasicAttackResolved, triggerOnCrit } from "./passives/registry";
+import { getHeroDefinition } from "@/data/heroes";
+import { EXP_THRESHOLDS, MAX_LEVEL } from "@/lib/constants";
 import {
   getEffectiveMonsterAtk,
   getMonsterAction,
@@ -641,6 +643,8 @@ export class TurnManager {
 
     game.addCrystals(monster.crystalReward);
 
+    game.addExp(monster.expReward);
+
     const scoreMultiplier =
       run.difficulty === "easy" ? 1.0 : run.difficulty === "medium" ? 1.5 : 2.0;
     
@@ -653,6 +657,63 @@ export class TurnManager {
       action: "victory",
       message: `Victory! Earned ${monster.crystalReward} crystals.`,
     });
+
+    // Level-up check (uses cumulative EXP thresholds)
+    while (true) {
+      const currentHero = useCombatStore.getState().hero;
+      const currentRun = useGameStore.getState().run;
+      if (!currentHero || !currentRun) break;
+
+      if (currentHero.level >= MAX_LEVEL) break;
+      const nextLevel = currentHero.level + 1;
+      const threshold = EXP_THRESHOLDS[nextLevel as keyof typeof EXP_THRESHOLDS];
+      if (!threshold) break;
+
+      if (currentRun.exp < threshold) break;
+
+      const def = getHeroDefinition(currentHero.definitionId);
+      if (!def) break;
+
+      // Update run-level state (shop/potion resets, monster snapshotting)
+      useGameStore.getState().levelUp();
+
+      // Apply hero level scaling gains (index = (newLevel - 2))
+      const gainIdx = Math.max(0, Math.min(5, nextLevel - 2));
+      const scaling = def.levelScaling;
+
+      useCombatStore.setState((state) => {
+        if (!state.hero) return {};
+        const h = state.hero;
+        const maxHp = h.stats.maxHp + (scaling.maxHp[gainIdx] ?? 0);
+        const atk = h.stats.atk + (scaling.atk[gainIdx] ?? 0);
+        const defStat = h.stats.def + (scaling.def[gainIdx] ?? 0);
+        const maxMana = h.stats.maxMana + (scaling.maxMana[gainIdx] ?? 0);
+        const manaRegen = h.stats.manaRegen + (scaling.manaRegen[gainIdx] ?? 0);
+
+        return {
+          hero: {
+            ...h,
+            level: nextLevel,
+            stats: {
+              ...h.stats,
+              maxHp,
+              atk,
+              def: defStat,
+              maxMana,
+              manaRegen,
+              hp: maxHp + h.stats.bonusMaxHp,
+              mana: maxMana + h.stats.bonusMaxMana,
+            },
+          },
+        };
+      });
+
+      useCombatStore.getState().addLogEntry({
+        actor: "hero",
+        action: "level_up",
+        message: `Level up! You reached level ${nextLevel}.`,
+      });
+    }
 
     combat.setTurnPhase("combat_end");
     game.setPhase("victory");

@@ -1,4 +1,4 @@
-import { CombatLog, Difficulty, HeroState, HeroStats, MonsterState, StatusEffect, TurnPhase, AnimationEvent } from "@/types";
+import { CombatLog, Difficulty, HeroState, HeroStats, ItemStats, MonsterState, StatusEffect, TurnPhase, AnimationEvent } from "@/types";
 
 // SLICE INTERFACES
 
@@ -11,6 +11,7 @@ export interface HeroSlice {
   healHero: (amount: number) => void;
   modifyHeroStats: (changes: Partial<HeroStats>) => void;
   addHeroBonusStats: (stat: keyof HeroStats, amount: number) => void;
+  applyItemStats: (stats: ItemStats) => void;
   spendMana: (amount: number) => boolean;
   restoreMana: (amount: number) => void;
   applyStatusToHero: (effect: StatusEffect) => void;

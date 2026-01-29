@@ -47,8 +47,8 @@ export const CAMIRA: HeroDefinition = {
       name: "Rapid Fire",
       description: "Two arrows. Heals from damage dealt.",
       expandedDescription: `Fire two arrows, each dealing 70-100% ATK.
-Heal for 20-50% of total damage dealt.`,
-      manaCost: [10, 13, 16, 19, 22, 25, 28],
+Heal for 30-60% of total damage dealt.`,
+      manaCost: [9, 12, 15, 18, 21, 24, 27],
       cooldown: 2,
       currentCooldown: 0,
       damageScaling: [70, 75, 80, 85, 90, 95, 100],
@@ -61,7 +61,7 @@ Heal for 20-50% of total damage dealt.`,
       expandedDescription: `Tap survival instincts: 60% evasion for next attack.
 Gain 3-9 permanent ATK and DEF.
 From Level 5: Also gain 12-15 random max HP.`,
-      manaCost: [12, 16, 20, 24, 28, 32, 36],
+      manaCost: [10, 14, 18, 22, 26, 30, 34],
       cooldown: 3,
       currentCooldown: 0,
       tags: ["evade_buff", "permanent_stats"],
@@ -73,7 +73,7 @@ From Level 5: Also gain 12-15 random max HP.`,
       expandedDescription: `Fire a magic arrow: 140-260% ATK, ignoring 30-60% DEF.
       On Kill: Gain 20-600 bonus crystals.
       Each use grants +3% crit chance and crit damage (max 8 stacks = +24%).`,
-      manaCost: [18, 22, 26, 30, 34, 38, 42],
+      manaCost: [16, 20, 24, 28, 32, 36, 40],
       cooldown: 4,
       currentCooldown: 0,
       damageScaling: [140, 160, 180, 200, 220, 240, 260],
@@ -100,7 +100,7 @@ export const CAMIRA_CRIT_MANA_MAX = 5;
 export const CAMIRA_CRIT_CD_REDUCTION = 1;
 
 // Rapid Fire: Lifesteal percentage
-export const CAMIRA_RAPID_FIRE_HEAL = [20, 25, 30, 35, 40, 45, 50];
+export const CAMIRA_RAPID_FIRE_HEAL = [30, 35, 40, 45, 50, 55, 60];
 
 // Forest Agility
 export const CAMIRA_FOREST_EVADE = 60;

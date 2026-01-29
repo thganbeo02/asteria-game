@@ -1,4 +1,5 @@
 import type { EconomySlice, GameSliceCreator } from "./types";
+import { getSkipBonusCrystalsForLevel } from "@/systems/shop/generateShopOffers";
 
 // ECONOMY SLICE
 
@@ -84,9 +85,13 @@ export const createEconomySlice: GameSliceCreator<EconomySlice> = (set, get) => 
     set((state) => {
       if (!state.run) return {};
 
+      const bonus = getSkipBonusCrystalsForLevel(state.run.difficulty, state.run.currentLevel);
+
       return {
         run: {
           ...state.run,
+          crystals: state.run.crystals + bonus,
+          crystalsEarned: state.run.crystalsEarned + bonus,
           shopsSkipped: state.run.shopsSkipped + 1,
         },
       };

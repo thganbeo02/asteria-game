@@ -1,4 +1,5 @@
 import { Difficulty, GamePhase, ItemInstance, MonsterBaseStats, MonsterType } from "@/types";
+import type { ShopState } from "@/types";
 
 export interface RunState {
   heroId: string;
@@ -17,6 +18,9 @@ export interface RunState {
   crystalsEarned: number;
   crystalsSpent: number;
   gold: number;
+
+  // Progression
+  exp: number;
 
   // Tracking
   score: number;
@@ -38,6 +42,17 @@ export interface RunState {
 
 }
 
+export interface ShopSlice {
+  shop: ShopState | null;
+
+  openShop: () => void;
+  closeShop: () => void;
+  buyOffer: (offerId: string) =>
+    | { ok: true; kind: "item"; item: ItemInstance }
+    | { ok: true; kind: "potion"; healPercent: number }
+    | { ok: false; reason: string };
+}
+
 // SLICE INTERFACES
 
 export interface RunSlice {
@@ -52,6 +67,7 @@ export interface RunSlice {
   levelUp: () => void;
   recordKill: (monsterType: MonsterType) => void;
   addScore: (points: number) => void;
+  addExp: (amount: number) => void;
   getMonsterSnapshot: (monsterType: MonsterType) => MonsterBaseStats;
 }
 
@@ -80,7 +96,8 @@ export interface MetaSlice {
   updateSettings: (settings: Partial<MetaSlice["settings"]>) => void;
 }
 
-export interface GameStore extends RunSlice, EconomySlice, MetaSlice {}
+export interface GameStore extends RunSlice, EconomySlice, MetaSlice, ShopSlice {}
+
 
 export type GameSliceCreator<T> = (
   set: (partial: Partial<GameStore> | ((state: GameStore) => Partial<GameStore>)) => void,

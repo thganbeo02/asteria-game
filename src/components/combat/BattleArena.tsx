@@ -4,13 +4,19 @@ import { Button } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { DIFFICULTY_CONFIG } from "@/lib/constants";
 import { proceedToNextEncounter } from "@/systems/combat/combatActions";
+import { getSkipBonusCrystalsForLevel } from "@/systems/shop/generateShopOffers";
 import { useCombatStore, useGameStore } from "@/stores";
+import { useState } from "react";
 
 export function BattleArena() {
   const monster = useCombatStore((state) => state.monster);
   const turnPhase = useCombatStore((state) => state.turnPhase);
   const phase = useGameStore((state) => state.phase);
   const run = useGameStore((state) => state.run);
+
+  const [shopPromptOpen, setShopPromptOpen] = useState(false);
+
+  const skipBonus = run ? getSkipBonusCrystalsForLevel(run.difficulty, run.currentLevel) : 0;
 
   const isPlayerTurn = turnPhase === "player_turn";
   const isMonsterTurn = turnPhase === "monster_turn";
@@ -20,7 +26,6 @@ export function BattleArena() {
     const nextEncounter = run.encounter + 1;
     const shopFrequency = DIFFICULTY_CONFIG[run.difficulty].shopFrequency;
     const willShop = (nextEncounter - 1) % shopFrequency === 0 && nextEncounter > 1;
-
     return (
       <div className="flex flex-col items-center justify-center gap-6 py-8">
         <div
@@ -41,7 +46,7 @@ export function BattleArena() {
             <div className="text-right">
               <div className="text-xs uppercase tracking-widest text-text-muted">Up Next</div>
               <div className="text-text-primary font-semibold">
-                {willShop ? "Shop" : `Encounter ${nextEncounter}`}
+                {`Encounter ${nextEncounter}`}
               </div>
             </div>
           </div>
@@ -55,11 +60,71 @@ export function BattleArena() {
               End Run
             </Button>
 
-            <Button variant="primary" size="lg" onClick={() => proceedToNextEncounter()}>
-              {willShop ? "Enter Shop" : "Next Encounter"}
+            <Button
+              variant="primary"
+              size="lg"
+              onClick={() => {
+                if (willShop) {
+                  setShopPromptOpen(true);
+                  return;
+                }
+                proceedToNextEncounter();
+              }}
+            >
+              Next Encounter
             </Button>
           </div>
         </div>
+
+        {shopPromptOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
+            <button
+              type="button"
+              className="absolute inset-0 bg-black/60"
+              aria-label="Close shop prompt"
+              onClick={() => setShopPromptOpen(false)}
+            />
+
+            <div
+              className={cn(
+                "relative w-full max-w-md",
+                "rounded-2xl border border-border bg-bg-panel",
+                "p-6",
+              )}
+              role="dialog"
+              aria-modal="true"
+              aria-label="Shop opened"
+            >
+              <div className="text-xl font-bold text-text-primary">A shop has opened</div>
+              <div className="text-text-secondary mt-2">
+                A traveling merchant sets up camp. Want to sharpen up before the next fight?
+              </div>
+
+              <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
+                <Button
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => {
+                    setShopPromptOpen(false);
+                    proceedToNextEncounter("skip_shop");
+                  }}
+                >
+                  Skip (+{skipBonus} Crystals)
+                </Button>
+                <Button
+                  variant="primary"
+                  size="lg"
+                  onClick={() => {
+                    setShopPromptOpen(false);
+                    proceedToNextEncounter("shop");
+                  }}
+                >
+                  Enter Shop
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     );
   }

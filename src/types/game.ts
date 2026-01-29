@@ -26,6 +26,9 @@ export interface RunState {
   crystalsSpent: number;
   gold: number;  // Awarded at run end
 
+  // Progression
+  exp: number;
+
   // Tracking
   score: number;
   monstersKilled: Record<MonsterType, number>;

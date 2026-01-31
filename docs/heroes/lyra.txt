@@ -1,0 +1,146 @@
+# Lyra — *The Ember Scholar*
+
+**Unlock:** Starter (Free) | **Difficulty:** ⭐ Beginner | **Class:** Mage (Elementalist)
+
+---
+
+## Lore
+
+Lyra was a librarian's apprentice at the Ashen Academy until she accidentally burned it down discovering her gift. Now she wanders, turning her volatile magic into a force for good—one carefully controlled explosion at a time.
+
+> **"Knowledge is power. Fire is just... faster."**
+
+---
+
+## Core Stats
+
+* **Base:** 85 HP | 12 ATK | 4 DEF
+* **Resource:** 12 / 62 Mana (Regen: 5/turn)
+* **Crit Chance:** 7% Chance | 1.5x Multiplier
+* **Dodge:** 8%
+* **Penetration:** 0%
+
+---
+
+## Scaling (Per Level)
+
+* **Max HP:** +0 / 8 / 10 / 12 / 15 / 18 / 22
+* **ATK:** +0 / 4 / 8 / 12 / 17 / 22 / 28
+* **DEF:** +0 / 3 / 6 / 9 / 12 / 16 / 20
+* **Max Mana:** +0 / 5 / 8 / 11 / 14 / 17 / 20
+* **Mana Regen:** +0 / 0 / 1 / 0 / 1 / 0 / 1
+
+---
+
+# Passive - **Arcane Momentum**
+
+### **Hover Tooltip**
+
+```
+Arcane Momentum
+Consecutive spells grow stronger. Basic attacks reset the chain but restore mana.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Arcane Momentum
+Lyra's magic builds upon itself, rewarding commitment to spellcasting. Each consecutive ability used grants 1 Momentum stack, up to 3.
+
+Momentum Bonuses:
+- 1 Stack: +10% ability damage
+- 2 Stacks: +20% ability damage
+- 3 Stacks: +30% ability damage, and spells ignore 15% DEF
+
+Using a basic attack resets Momentum to 0. When max Momentum is reset, she gains 3 / 6 / 9 / 12 / 15 / 18 / 21 Mana.
+```
+
+---
+
+# Ability 1 — **Firebolt**
+
+### **Hover Tooltip**
+
+```
+Firebolt
+10-22 Mana | CD 1
+Quick fire spell. Burns enemy over time.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Firebolt
+Cost: 10 / 12 / 14 / 16 / 18 / 20 / 22 Mana | CD: 1 turn
+
+Lyra hurls a bolt of concentrated flame, dealing 100 / 120 / 140 / 160 / 180 / 200 / 220% ATK, and applies Burn for 3 turns, dealing 5% enemy's max HP per turn.
+If enemy is already Burning, Lyra heals for 20 / 25 / 30 / 35 / 40 / 45 / 50% damage dealt. On Kill, Lyra regains 4 / 6 / 8 / 10 / 12 / 14 / 16 Mana.
+```
+
+---
+
+# Ability 2 - **Frost Barrier**
+
+### **Hover Tooltip**
+
+```
+Frost Barrier
+14-32 Mana | CD 3
+Shield that absorbs damage. Shatters to damage and slow enemy.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Frost Barrier
+Cost: 14 / 17 / 20 / 23 / 26 / 29 / 32 Mana | CD: 3 turns
+
+Lyra conjures a barrier of frost that absorbs up to 50% Max HP in damage for 2 turns.
+When the barrier breaks or expires, it shatters dealing 60 / 70 / 80 / 90 / 100 / 110 / 120% ATK to the enemy.
+Shattered barrier applies Chilled for 2 turns: enemy deals 15% less damage.
+```
+
+---
+
+# Ability 3 — **Pyroclasm**
+
+### **Hover Tooltip**
+
+```
+Pyroclasm
+28-52 Mana | CD 4
+Massive fire burst. Stronger against Burning enemies.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Pyroclasm
+Cost: 28 / 32 / 36 / 40 / 44 / 48 / 52 Mana | CD: 4 turns
+
+Lyra unleashes an explosive burst of flame, dealing 180 / 210 / 240 / 270 / 300 / 330 / 360% ATK. If enemy is already Burning, consumes the Burn to deal bonus damage equal to 100% of remaining Burn damage.
+
+Each cast grants 2 / 4 / 6 / 8 / 10 / 12 / 14 ATK and max HP (based on level).
+```
+
+---
+
+# Playstyle Summary
+
+Lyra is a technical caster who rewards players for planning their turn order to maintain Arcane Momentum.
+
+**Combat Flow:** Never use a basic attack unless you are out of mana, as it resets your Momentum stacks. The goal is to reach 3 stacks to ignore enemy DEF.
+
+**Scaling Strategy:** She is a "Battle-Mage" who grows sturdier over time. Pyroclasm grants permanent ATK and Max HP with every cast, rewarding players who can sustain her high mana costs.
+
+**Shop Priority**:
+
+* **Max HP:** This is critical for Lyra because her Frost Barrier absorbs 50% of her Max HP. A larger health pool directly creates a larger shield.
+
+* **ATK:** Necessary to boost the scaling on Firebolt and Pyroclasm to end fights before her mana regen (5/turn) is overwhelmed.
+
+---
+
+# Changelog
+
+* **v1.0** — Initial release

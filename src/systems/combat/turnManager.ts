@@ -17,7 +17,7 @@ import {
 } from "./statusEffects";
 import { abilityRegistry } from "./abilities/registry";
 import { applyAbilityTags } from "./abilities/tags";
-import { triggerOnBasicAttackResolved, triggerOnCrit } from "./passives/registry";
+import { triggerOnBasicAttackResolved, triggerOnCrit, triggerOnKill } from "./passives/registry";
 import { getHeroDefinition } from "@/data/heroes";
 import { EXP_THRESHOLDS, MAX_LEVEL } from "@/lib/constants";
 import {
@@ -527,6 +527,24 @@ export class TurnManager {
     const heroEffectResult = tickEffectDurations(hero.statusEffects);
     const monsterEffectResult = tickEffectDurations(monster.statusEffects);
 
+    // Check if fortify expired (for Bran's HP gain)
+    const fortifyExpired = heroEffectResult.expired.includes("fortify");
+    if (fortifyExpired) {
+      const currentHero = useCombatStore.getState().hero;
+      if (currentHero?.definitionId === "bran") {
+        const hpGain = Number(currentHero.passiveState.pendingFortifyHpGain ?? 0);
+        if (hpGain > 0) {
+          store.addHeroBonusStats("bonusMaxHp", hpGain);
+          store.addLogEntry({
+            actor: "hero",
+            action: "fortify_hp_gain",
+            message: `Fortify expires: +${hpGain} Max HP permanently.`,
+          });
+          store.updatePassiveState({ pendingFortifyHpGain: 0 });
+        }
+      }
+    }
+
     // Check if shield expired
     const shieldExpired = heroEffectResult.expired.includes("shield");
 
@@ -634,10 +652,13 @@ export class TurnManager {
   static handleVictory(): void {
     const combat = useCombatStore.getState();
     const game = useGameStore.getState();
-    const { monster } = combat;
+    const { hero, monster } = combat;
     const { run } = game;
 
-    if (!monster || !run) return;
+    if (!monster || !run || !hero) return;
+
+    // Trigger passive onKill hook before rewards
+    triggerOnKill({ hero, monster, source: "ability" });
 
     game.recordKill(monster.definitionId);
 
@@ -677,8 +698,9 @@ export class TurnManager {
       // Update run-level state (shop/potion resets, monster snapshotting)
       useGameStore.getState().levelUp();
 
-      // Apply hero level scaling gains (index = (newLevel - 2))
-      const gainIdx = Math.max(0, Math.min(5, nextLevel - 2));
+      // Apply hero level scaling gains (index 1 corresponds to level 2 gain)
+      // The arrays are length 7, where index 0 is unused/level 1 placeholder.
+      const gainIdx = Math.max(0, Math.min(6, nextLevel - 1));
       const scaling = def.levelScaling;
 
       useCombatStore.setState((state) => {

@@ -49,6 +49,7 @@ import {
   SHADE_STREAK_UPGRADE,
 } from "@/data/heroes/shade";
 import { getHeroDefinition } from "@/data/heroes";
+import { getDefenseModifier } from "@/systems/combat/statusEffects";
 import type { Ability, HeroState, MonsterState } from "@/types";
 
 export type TooltipMode = "brief" | "expanded";
@@ -78,6 +79,12 @@ function getTotalAtk(hero: HeroState): number {
 
 function getTotalDef(hero: HeroState): number {
   return hero.stats.def + hero.stats.bonusDef;
+}
+
+function getEffectiveDef(hero: HeroState): number {
+  const base = getTotalDef(hero);
+  const modifier = getDefenseModifier(hero.statusEffects);
+  return Math.floor(base * modifier);
 }
 
 function getMaxHp(hero: HeroState): number {
@@ -171,7 +178,7 @@ function getExpandedAbilityParagraph(
   if (ability.id === "bran_shield_slam") {
     const scalingPct = ability.damageScaling?.[idx] ?? 100;
     const atkPart = Math.floor(getTotalAtk(hero) * (scalingPct / 100));
-    const defPart = Math.floor(getTotalDef(hero) * (BRAN_SHIELD_SLAM_DEF_SCALE / 100));
+    const defPart = Math.floor(getEffectiveDef(hero) * (BRAN_SHIELD_SLAM_DEF_SCALE / 100));
     const total = atkPart + defPart;
 
     return (
@@ -220,7 +227,7 @@ function getExpandedAbilityParagraph(
           "."
         ) : (
           <>
-            {" "}(increases based on <span className="font-semibold">enemy's missing HP</span>).
+            {" "}(increases based on <span className="font-semibold">enemy&apos;s missing HP</span>).
           </>
         )}{" "}
         On Kill, {p.subject} gains{" "}

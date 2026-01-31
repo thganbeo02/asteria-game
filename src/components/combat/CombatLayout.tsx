@@ -17,18 +17,18 @@ export function CombatLayout() {
       <main className="flex-1 p-6">
         <div className="max-w-7xl mx-auto grid grid-cols-12 gap-6 h-full">
           {/* Left Column - Hero Panel */}
-          <div className="col-span-3">
+          <div className="col-span-12 lg:col-span-3">
             <HeroPanel />
           </div>
 
           {/* Center Column - Battle Arena + Log */}
-          <div className="col-span-6 flex flex-col gap-6">
+          <div className="col-span-12 lg:col-span-6 flex flex-col gap-6">
             <BattleArena />
             <CombatLog />
           </div>
 
           {/* Right Column - Monster Panel */}
-          <div className="col-span-3">
+          <div className="col-span-12 lg:col-span-3">
             <MonsterPanel />
           </div>
         </div>

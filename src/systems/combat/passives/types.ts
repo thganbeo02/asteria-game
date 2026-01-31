@@ -18,7 +18,13 @@ export interface CritContext extends PassiveContext {
   damage: number;
 }
 
+export interface KillContext extends PassiveContext {
+  source: "basic_attack" | "ability" | "dot";
+  abilityId?: string;
+}
+
 export interface PassiveHandler {
   onBasicAttackResolved?: (ctx: BasicAttackResolvedContext) => void;
   onCrit?: (ctx: CritContext) => void;
+  onKill?: (ctx: KillContext) => void;
 }

@@ -48,8 +48,8 @@ AGENTS.md
 CLAUDE.md
 
 # Testing & Balance Reports
-docs/
-tests/
-**/*.test.ts
-**/*.test.tsx
-vitest.config.mts
+docs/balance/
+tests/coverage/
+
+# Misc
+

@@ -97,6 +97,25 @@
   50% { transform: translateY(-10px); }
 }
 
+@keyframes stat-bump {
+  0% { transform: translateY(0) scale(1); filter: brightness(1); }
+  35% { transform: translateY(-2px) scale(1.08); filter: brightness(1.15); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
+}
+
+@keyframes stat-drop {
+  0% { transform: translateY(0) scale(1); filter: brightness(1); }
+  35% { transform: translateY(2px) scale(0.98); filter: brightness(1.1); }
+  100% { transform: translateY(0) scale(1); filter: brightness(1); }
+}
+
+@keyframes shop-buy {
+  0% { transform: scale(1); }
+  30% { transform: scale(0.98); }
+  60% { transform: scale(1.02); }
+  100% { transform: scale(1); }
+}
+
 /* =============================================================================
    BASE STYLES
    ============================================================================= */

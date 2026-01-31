@@ -3,7 +3,6 @@
 import { useCombatStore } from "@/stores";
 import { MONSTERS } from "@/data/monsters";
 import { HealthBar } from "@/components/ui";
-import { cn } from "@/lib/cn";
 
 export function MonsterPanel() {
   const monster = useCombatStore((state) => state.monster);
@@ -77,10 +76,10 @@ export function MonsterPanel() {
       {/* Rewards Preview */}
       <div className="pt-3 border-t border-border flex justify-end gap-4 text-xs">
         <span className="text-text-muted">
-          💎 {monster.crystalReward} crystals
+          💎 {monster.crystalReward} Crystals
         </span>
         <span className="text-text-muted">
-          ✨ {monster.expReward} exp
+          ✨ {monster.expReward} EXP
         </span>
       </div>
     </div>

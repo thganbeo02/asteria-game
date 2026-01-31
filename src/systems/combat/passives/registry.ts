@@ -1,6 +1,6 @@
 import { calculateHeroAbility, type HeroCombatStats } from "../damageCalculator";
 import { useCombatStore } from "@/stores";
-import type { PassiveHandler, BasicAttackResolvedContext, CritContext } from "./types";
+import type { PassiveHandler, BasicAttackResolvedContext, CritContext, KillContext } from "./types";
 import {
   CAMIRA_CRIT_CD_REDUCTION,
   CAMIRA_CRIT_MANA_MAX,
@@ -8,6 +8,11 @@ import {
   CAMIRA_PASSIVE_BONUS,
   CAMIRA_PASSIVE_HIT_COUNT,
 } from "@/data/heroes/camira";
+import {
+  BRAN_KILL_HEAL_PERCENT,
+  BRAN_PENETRATION_UNLOCK_LEVEL,
+  BRAN_PASSIVE_PENETRATION,
+} from "@/data/heroes/bran";
 
 function randomInt(min: number, max: number): number {
   return min + Math.floor(Math.random() * (max - min + 1));
@@ -91,8 +96,49 @@ const camiraPassives: PassiveHandler = {
   },
 };
 
+const branPassives: PassiveHandler = {
+  onKill: () => {
+    const store = useCombatStore.getState();
+    const { hero } = store;
+    if (!hero || hero.definitionId !== "bran") return;
+
+    const levelIndex = Math.min(hero.level - 1, 6);
+
+    // Iron Will: Heal % of missing HP on kill
+    const healPercent = BRAN_KILL_HEAL_PERCENT[levelIndex];
+    const maxHp = hero.stats.maxHp + hero.stats.bonusMaxHp;
+    const missingHp = maxHp - hero.stats.hp;
+    const healAmount = Math.floor((missingHp * healPercent) / 100);
+
+    if (healAmount > 0) {
+      store.healHero(healAmount);
+      store.addLogEntry({
+        actor: "hero",
+        action: "bran_iron_will",
+        message: `Iron Will: Healed ${healAmount} HP (${healPercent}% missing HP).`,
+      });
+      store.queueAnimation({ type: "heal", target: "hero", value: healAmount });
+    }
+
+    // Iron Will: Level 4+ penetration (one-time unlock)
+    if (hero.level >= BRAN_PENETRATION_UNLOCK_LEVEL) {
+      const penApplied = hero.passiveState.penetrationApplied ?? false;
+      if (!penApplied) {
+        store.addHeroBonusStats("bonusPenetration", BRAN_PASSIVE_PENETRATION);
+        store.updatePassiveState({ penetrationApplied: true });
+        store.addLogEntry({
+          actor: "hero",
+          action: "bran_penetration_unlock",
+          message: `Iron Will: +${BRAN_PASSIVE_PENETRATION}% Penetration unlocked!`,
+        });
+      }
+    }
+  },
+};
+
 export const passiveRegistry: Record<string, PassiveHandler> = {
   camira: camiraPassives,
+  bran: branPassives,
 };
 
 export function triggerOnBasicAttackResolved(ctx: BasicAttackResolvedContext): void {
@@ -101,4 +147,8 @@ export function triggerOnBasicAttackResolved(ctx: BasicAttackResolvedContext): v
 
 export function triggerOnCrit(ctx: CritContext): void {
   passiveRegistry[ctx.hero.definitionId]?.onCrit?.(ctx);
+}
+
+export function triggerOnKill(ctx: KillContext): void {
+  passiveRegistry[ctx.hero.definitionId]?.onKill?.(ctx);
 }

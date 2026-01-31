@@ -1,0 +1,143 @@
+# Bran - *The Village Defender*
+
+**Unlock:** Starter (Free) | **Difficulty:** ⭐⭐ Beginner | **Class:** Warrior (Guardian)
+
+---
+
+## Lore
+
+Born in the farming village of Oakenshield, Bran picked up a sword not for glory, but to protect his home. With no noble training or legendary power, he fights through sheer strength and stubborn resolve.
+
+> **"You want to hurt them? You'll have to go through me first."**
+
+---
+
+## Core Stats
+
+* **Base:** 110 HP | 14 ATK | 10 DEF
+* **Resource:** 10 / 40 Mana (Regen: 3/turn)
+* **Crit Chance:** 5% Chance | 1.5x Multiplier
+* **Dodge:** 5%
+* **Penetration:** 0%
+
+---
+
+## Scaling (Per Level)
+
+* **Max HP:** +0 / 12 / 18 / 24 / 30 / 36 / 42
+* **ATK:** +0 / 4 / 7 / 10 / 14 / 19 / 25
+* **DEF:** +0 / 4 / 7 / 10 / 14 / 19 / 25
+* **Max Mana:** +0 / 5 / 7 / 9 / 11 / 14 / 18
+* **Mana Regen:** +0 / 0 / 1 / 0 / 1 / 0 / 1
+
+---
+
+# Passive — **Iron Will**
+
+### **Hover Tooltip**
+
+```
+Iron Will
+Heal when you kill. Gain penetration at level 4.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Iron Will
+Bran's determination keeps him standing.
+On Kill, he heals for 24 / 28 / 32 / 36 / 40 / 44 / 48% of missing HP (scales with level).
+On level 4, Bran also gains 20% Penetration.
+```
+
+---
+
+# Ability 1 — **Shield Slam**
+
+### **Hover Tooltip**
+
+```
+Shield Slam
+8-20 Mana | CD 2
+Stun enemy for 1 turn.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Shield Slam
+Cost: 8 / 10 / 12 / 14 / 16 / 18 / 20 Mana | CD: 2 turns
+
+Bran slams his shield at the enemy, dealing 110 / 120 / 130 / 140 / 150 / 160 / 170% ATK + 25% DEF damage
+and stunning it for 1 turn (skip their next action).
+```
+
+---
+
+# Ability 2 — **Fortify**
+
+### **Hover Tooltip**
+
+```
+Fortify
+10-34 Mana | CD 4
+Massive DEF buff for 3 turns.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Fortify
+Cost: 10 / 14 / 18 / 22 / 26 / 30 / 34 Mana | CD: 4 turns
+
+Bran braces for impact, gaining 30 / 37.5 / 45 / 52.5 / 60 / 67.5 / 75% bonus DEF for 3 turns.
+He then shrugs off, gaining 5 / 7 / 9 / 11 / 13 / 15 / 15 permanent Max HP. After 6 uses, Bran also gains 20 ATK and 15% Penetration.
+```
+
+---
+
+# Ability 3 — **Crushing Blow**
+
+### **Hover Tooltip**
+
+```
+Crushing Blow
+18-42 Mana | CD 4
+Execute. More damage to low HP enemies.
+```
+
+### **Expanded Tooltip Panel**
+
+```
+Crushing Blow
+Cost: 18 / 22 / 26 / 30 / 34 / 38 / 42 Mana | CD: 4 turns
+
+Bran strikes down the enemy boldly, dealing 160 / 175 / 190 / 205 / 220 / 235 / 250% ATK + 25% enemy missing HP.
+On Kill, he gains 2 / 3 / 4 / 5 / 6 / 7 / 8 permanent ATK and DEF.
+```
+
+---
+
+# Playstyle Summary
+
+Bran is the master of the long game. While other heroes fear longer fights, Bran uses them to stack his Fortify passive and outlast the opposition.
+
+**Combat Flow:** Use Shield Slam to interrupt heavy enemy attacks. Maintain Fortify as often as possible; even if the fight is safe, using it contributes to his permanent 6-use stat unlock.
+
+**Scaling Strategy:** He heals based on Missing HP, meaning he is most dangerous when he's taken a few hits. Crushing Blow ensures that once an enemy is weakened, they cannot escape.
+
+**Shop Priority**:
+
+* **DEF**: This is Bran's best stat, as Shield Slam scales its damage directly from his DEF.
+
+* **Max HP**: Increases the buffer for his Iron Will passive to heal him back from the brink.
+
+---
+
+# Changelog
+
+* **0.1.1**
+    *   **Shield Slam**: Added +25% DEF scaling to damage.
+    *   **Fortify**: Added permanent Max HP gain (5-15) on buff expiry.
+    *   **System**: Abilities can no longer crit.
+* **v1.0** — Initial release

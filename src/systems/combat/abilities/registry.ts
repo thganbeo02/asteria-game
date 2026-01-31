@@ -14,6 +14,16 @@ import {
   CAMIRA_JACKPOT_PEN,
   CAMIRA_RAPID_FIRE_HEAL,
 } from "@/data/heroes/camira";
+import {
+  BRAN_SHIELD_SLAM_DEF_SCALE,
+  BRAN_FORTIFY_DEF_BONUS,
+  BRAN_FORTIFY_HP_GAIN,
+  BRAN_FORTIFY_THRESHOLD,
+  BRAN_FORTIFY_BONUS_ATK,
+  BRAN_FORTIFY_BONUS_PEN,
+  BRAN_CRUSHING_BLOW_MISSING_HP,
+  BRAN_CRUSHING_BLOW_KILL_STATS,
+} from "@/data/heroes/bran";
 import { triggerOnCrit } from "../passives/registry";
 
 function randomInt(min: number, max: number): number {
@@ -233,8 +243,214 @@ const camiraJackpotArrow: AbilityHandler = ({ hero, monster, ability }) => {
   }
 };
 
+// =============================================================================
+// BRAN ABILITIES
+// =============================================================================
+
+const branShieldSlam: AbilityHandler = ({ hero, monster, ability }) => {
+  const store = useCombatStore.getState();
+  const levelIndex = Math.min(hero.level - 1, 6);
+  const scaling = (ability.damageScaling?.[levelIndex] ?? 110) / 100;
+  const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
+
+  const heroStats: HeroCombatStats = {
+    atk: Math.floor((hero.stats.atk + hero.stats.bonusAtk) * dmgModifier),
+    bonusAtk: 0,
+    critChance: hero.stats.critChance,
+    bonusCritChance: hero.stats.bonusCritChance,
+    critMultiplier: hero.stats.critMultiplier,
+    bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+    penetration: hero.stats.penetration,
+    bonusPenetration: hero.stats.bonusPenetration,
+    dodge: hero.stats.dodge,
+    bonusDodge: hero.stats.bonusDodge,
+  };
+
+  const defModifier = getDefenseModifier(monster.statusEffects);
+  const effectiveDef = Math.floor(monster.def * defModifier);
+
+  // Bran abilities do not crit (basic attacks can still crit).
+  const result = calculateHeroAbility(heroStats, effectiveDef, scaling, 0, false);
+
+  // DEF scaling: +25% of hero's DEF as flat bonus damage
+  const baseHeroDef = hero.stats.def + hero.stats.bonusDef;
+  const heroDefModifier = getDefenseModifier(hero.statusEffects);
+  const effectiveHeroDef = Math.floor(baseHeroDef * heroDefModifier);
+  const defBonus = Math.floor(effectiveHeroDef * (BRAN_SHIELD_SLAM_DEF_SCALE / 100));
+  const totalDamage = result.finalDamage + defBonus;
+
+  if (result.isDodged) {
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      message: `${ability.name} was dodged!`,
+    });
+    return;
+  }
+
+  if (totalDamage > 0) {
+    store.dealDamageToMonster(totalDamage);
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      damage: totalDamage,
+      isCrit: result.isCrit,
+      message: `${ability.name} deals ${totalDamage} damage! (+${defBonus} from DEF)`,
+    });
+    store.queueAnimation({
+      type: "damage",
+      target: "monster",
+      value: totalDamage,
+      isCrit: result.isCrit,
+    });
+
+    if (result.isCrit) {
+      triggerOnCrit({
+        hero,
+        monster,
+        source: "ability",
+        abilityId: ability.id,
+        damage: totalDamage,
+      });
+    }
+  }
+
+  // Apply stun for 1 turn
+  const stunEffect = createStatusEffect("stun", "hero", 0, 1);
+  store.applyStatusToMonster(stunEffect);
+  store.addLogEntry({
+    actor: "hero",
+    action: "stun",
+    statusApplied: "stun",
+    message: "Enemy is stunned for 1 turn!",
+  });
+};
+
+const branFortify: AbilityHandler = ({ hero, ability }) => {
+  const store = useCombatStore.getState();
+  const levelIndex = Math.min(hero.level - 1, 6);
+
+  // Apply DEF buff
+  const defBonus = BRAN_FORTIFY_DEF_BONUS[levelIndex];
+  const fortifyEffect = createStatusEffect("fortify", "hero", defBonus, 3);
+  store.applyStatusToHero(fortifyEffect);
+  store.addLogEntry({
+    actor: "hero",
+    action: ability.id,
+    statusApplied: "fortify",
+    message: `Fortify: +${defBonus}% DEF for 3 turns.`,
+  });
+  store.queueAnimation({ type: "buff", target: "hero", value: defBonus });
+
+  // Store the HP gain for when buff expires
+  const hpGain = BRAN_FORTIFY_HP_GAIN[levelIndex];
+  store.updatePassiveState({ pendingFortifyHpGain: hpGain });
+
+  // Track fortify uses for threshold bonus
+  const prevUses = Number(hero.passiveState.fortifyUses ?? 0);
+  const newUses = prevUses + 1;
+  store.updatePassiveState({ fortifyUses: newUses });
+
+  // Check threshold (6 uses) -> grant permanent bonuses
+  const bonusUnlocked = hero.passiveState.fortifyBonusUnlocked ?? false;
+  if (!bonusUnlocked && newUses >= BRAN_FORTIFY_THRESHOLD) {
+    store.addHeroBonusStats("bonusAtk", BRAN_FORTIFY_BONUS_ATK);
+    store.addHeroBonusStats("bonusPenetration", BRAN_FORTIFY_BONUS_PEN);
+    store.updatePassiveState({ fortifyBonusUnlocked: true });
+    store.addLogEntry({
+      actor: "hero",
+      action: "fortify_mastery",
+      message: `Fortify Mastery! +${BRAN_FORTIFY_BONUS_ATK} ATK and +${BRAN_FORTIFY_BONUS_PEN}% Penetration permanently!`,
+    });
+  }
+};
+
+const branCrushingBlow: AbilityHandler = ({ hero, monster, ability }) => {
+  const store = useCombatStore.getState();
+  const levelIndex = Math.min(hero.level - 1, 6);
+  const scaling = (ability.damageScaling?.[levelIndex] ?? 160) / 100;
+  const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
+
+  const heroStats: HeroCombatStats = {
+    atk: Math.floor((hero.stats.atk + hero.stats.bonusAtk) * dmgModifier),
+    bonusAtk: 0,
+    critChance: hero.stats.critChance,
+    bonusCritChance: hero.stats.bonusCritChance,
+    critMultiplier: hero.stats.critMultiplier,
+    bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+    penetration: hero.stats.penetration,
+    bonusPenetration: hero.stats.bonusPenetration,
+    dodge: hero.stats.dodge,
+    bonusDodge: hero.stats.bonusDodge,
+  };
+
+  const defModifier = getDefenseModifier(monster.statusEffects);
+  const effectiveDef = Math.floor(monster.def * defModifier);
+
+  // Bran abilities do not crit (basic attacks can still crit).
+  const result = calculateHeroAbility(heroStats, effectiveDef, scaling, 0, false);
+
+  // Execute damage: +25% of enemy's MISSING HP
+  const monsterMissingHp = monster.maxHp - monster.hp;
+  const executeBonus = Math.floor(monsterMissingHp * (BRAN_CRUSHING_BLOW_MISSING_HP / 100));
+  const totalDamage = result.finalDamage + executeBonus;
+
+  if (result.isDodged) {
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      message: `${ability.name} was dodged!`,
+    });
+    return;
+  }
+
+  if (totalDamage > 0) {
+    store.dealDamageToMonster(totalDamage);
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      damage: totalDamage,
+      isCrit: result.isCrit,
+      message: `${ability.name} deals ${totalDamage} damage! (+${executeBonus} execute)`,
+    });
+    store.queueAnimation({
+      type: "damage",
+      target: "monster",
+      value: totalDamage,
+      isCrit: result.isCrit,
+    });
+
+    if (result.isCrit) {
+      triggerOnCrit({
+        hero,
+        monster,
+        source: "ability",
+        abilityId: ability.id,
+        damage: totalDamage,
+      });
+    }
+
+    // Check for kill and grant permanent stats
+    const updatedMonster = useCombatStore.getState().monster;
+    if (updatedMonster && updatedMonster.hp <= 0) {
+      const statGain = BRAN_CRUSHING_BLOW_KILL_STATS[levelIndex];
+      store.addHeroBonusStats("bonusAtk", statGain);
+      store.addHeroBonusStats("bonusDef", statGain);
+      store.addLogEntry({
+        actor: "hero",
+        action: "crushing_blow_kill",
+        message: `Crushing Blow kill! +${statGain} ATK and +${statGain} DEF permanently.`,
+      });
+    }
+  }
+};
+
 export const abilityRegistry: Record<string, AbilityHandler> = {
   camira_rapid_fire: camiraRapidFire,
   camira_forest_agility: camiraForestAgility,
   camira_jackpot_arrow: camiraJackpotArrow,
+  // Bran
+  bran_shield_slam: branShieldSlam,
+  bran_fortify: branFortify,
+  bran_crushing_blow: branCrushingBlow,
 };

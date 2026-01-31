@@ -103,6 +103,8 @@ export const BRAN_FORTIFY_BONUS_PEN = 15;
 export const BRAN_INITIAL_PASSIVE_STATE = {
   fortifyUses: 0,
   fortifyBonusUnlocked: false,
+  penetrationApplied: false,
+  pendingFortifyHpGain: 0,
 };
 
 // Shield Slam: DEF scaling

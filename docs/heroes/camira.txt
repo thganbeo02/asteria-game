@@ -140,6 +140,8 @@ Camira plays the "Economy Game." She is relatively fragile early on, but her abi
 
 # Changelog
 
+* **Unreleased**
+    *   (Add upcoming changes here)
 * **0.1.1**
     *   Tooltip clarifications for Jackpot Arrow rewards and Passive trigger count.
 * **v1.0** — Initial release

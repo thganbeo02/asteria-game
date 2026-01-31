@@ -136,6 +136,8 @@ Bran is the master of the long game. While other heroes fear longer fights, Bran
 
 # Changelog
 
+* **Unreleased**
+    *   (Add upcoming changes here)
 * **0.1.1**
     *   **Shield Slam**: Added +25% DEF scaling to damage.
     *   **Fortify**: Added permanent Max HP gain (5-15) on buff expiry.

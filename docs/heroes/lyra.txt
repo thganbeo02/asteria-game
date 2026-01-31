@@ -143,4 +143,6 @@ Lyra is a technical caster who rewards players for planning their turn order to 
 
 # Changelog
 
+* **Unreleased**
+    *   (Add upcoming changes here)
 * **v1.0** — Initial release

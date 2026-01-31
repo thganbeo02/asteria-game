@@ -166,4 +166,6 @@ Shade is a high-tempo hero whose power is directly tied to her speed and efficie
 
 # Changelog
 
+* **Unreleased**
+    *   (Add upcoming changes here)
 * **v1.0** — Initial release

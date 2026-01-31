@@ -3,6 +3,25 @@ ASTERIA GAME - CHANGELOG
 ================================================================================
 
 --------------------------------------------------------------------------------
+CHANGELOG CONVENTIONS (pre-release)
+--------------------------------------------------------------------------------
+
+Workflow
+1. Daily/WIP changes: Add to `docs/patch-notes/UNRELEASED.md`.
+2. Weekly release: Move "Unreleased" content to `docs/patch-notes/0.x.y.md` and bump package version.
+
+Versioning (recommended)
+- Use pre-release SemVer: 0.MINOR.PATCH
+  - PATCH: numeric tuning, bug fixes, UI copy
+  - MINOR: new mechanic, new ability, new screen
+  - MAJOR: reserved for 1.0 launch
+
+Entry format
+- Keep date headers in this file (dev log): YYYY-MM-DD
+- Player-facing notes live in `docs/patch-notes/`
+
+
+--------------------------------------------------------------------------------
 2026-01-25 - Shield Bar UI & Frost Barrier Implementation
 --------------------------------------------------------------------------------
 

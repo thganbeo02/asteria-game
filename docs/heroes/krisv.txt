@@ -1,250 +1,77 @@
-# KrisV — *The Deadeye Marksman*
+KRISV
+The Deadeye Marksman
 
-**Tier:** Premium
-**Unlock:** $2.99 or 2500 Essence
-**Difficulty:** ⭐⭐⭐⭐ Expert
-**Class:** Ranger (Sharpshooter)
+Tier: Premium
+Unlock: $2.99 or 2500 Essence
+Difficulty: Expert
+Class: Ranger (Sharpshooter)
 
----
+LORE
 
-## Lore
+KrisV hails from the distant Iron Isles, a land of black powder and mechanical innovation. Once the Isles' greatest marksman, a tragic mistake led him to vow only to hunt true monsters with his rebuilt rifle.
 
-KrisV hails from the distant Iron Isles, a land of black powder, clockwork engineering, and mechanical innovation where firearms long ago replaced bows. Once renowned as the greatest marksman the Isles had ever produced, he was capable of threading a bullet through a keyhole from a thousand yards away.
+"One shot. That's all I need. That's all I ever needed."
 
-But fame brought tragedy. Hired by a corrupt noble to eliminate a supposed traitor, KrisV carried out the contract with absolute precision—only to discover that the target was an innocent reformer fighting for justice. The realization shattered him.
+BASE STATS
 
-Consumed by guilt, he destroyed his old rifle and fled across the sea to Asteria. There, far from the Iron Isles, he rebuilt his weapon in secret. Now, he vows to use his skill only on true monsters—and to ensure he never makes the same mistake again.
+- HP: 104
+- ATK: 12
+- DEF: 7
+- Mana: 10 / 60 (Regen: 4/turn)
+- Crit Chance: 20%
+- Crit Multiplier: 1.75x
+- DEF Penetration: 0%
+- Dodge: 8%
+- Focus Meter: 20 / 120
 
-> **“One shot. That’s all I need. That’s all I ever needed.”**
+PASSIVE - SHARPSHOOTER'S FOCUS
 
----
-
-## Base Stats
-
-* **HP:** 104
-* **ATK:** 12
-* **DEF:** 7
-* **Mana:** 10 / 60 (Regen: 4/turn)
-* **Crit Chance:** 20%
-* **Crit Multiplier:** 1.75×
-* **DEF Penetration:** 0%
-* **Dodge:** 8%
-* **Focus Meter:** 20 / 120 (starts at 20)
-
----
-
-# Passive — **Sharpshooter’s Focus**
-
-### **Hover Tooltip**
-
-```
-Sharpshooter’s Focus  
 Gain Focus each turn. High Focus empowers abilities.
-```
 
-### **Expanded Tooltip Panel**
+Focus Gains:
+- +5 Focus per Attack or Ability.
+- +20 Focus if turn is skipped.
+- +20 Focus on Kill.
+- -5 Focus when damaged (once per turn).
 
-```
-Sharpshooter’s Focus  
-KrisV maintains a Focus meter, starting at 20 and capped at 120.
-- Gains 5 Focus per Attack or Ability, or 20 Focus if skipped turn, and 20 Focus on Kill
-- Lose 5 Focus when damaged (once per turn)
-- For every 100 Focus consumed, KrisV gains 2 / 3 / 4 / 5 / 6 / 7 / 8 ATK (based on level)
+Focus Thresholds:
+- 50+ Focus: +10% Crit Chance.
+- 75+ Focus: +15% Crit Chance and +10% ATK.
+- 100+ Focus: +20% Crit Chance and +20% ATK.
 
-Focus Bonuses:
-- 50+: Gains 10% Crit Chance  
-- 75+: Gains 15% Crit Chance and 10% ATK  
-- 100+: Gains 20% Crit Chance and 20% ATK
-```
+Scaling:
+- For every 100 Focus consumed, KrisV gains 2-8 permanent ATK.
 
-<!-- ### **Full Ability Description (Wiki Style)**
+ABILITY 1 - PRECISE SHOT
 
-**Sharpshooter’s Focus**
-KrisV maintains a Focus meter ranging from 0 to 120, representing his discipline and mastery. He begins each battle with **20 Focus**.
-
-#### **Gains Focus**
-KrisV increases his Focus through disciplined play:
-* **5 Focus** whenever he performs an attack or ability
-* **20 Focus** when he skips a turn to recalibrate
-* **20 Focus** upon scoring a kill
-
-#### **Loses Focus**
-His concentration is fragile:
-* **5 Focus** upon taking damage
-
-#### **Focus Thresholds**
-As KrisV becomes more focused, his lethality increases:
-* **50+ Focus:** Gains 10% Critical Chance
-* **75+ Focus:** Gains 15% Critical Chance and 10% Attack 
-* **100+ Focus:** Gains 20% Critical Chance, 20% Attack
-After triggering the empowered 100-Focus attack, Focus is consumed accordingly.
-
-#### **Mastery Scaling — Permanent ATK Gain**
-For every 100 Focus consumed, KrisV gains 2 / 3 / 4 / 5 / 6 / 7 / 8 ATK based on his level. -->
-
----
-
-# Ability 1 — **Precise Shot**
-
-**Cost:** 12-30 Mana
-**Cooldown:** 2 turns
-**Type:** Single-Target Damage
-
-### **Hover Tooltip**
-
-```
-Precise Shot  
-12 Mana | CD 2  
 High damage shot. Stronger with Focus.
-```
+- Cost: 12 / 15 / 18 / 21 / 24 / 27 / 30 Mana
+- Cooldown: 2 turns
+- Damage: 160% ATK, ignoring 30-60% enemy DEF.
+- 75+ Focus: Damage increases to 200% ATK.
+- 100+ Focus: Damage increases to 240% ATK and consumes 50 Focus.
 
-### **Expanded Tooltip Panel**
+ABILITY 2 - FLASHBANG GRENADE
 
-```
-Precise Shot  
-Cost: 12 / 15 / 18 / 21 / 24 / 27 / 30  Mana | CD: 2 turns  
+Blind enemy and gain Focus.
+- Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana
+- Cooldown: 3 turns
+- Effect: Enemy gains Blinded for 2 turns (50% accuracy loss).
+- Focus: KrisV gains 20-50 Focus.
+- 100+ Focus: Deals 70-130% ATK, Blinded lasts 3 turns, and consumes 25 Focus.
 
-KrisV lines up a lethal bullet, letting his Focus determine the severity of the strike.
-- Deal 160% ATK and ignore 30 / 35 / 40 / 45 / 50 / 55 / 60% DEF  
-- 75+ Focus: 200% ATK  
-- 100+ Focus: 240% ATK, consumes 50 Focus  
-```
+ABILITY 3 - PERFECT SHOT (ULTIMATE)
 
-<!-- ### **Full Ability Description (Wiki Style)**
+True damage sniper shot.
+- Cost: 30 / 35 / 40 / 45 / 50 / 55 / 60 Mana
+- Cooldown: 5 turns
+- Damage: 300-480% ATK as TRUE DAMAGE (cannot miss).
+- 75+ Focus: Damage increases to 400-640% ATK.
+- 100+ Focus: Damage increases to 500-800% ATK.
+- Effect: Heals for 25% of damage dealt.
+- On Execute: Gains 3-21 permanent Max HP and consumes all Focus.
 
-**Precise Shot**
-KrisV lines up a lethal bullet, letting his Focus determine the severity of the strike.
+CHANGELOG
 
-#### **Base Effect**
-
-* Deals **160% ATK**
-* Ignores **30-60% of the target’s DEF**
-
-#### **Focus Scaling**
-
-* **75+ Focus:** Damage increases to **200% ATK**
-* **100+ Focus:** Damage increases to **240% ATK** and **consumes 50 Focus** -->
-
----
-
-# Ability 2 — **Flashbang Grenade**
-
-**Cost:** 16-40 Mana
-**Cooldown:** 3 turns
-**Type:** Crowd control / Debuff
-
-
-### **Hover Tooltip**
-
-```
-Flashbang Grenade  
-16 Mana | CD 3  
-Blind enemy, reduce accuracy and gain Focus.
-```
-
-### **Expanded Tooltip Panel**
-
-```
-Flashbang Grenade  
-Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana | CD: 3 turns 
-
-Toss a flashbang that disorients the enemy.
-- Enemy gains 'Blinded' debuff for 2 turns, losing 50% accuracy
-- Gains 20 / 25 / 30 / 35 / 40 / 45 / 50 Focus  
-- If at 100 Focus, the grenade does 70 / 80 / 90 / 100 / 110 / 120 / 130% ATK and Blinded lasts 3 turns, and consumes 25 Focus
-```
-
-<!-- ### **Full Ability Description (Wiki Style)**
-
-**Flashbang Grenade**
-KrisV tosses a tactical flashbang grenade that detonates on impact, disorienting his target and buying him time to line up the perfect shot.
-
-#### **Base Effect**
-
-* Enemy gains **Blinded** debuff for 2 turns, losing **50% Accuracy** (enemy attacks have 50% increased miss chance)
-* Immediately gains **20-50 Focus** (scales with level)
-
-#### **Focus Scaling**
-At **100+ Focus:**, the grenade is enhanced:
-- Deals **70-130% ATK** damage on impact (scales with level)
-- **Blinded** duration extends to 3 turns
-- Consumes **25 Focus** -->
-
----
-
-# Ultimate — **Perfect Shot**
-
-**Cost:** 30-60 Mana
-**Cooldown:** 5 turns
-**Type:** Ultimate — True Damage Finisher
-
-### **Hover Tooltip**
-
-```
-Perfect Shot  
-30 Mana | CD 5  
-True damage sniper shot. Stronger with Focus.
-```
-
-### **Expanded Tooltip Panel**
-
-```
-Perfect Shot  
-Cost: 30 / 35 / 40 / 45 / 50 / 55 / 60 Mana | CD: 5 turns  
-
-The culmination of KrisV's discipline - a flawless, monster-killing sniper shot.
-- Deals 300 / 330 / 360 / 390 / 420 / 450 / 480% ATK as TRUE DAMAGE and cannot miss  
-- 75+ Focus: 400 / 440 / 480 / 520 / 560 / 600 / 640% ATK  
-- 100+ Focus: 500 / 550 / 600 / 650 / 700 / 750 / 800% ATK
-- Heals 25% of damage dealt  
-- On Execute, KrisV gains 3 / 6 / 9 / 12 / 15 / 18 / 21 Max HP and consumes all Focus
-```
-
-<!-- ### **Full Ability Description (Wiki Style)**
-
-**Perfect Shot**
-The culmination of KrisV's discipline — a flawless, world-stilling sniper shot.
-
-#### **Base Effect**
-
-* Deals **300-480% ATK** as **TRUE DAMAGE**
-* **Cannot miss**
-
-#### **Focus Scaling**
-
-* **75+ Focus:** Damage increases to **400-640% ATK**
-* **100+ Focus:** Damage increases to **500-800% ATK**
-
-#### **Healing**
-
-* Heals **25% of damage dealt**
-
-#### **Execute Effect**
-
-* Gains **3-21 Max HP** and consumes all Focus -->
-
----
-
-# Resource System — **Focus**
-
-* KrisV starts at **20 Focus**
-* Maximum Focus: **120**
-* Focus is spent or modified by certain abilities
-* His kit revolves around timing bursts based on Focus thresholds
-* Focus both **increases offensive power** and **improves precision**
-
----
-
-# Traits / Tags
-
-* **Ranger**
-* **Sharpshooter**
-* **Human**
-* **Precision**
-* **Iron Isles Origin**
-
----
-
-# Changelog
-
-* **v1.0** — Initial release
+v1.0:
+- Initial release

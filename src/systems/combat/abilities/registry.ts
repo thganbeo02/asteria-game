@@ -351,12 +351,14 @@ const branFortify: AbilityHandler = ({ hero, ability }) => {
   const newUses = prevUses + 1;
   store.updatePassiveState({ fortifyUses: newUses });
 
-  // Check threshold (6 uses) -> grant permanent bonuses
-  const bonusUnlocked = hero.passiveState.fortifyBonusUnlocked ?? false;
-  if (!bonusUnlocked && newUses >= BRAN_FORTIFY_THRESHOLD) {
+  // Check threshold (every 5 uses) -> grant permanent bonuses
+  // No cap on stacks for now
+  if (newUses > 0 && newUses % BRAN_FORTIFY_THRESHOLD === 0) {
     store.addHeroBonusStats("bonusAtk", BRAN_FORTIFY_BONUS_ATK);
     store.addHeroBonusStats("bonusPenetration", BRAN_FORTIFY_BONUS_PEN);
-    store.updatePassiveState({ fortifyBonusUnlocked: true });
+    // fortifyBonusUnlocked is legacy/unused for the repeatable version but we can keep it true if needed for other checks
+    // or just ignore it.
+    store.updatePassiveState({ fortifyBonusUnlocked: true }); 
     store.addLogEntry({
       actor: "hero",
       action: "fortify_mastery",

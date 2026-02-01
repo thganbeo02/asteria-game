@@ -194,11 +194,12 @@ function getExpandedAbilityParagraph(
     const bonusDef = Math.floor(getTotalDef(hero) * (defBonusPct / 100));
     const hpGain = BRAN_FORTIFY_HP_GAIN[idx] ?? 0;
     const uses = Number(hero.passiveState.fortifyUses ?? 0);
-    const unlocked = Boolean(hero.passiveState.fortifyBonusUnlocked ?? false);
+    const remainder = uses % BRAN_FORTIFY_THRESHOLD;
+    const progress = uses === 0 ? 0 : remainder === 0 ? BRAN_FORTIFY_THRESHOLD : remainder;
 
     const unlockNode = (
       <>
-        {" "}After {BRAN_FORTIFY_THRESHOLD} uses{unlocked ? "" : ` (${uses}/${BRAN_FORTIFY_THRESHOLD})`}, {heroName} gains{" "}
+        {" "}Every {BRAN_FORTIFY_THRESHOLD} uses ({progress}/{BRAN_FORTIFY_THRESHOLD}), {heroName} gains{" "}
         <span className="font-semibold">{BRAN_FORTIFY_BONUS_ATK} ATK</span> and{" "}
         <span className="font-semibold">{BRAN_FORTIFY_BONUS_PEN}% Penetration</span>.
       </>

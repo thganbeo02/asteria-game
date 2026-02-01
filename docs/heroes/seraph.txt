@@ -1,569 +1,90 @@
-# Serapha — *The Astral Harrower*
+SERAPHA
+The Astral Harrower
 
-**Tier:** Premium
-**Unlock:** $6.99 or 3500 Essence
-**Difficulty:** ⭐⭐⭐⭐⭐ Expert
-**Class:** Ranger (Celestial Beastmaster)
+Tier: Premium
+Unlock: $6.99 or 3500 Essence
+Difficulty: Expert
+Class: Ranger (Celestial Beastmaster)
 
----
+LORE
 
-## Lore
+Seraph is the last of the Astral Hunters—warriors chosen by the Moonbound Constellations. When the Starfall War shattered the celestial gates, she alone survived, bonded to Lunaris, an astral wolf woven from moonlight and starfire.
 
-Seraph is the last of the Astral Hunters—warriors chosen by the Moonbound Constellations themselves. When the Starfall War shattered the celestial gates, most of her order perished defending the boundaries between realms. She alone survived, bonded to Lunaris, an astral wolf woven from pure moonlight and starfire.
+"Let the heavens judge your fate."
 
-Her bow doesn't fire ordinary arrows—it channels fragments of collapsing stars, each shot a piece of cosmic devastation. Lunaris fights beside her, a manifestation of her will and the heavens' fury. Together, they hunt the creatures that slip through the cracks in reality, ensuring the mortal realm stays safe from what lurks beyond the stars.
+BASE STATS
 
-> **"Let the heavens judge your fate."**
+- HP: 88
+- ATK: 14
+- DEF: 6
+- Mana: 12 / 80 (Regen: 5/turn)
+- Crit Chance: 20%
+- Crit Multiplier: 1.75x
+- DEF Penetration: 0%
+- Dodge: 12%
+- Starlight Charges: 0 / 3
 
----
+COMPANION STATS - LUNARIS (ASTRAL WOLF)
 
-## Base Stats
+- HP: 44 (50% of Seraph's HP)
+- ATK: 7 (50% of Seraph's ATK)
+- DEF: 6 (Shares Seraph's DEF)
+- Revival: 3 turns after death (2 turns at 3 Starlight Charges)
 
-* **HP:** 88
-* **ATK:** 14
-* **DEF:** 6
-* **Mana:** 12 / 80 (Regen: 5/turn)
-* **Crit Chance:** 20%
-* **Crit Multiplier:** 1.75×
-* **DEF Penetration:** 0%
-* **Dodge:** 12%
-* **Starlight Charges:** 0 / 3 (starts at 0)
+Stat Scaling:
+- Lunaris benefits from 50% of all permanent stat gains Seraph receives from items and shops.
 
----
+PASSIVE - CONSTELLATION BOND
 
-## Companion Stats — Lunaris (Astral Wolf)
+Lunaris assists Seraph's attacks. Build Starlight Charges to empower abilities.
 
-* **HP:** 44 (50% of Seraph's HP)
-* **ATK:** 7 (50% of Seraph's ATK)
-* **DEF:** 6 (shares Seraph's DEF)
-* **Revival:** 3 turns after death (2 turns at 3 Starlight Charges)
+- Lunaris Assist: 75% chance for Lunaris to attack for 100% ATK whenever Seraph damages an enemy.
+- Safeguard: When Seraph is below 70% HP, Lunaris always assists and heals Seraph for 15-45% of damage dealt.
+- Starlight Charges: Gain 1 Charge per ability used (max 3).
+- Empowerment: At 3 Charges, Lunaris assists for 120% ATK. Consuming 3 Charges grants Lunaris 2-8 permanent ATK.
 
-**Stat Scaling:**
-* Lunaris benefits from **50%** of all permanent stat gains Seraph receives from items and shops.
-  * If Seraph gains 10 HP → Lunaris gains 5 HP
-  * If Seraph gains 6 ATK → Lunaris gains 3 ATK
-  * If Seraph gains 4 DEF → Lunaris gains 2 DEF
-* This keeps Lunaris relevant throughout long Endless Mode runs
+ABILITY 1 - CELESTIAL ARROW
 
----
-
-# Passive — **Constellation Bond**
-
-### **Hover Tooltip**
-
-```
-Constellation Bond
-Lunaris assists Seraph's attacks and safeguards her in danger. Build Starlight Charges to empower abilities.
-```
-
-### **Expanded Tooltip Panel**
-
-```
-Constellation Bond
-Seraph and Lunaris share a celestial bond that strengthens in danger.
-Lunaris benefits from 50% of all permanent stat gains Seraph receives from items and shops.
-
-Lunaris Assist:
-- Whenever Seraph damages an enemy, Lunaris has 75% chance to assist for 100% ATK
-- When Seraph is below 70% HP, Lunaris always assists and heals Seraph for 15 / 20 / 25 / 30 / 35 / 40 / 45% of damage dealt by Lunaris (based on level)
-
-Starlight Charges:
-- Gain 1 Starlight Charge per ability used (max 3)
-- While at 3 Starlight Charges, Lunaris would assist for 120% ATK instead
-- Whenever 3 Starlight Charges are consumed by an ability, Lunaris gains 2 / 3 / 4 / 5 / 6 / 7 / 8 ATK. That ability would not generate a Starlight Charge.
-```
-
-<!-- ### **Full Ability Description (Wiki Style)**
-
-**Constellation Bond**
-Seraph and Lunaris share a cosmic connection. In dire moments, Lunaris becomes her lifeline, and with each surge of astral power, he grows stronger.
-
-#### **Lunaris Assist Mechanic**
-* Whenever Seraph deals damage to an enemy:
-  * **75% chance** Lunaris immediately attacks for **100% of Lunaris's ATK**
-  * This is a separate damage instance and does not consume Seraph's turn
-  
-* When Seraph is **below 70% HP**:
-  * Lunaris **always** assists (100% chance)
-  * Seraph heals for **15-45%** of damage dealt by Lunaris (scales with level)
-  * Visual: Blue/white lifesteal particles flow from enemy to Seraph
-
-**Lunaris's Stats Calculation:**
-* Base: 50% of Seraph's HP, 50% of Seraph's ATK, and 100% of Seraph's DEF
-* Benefits from permanent ATK gains from shop purchases and items
-* Scales independently as he gains permanent stats
-
-#### **Starlight Charge Generation**
-* Gain **1 Starlight Charge** whenever Seraph uses an ability
-* Maximum: **3 Charges**
-* Displayed as glowing star icons beneath HP/Mana bars
-
-#### **Dual Strike Enhancement**
-* At **3 Starlight Charges**, the next ability that triggers Lunaris causes him to attack **twice** instead of once
-* Both attacks can crit independently
-* Both attacks benefit from all active buffs/debuffs
-
-#### **Lunaris Empowerment**
-* Whenever **3 Starlight Charges are consumed** by an ability:
-  * Lunaris gains **+2-8 ATK** permanently (scales with level)
-  * Visual: Starlight energy flows into Lunaris, he glows brightly
-  * This stacks infinitely throughout the run -->
-
----
-
-# Ability 1 — **Celestial Arrow**
-
-### **Hover Tooltip**
-
-```
-Celestial Arrow
-16-40 Mana | CD 2
 Starlight shot. Lunaris may assist. Stronger at 2+ charges.
-```
-
-### **Expanded Tooltip Panel**
-
-```
-Celestial Arrow
-Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana | CD: 2 turns
-
-Seraph fires a starlight-infused arrow. Lunaris may capitalize on the opening.
-- Deals 140 / 160 / 180 / 200 / 220 / 240 / 260% ATK damage
-- Triggers Lunaris Assist (75% chance, or 100% if Seraph below 70% HP)
-- 2+ Starlight Charges: Ignores 40% enemy DEF
-- On Execute, Serapha gains 1 / 3 / 5 / 7 / 9 / 11 / 13 ATK
-```
-
-<!-- ### **Full Ability Description (Wiki Style)**
-
-**Celestial Arrow**
-Seraph draws her bow and fires an arrow infused with starlight. The shot burns with cosmic fire, and Lunaris may lunge to capitalize on the opening.
-
-#### **Base Effect**
-
-* Seraph deals **150-240% ATK** damage (scales with level)
-* Triggers **Lunaris Assist** mechanic:
-  * 75% chance Lunaris attacks for 100% of his ATK
-  * 100% chance if Seraph is below 70% HP (also heals Seraph for 15-45% of Lunaris's damage)
-
-#### **Starlight Scaling**
-
-* **2+ Starlight Charges:** This ability ignores **40% of enemy DEF**
-  * Applies to Seraph's arrow only (not Lunaris's assist)
-
-#### **Kill Effect**
-
-* On kill: Seraph gains **+1-4 ATK** permanently (scales with level)
-* Lunaris gains **+0.5-2 ATK** (50% of Seraph's gain)
-
-#### **Resource Generation**
-
-* Generates **1 Starlight Charge** after use -->
-
----
-
-# Ability 2 — **Astral Howl**
-
-### **Hover Tooltip**
-
-```
-Astral Howl
-22-46 Mana | CD 3
-Debuff enemy, buff self, grow stronger. At 3 charges: massive heal.
-```
-
-### **Expanded Tooltip Panel**
-
-```
-Astral Howl
-Cost: 22 / 26 / 30 / 34 / 38 / 42 / 46 Mana | CD: 4 turns
-
-Lunaris howls across dimensions, applying Moonmark debuff to enemy for 3 turns. During this period,
-- Enemy takes extra 20% damage from Seraph and Lunaris
-- Seraph gains Starlit Vigor for 3 turns, gaining 10% Dodge chance and 20% Crit Chance temporarily. At the end of the duration, Seraph gains 2 / 3 / 4 / 5 / 6 / 7 / 8 Max HP permanently
-- 3 Starlight Charges: Consume all charges to heal Seraph for 20 / 22.5 / 25 / 27.5 / 30 / 32.5 / 35% max HP and Lunaris to full HP
-```
-
-<!-- ### **Full Ability Description (Wiki Style)**
-
-**Astral Howl**
-Lunaris releases a haunting howl that echoes across dimensions. Enemies feel the weight of cosmic judgment while Seraph channels the stars' blessing, growing more resilient with each invocation.
-
-#### **Debuff Effect**
-
-* Lunaris applies **Moonmark** debuff to enemy for **3 turns**
-  * Enemy takes **+30% damage from Lunaris** only
-  * Does not affect Seraph's damage
-  * Visual: Moon symbol appears above enemy
-
-#### **Buff Effect**
-
-* Seraph gains **Starlit Vigor** buff for **2 turns**:
-  * **+20% Dodge Chance**
-  * **+15% Critical Hit Chance**
-  * Visual: Starlight aura around Seraph
-
-#### **Permanent Growth**
-
-* On cast: Seraph gains **+2-8 Max HP** permanently (scales with level)
-* Lunaris gains **+1-4 Max HP** (50% of Seraph's gain)
-* Triggers every time this ability is used (no conditions)
-
-#### **Starlight Consumption (3 Charges)**
-
-* If Seraph has **3 Starlight Charges** when casting:
-  * **Consume all 3 charges**
-  * Heal Seraph for **20-38% of maximum HP** (scales with level)
-  * Heal Lunaris to **full HP**
-  * Lunaris gains **+2-8 ATK** permanently (from Constellation Bond's Empowerment)
-  * All other effects (Moonmark, Starlit Vigor, Max HP gain, charge generation) still apply
-
-#### **Resource Generation**
-
-* Generates **1 Starlight Charge** after use (before consumption check)
-  * This means casting at 2 charges → 3 charges → triggers consumption → heals → Lunaris empowered → ends at 0 charges -->
-
----
-
-# Ultimate — **Starfall Requiem**
-
-### **Hover Tooltip**
-
-```
-Starfall Requiem
-45-75 Mana | CD 5
-Devastating star volley. At 3 charges: creates a zone that damages the next enemy.
-```
-
-### **Expanded Tooltip Panel**
-
-```
-Starfall Requiem
-Cost: 45 / 50 / 55 / 60 / 65 / 70 / 75 Mana | CD: 5 turns
-
-Seraph fires 4 starlight arrows, each dealing 70 / 75 / 80 / 85 / 90 / 95 / 100% ATK (280-400% ATK total). Each arrow ignores 30% DEF and can Crit separately.
-At the end of the fury, Lunaris charges at the enemy, dealing 50% ATK per Starlight Charge.
-- 3 Starlight Charges: On Execute, creates a Starfall Zone. The next enemy that spawns immediately loses 10 / 11 / 12 / 13 / 14 / 15 / 16% of its Max HP
-```
-
-<!-- ### **Full Ability Description (Wiki Style)**
-
-**Starfall Requiem**
-Seraph raises her bow to the heavens and calls down the fury of collapsed stars. Lunaris channels astral energy, becoming a conduit for devastating cosmic power.
-
-#### **Seraph's Volley**
-
-* Fires **4 starlight arrows** in rapid succession
-* Each arrow deals **80-128% ATK** damage (scales with level)
-  * **Total damage: 3.2-5.12× ATK** (all 4 arrows combined)
-  * Each arrow can **crit independently**
-  * Each arrow **ignores 30% of enemy DEF**
-  * Each arrow triggers **Lunaris Assist** (75% chance, or 100% if Seraph below 70% HP)
-
-#### **Lunaris's Astral Rampage**
-
-* Lunaris makes **forced attacks** equal to Starlight Charges consumed (1-3 attacks)
-  * These are guaranteed attacks, separate from Lunaris Assist triggers
-* Each forced attack deals **120-192% of Lunaris's ATK** (scales with level)
-  * Benefits from Moonmark debuff (+30% damage) if active
-  * Each attack is a separate damage instance
-  * Can crit independently
-
-#### **Starlight Empowerment (3 Charges Consumed)**
-
-* If **3 Starlight Charges** are consumed:
-  * Lunaris's **final forced attack** deals **1.5× damage** (180-288% Lunaris ATK)
-  * Final attack applies **Stellar Wound** debuff:
-    * Enemy takes **8% of their maximum HP** as damage over **2 turns** (4% per turn)
-    * Visual: Cosmic energy burns on enemy
-  * Lunaris gains **+2-8 ATK** permanently (from Constellation Bond's Empowerment)
-
-#### **Healing**
-
-* Seraph heals **5% of her maximum HP** for **each arrow that critically hits**
-  * Potential healing: **0-20% max HP** (0-4 crits)
-
-#### **Resource Consumption**
-
-* **Consumes all Starlight Charges** after use -->
-
----
-
-# Resource System — **Starlight Charges**
-
-* Seraph starts at **0 Starlight Charges**
-* Maximum: **3 Charges**
-* Displayed as glowing star icons beneath HP/Mana bars
-* Generated by using abilities (1 charge per ability)
-* Consumed only by specific abilities (Astral Howl at 3 charges, Starfall Requiem)
-* Charges enhance abilities with bonus effects
-
----
-
-# Companion System — **Lunaris**
-
-* **Astral wolf companion** that appears at start of combat
-* Separate HP pool: **40 HP** (shares Seraph's DEF stat)
-* Attacks automatically when triggered by Seraph's abilities
-* Lunaris's attacks do not consume Seraph's turn (bonus damage)
-* If Lunaris dies: Revives after **3 turns** (or **2 turns** if Seraph has 3 Starlight Charges when revival triggers)
-* Visual: Transparent/ghostly wolf with starlight particles
-
----
-
-# Permanent Scaling
-
-Seraph can gain permanent stats throughout battles:
-
-* **+1-4 ATK** from killing with **Celestial Arrow** (scales with level)
-* **+2-8 Max HP** every time **Astral Howl** is cast (scales with level)
-* **+50% of all stat gains** for **Lunaris** from any source:
-  * Shop purchases (HP, ATK, DEF upgrades)
-  * Item bonuses
-  * Ability-based growth (Celestial Arrow, Astral Howl)
-  
-**Lunaris-Specific Growth:**
-* **+2-8 ATK** whenever **3 Starlight Charges are consumed** (from Constellation Bond's Empowerment)
-  * Triggers on: Astral Howl at 3 charges, Starfall Requiem at 3 charges
-  * Stacks infinitely throughout the run
-  
-**Example 1:** Seraph purchases +10 Max HP from shop → Lunaris gains +5 Max HP automatically
-
-**Example 2:** Seraph casts Astral Howl at 3 charges → Serapha gains +2-8 Max HP (ability) → Lunaris gains +1-4 Max HP (50% share) AND +2-8 ATK (3-charge consumption) → Heals both
-
-These bonuses persist across waves in endless mode.
-
----
-
-# Strengths & Weaknesses
-
-## Strengths
-* **High total damage output** - Serapha + Lunaris combined (arrows + assists + forced attacks)
-* **Built-in sustain** - Lifesteal when below 70% HP, healing from Astral Howl and Starfall Requiem crits
-* **Infinite scaling** - Multiple sources of permanent growth (Celestial Arrow kills, Astral Howl casts, Lunaris empowerment)
-* **Adaptive playstyle** - Can play aggressive (spam charges) or patient (build to 3 for empowerment)
-* **Strong buff/debuff synergy** - Moonmark + Starlit Vigor create massive damage windows
-* **Pet provides bonus actions** - Lunaris assists don't consume turns (75-100% uptime)
-* **Rewards mastery** - Optimal charge management and HP management maximize output
-* **Visually spectacular** - Cosmic theme with stars, wolves, and celestial effects
-
-## Weaknesses
-* **Fragile** - 72 HP and 7 DEF make her vulnerable to burst damage
-* **Loses significant damage if Lunaris dies** - Pet provides majority of damage
-* **Requires setup time** - 3 turns minimum to reach 3 Starlight Charges for empowerment
-* **Mana-intensive rotation** - Full combo costs 90 mana (18 + 22 + 50)
-* **Complex resource juggling** - Managing Starlight Charges + Lunaris HP + Serapha HP thresholds + Mana
-* **Pet revival downtime** - 2-3 turns without Lunaris is brutal
-* **RNG dependency** - 75% assist chance can feel inconsistent at high HP
-* **High skill floor** - Difficult for new players to pilot effectively
-
----
-
-# Implementation Notes
-
-## Starlight Charge Mechanics
-* Charges generated BEFORE ability resolves
-* Consumption checks happen AFTER generation
-* Example: Astral Howl at 2 charges → generates 1 → now at 3 → triggers consumption → heals → Lunaris empowered → ends at 0
-
-## Lunaris Assist Mechanic
-* Triggers after Serapha's damage is applied to enemy
-* Rolls 75% chance per damage instance (or 100% if Serapha below 70% HP)
-* Each Celestial Arrow = 1 roll (75% chance)
-* Each Starfall Requiem arrow = 4 rolls (4 separate 75% chances, or 100% if below 70% HP)
-* Assist attack is separate damage instance (can crit independently)
-* Does NOT count as Serapha's turn
-* Visual: Wolf lunges from beside Serapha, bites enemy, returns
-
-## Lifesteal Calculation (Below 70% HP)
-* Only triggers when Serapha is below 70% HP
-* Calculation: Lunaris damage × (15-45% based on level) = heal amount
-* Healing applies immediately after Lunaris's damage
-* Visual: Blue/white particles flow from enemy to Serapha
-* Stacks with other healing sources
-
-## Lunaris Stat Scaling
-* Tracks Serapha's total permanent stat gains
-* Applies 50% modifier automatically in real-time
-* Shop purchases affect both immediately
-* Ability growth (Celestial Arrow kills, Astral Howl casts) shares to Lunaris
-* Visual: When Serapha gains stats, small sparkle appears on Lunaris
-
-## Constellation Bond Empowerment
-* Triggers whenever 3 Starlight Charges are consumed
-* Currently triggers on: Astral Howl (at 3 charges), Starfall Requiem (if cast at 3 charges)
-* Lunaris gains +2-8 ATK permanently (scales with player level)
-* Visual: Starlight energy flows into Lunaris, he glows brightly for 1 second
-* Stacks infinitely throughout run
-
-## Lunaris Attack Timing
-* **Assist attacks:** Triggered by Serapha damaging enemy (75-100% chance rolls)
-* **Forced attacks:** Guaranteed attacks from Starfall Requiem (1-3 based on charges consumed)
-* **Both types appear in combat log separately**
-* Animation: Lunaris lunges from beside Serapha, bites enemy, returns
-
-## Pet Death & Revival
-* Lunaris death animation: Fades into starlight particles
-* Revival countdown displays: "Lunaris revives in X turns"
-* Revival trigger: At start of Serapha's turn (before she acts)
-* Revived Lunaris returns at full HP
-* Revival time: 3 turns baseline, 2 turns if Serapha has 3 Starlight Charges when revival triggers
-
-## Moonmark Debuff
-* Only affects damage FROM Lunaris, not Serapha
-* Stacks multiplicatively with Lunaris's base ATK increases
-* Visual: Moon symbol floats above enemy's head
-* Duration: 3 turns, starts counting at end of turn applied
-
-## Stellar Wound DoT
-* Deals 4% enemy max HP per turn for 2 turns (8% total)
-* Damage applies at end of enemy's turn
-* Visual: Cosmic energy particles burning on enemy
-* Only applied by Starfall Requiem's final attack when cast at 3 charges
-
-## Starfall Requiem Sequence
-* Phase 1: 4 arrows fire in rapid succession (0.3s between each)
-  * Each arrow triggers Lunaris Assist roll (75-100% chance)
-* Phase 2: Lunaris makes 1-3 forced attacks (based on charges consumed)
-  * Guaranteed attacks, separate from Assist triggers
-* Healing triggers after all arrow crits calculated
-* Lunaris Empowerment (+2-8 ATK) triggers if 3 charges consumed
-* Total animation: ~4-5 seconds
-
----
-
-# Balance Considerations
-
-## Design Intent
-* High risk/high reward beastmaster archetype
-* Intentionally fragile to justify massive damage output
-* Punishes poor pet and HP management, rewards mastery
-* Premium complexity justifies premium price
-* Infinite scaling through multiple systems (kills, casts, charge consumption)
-
-## Tuning Knobs (Post-Launch)
-
-**If too strong:**
-- Reduce Lunaris assist chance (75% → 65%)
-- Reduce lifesteal percentage (15-45% → 10-35%)
-- Increase Lunaris revival time (3 → 4 turns baseline)
-- Reduce Moonmark bonus (+30% → +25%)
-- Increase mana costs
-- Reduce permanent growth scaling (lower level-based bonuses)
-
-**If too weak:**
-- Increase Serapha's base HP (72 → 80)
-- Increase Lunaris base HP (40 → 50)
-- Increase assist chance (75% → 85%)
-- Reduce Lunaris revival time (3 → 2 turns baseline)
-- Reduce mana costs
-- Increase Lunaris's share of stat gains (50% → 60%)
-
-## Damage Distribution
-* **Serapha:** ~35% of total damage (arrows + abilities)
-* **Lunaris Assists:** ~40% of total damage (75-100% trigger rate)
-* **Lunaris Forced Attacks:** ~25% of total damage (Starfall Requiem)
-* **Total ceiling:** Variable based on assists, but ~8-10× ATK in optimal 4-turn combo with assists
-
-## Scaling Throughout Run
-**Early Game (Encounters 1-10):**
-- Serapha: 72 HP, 18 ATK
-- Lunaris: 40 HP, 9 ATK (50% of Serapha's)
-- Fragile but manageable
-
-**Mid Game (Encounters 11-20):**
-- Serapha: ~120 HP (+48 from Astral Howl casts), ~30 ATK (+12 from kills)
-- Lunaris: ~64 HP (+24 from shares), ~21 ATK (+6 from shares, +6 from empowerments)
-- Both scale proportionally
-
-**Late Game (Encounters 21+):**
-- Serapha: ~180+ HP, ~50+ ATK
-- Lunaris: ~110+ HP, ~40+ ATK
-- Lunaris becomes primary damage dealer
-
-## Lunaris Scaling Solution
-**Problem:** Base 40 HP makes Lunaris too squishy in late game
-
-**Solution 1 - 50% Shared Scaling:**
-- Shop HP upgrades (+15 HP) → Lunaris +7.5 HP
-- Items with +HP → Lunaris benefits
-- Ability growth (Astral Howl +2-8 HP) → Lunaris gets +1-4 HP
-- By encounter 20: Serapha might have +100 HP → Lunaris has +50 HP (90 total)
-
-**Solution 2 - Constellation Bond Empowerment:**
-- Every 3-charge consumption = +2-8 ATK for Lunaris
-- Incentivizes building to 3 charges frequently
-- Makes Lunaris's damage scale faster than his tankiness (glass cannon pet)
-
-**Why 50% Share?**
-- Keeps Lunaris relevant without making him tankier than Serapha
-- Encourages HP investment in shops (benefits both)
-- Scales proportionally throughout entire run
-- Prevents Lunaris from becoming unkillable
-
-## Economy Balance
-* Premium price ($6.99 / 3500 Essence) justified by:
-  * Unique pet system (first and only in game)
-  * High visual quality requirements (dual characters, cosmic VFX)
-  * Multiple resource systems (Charges + Lunaris HP + Serapha HP thresholds)
-  * High skill ceiling with infinite scaling potential
-  * Development complexity (pet AI, assist rolls, coordinated animations)
-  * Not pay-to-win: Similar damage ceiling to other rangers, higher complexity
-
----
-
-# Visual Design
-
-## Character Model — Serapha
-* Celestial armor with constellation motifs
-* Starlight bow (translucent, glowing)
-* Flowing cape/cloak with star particles
-* Hair: Long, flowing, ethereal (white/silver with blue highlights)
-
-## Companion Model — Lunaris
-* Astral wolf (medium-large size)
-* Transparent/ghostly appearance
-* Starlight particles constantly emanating
-* Eyes: Glowing blue/white
-* Constellation patterns on fur
-
-## Starlight Charge Display
-* 3 star icons beneath HP/Mana bars
-* Empty stars: Gray outline
-* Filled stars: Glowing white/blue with pulse effect
-* At 3 charges: All stars pulse rapidly (ready for empowerment)
-
-## Lunaris HP Bar
-* Small bar directly beneath Serapha's HP bar
-* Label: "Lunaris: 40/40"
-* Color: Blue (to differentiate from Serapha's red HP)
-* Death: Bar fades, replaced with "Revives in X turns" text
-
-## Ability VFX
-* **Celestial Arrow:** Single starlight arrow trail, Lunaris lunge animation
-* **Astral Howl:** Lunaris howls (sound wave visual), moonlight aura on enemy, starlight buff on Serapha
-* **Starfall Requiem:** 4 arrows rain from sky in sequence, Lunaris circles enemy for rampage attacks, cosmic explosion finale
-
-## Audio
-* **Starlight Charge gain:** Soft *chime* sound
-* **3 Charges reached:** Satisfying *ding* with reverb
-* **Lunaris attacks:** Wolf growl/bite sounds
-* **Astral Howl:** Haunting wolf howl with ethereal echo
-* **Starfall Requiem:** Whistling arrows, impact sounds, crescendo finale
-
----
-
-# Traits / Tags
-
-* **Ranger**
-* **Celestial Beastmaster**
-* **Human**
-* **Astral Hunter**
-* **Pet Class**
-* **Moonbound Constellation**
-
----
-
-# Changelog
-
-* **v1.0** — Initial release
+- Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana
+- Cooldown: 2 turns
+- Damage: 140-260% ATK.
+- Effect: Triggers Lunaris Assist.
+- Charge Synergy: At 2+ Starlight Charges, ignores 40% enemy DEF.
+- On Kill: Serapha gains 1-13 permanent ATK.
+
+ABILITY 2 - ASTRAL HOWL
+
+Debuff enemy, buff self, grow stronger.
+- Cost: 22 / 26 / 30 / 34 / 38 / 42 / 46 Mana
+- Cooldown: 4 turns
+- Debuff: Enemy takes 20% extra damage from Seraph and Lunaris for 3 turns.
+- Buff: Seraph gains 10% Dodge and 20% Crit Chance for 3 turns.
+- Scaling: At the end of the buff, Seraph gains 2-8 permanent Max HP.
+- Charge Synergy: At 3 Starlight Charges, consumes them to heal Seraph for 20-35% Max HP and Lunaris to full.
+
+ABILITY 3 - STARFALL REQUIEM (ULTIMATE)
+
+Devastating star volley.
+- Cost: 45 / 50 / 55 / 60 / 65 / 70 / 75 Mana
+- Cooldown: 5 turns
+- Damage: Fires 4 arrows, each dealing 70-100% ATK. Each ignores 30% DEF and can crit.
+- Lunaris Synergy: Lunaris charges for 50% ATK per Starlight Charge.
+- Charge Synergy: At 3 Starlight Charges, on execute, creates a zone that deals 10-16% Max HP damage to the next enemy.
+
+STRENGTHS & WEAKNESSES
+
+Strengths:
+- High total damage output (Serapha + Lunaris).
+- Built-in sustain and infinite scaling.
+- Strong buff/debuff synergy.
+
+Weaknesses:
+- Very fragile baseline stats.
+- Significant damage loss if Lunaris dies.
+- High mana costs and complex resource management.
+
+CHANGELOG
+
+v1.0:
+- Initial release

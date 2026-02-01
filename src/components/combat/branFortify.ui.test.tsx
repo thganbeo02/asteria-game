@@ -19,14 +19,14 @@ describe("Bran Fortify UI", () => {
     hero.level = 1;
     hero.stats.def = 24;
     hero.stats.bonusDef = 0;
-    hero.statusEffects = [createStatusEffect("fortify", "hero", 30, 3)];
+    hero.statusEffects = [createStatusEffect("fortify", "hero", 40, 3)];
 
     useCombatStore.setState({ hero });
 
     const { getByText } = render(<HeroPanel />);
-    // 24 DEF with +30% -> floor(31.2) => 31 (+7)
-    getByText("31");
-    getByText("(+7)");
+    // 24 DEF with +40% -> floor(33.6) => 33 (+9)
+    getByText("33");
+    getByText("(+9)");
   });
 
   it("Shield Slam tooltip damage increases while Fortify is active", () => {
@@ -45,7 +45,7 @@ describe("Bran Fortify UI", () => {
 
     const fortifiedHero = {
       ...hero,
-      statusEffects: [createStatusEffect("fortify", "hero", 30, 3)],
+      statusEffects: [createStatusEffect("fortify", "hero", 40, 3)],
     };
 
     const after = render(

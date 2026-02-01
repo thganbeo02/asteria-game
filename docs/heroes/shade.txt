@@ -1,171 +1,98 @@
-# Shade — *The Hollow Blade*
+SHADE
+The Hollow Blade
 
-**Unlock:** Starter (Free) | **Difficulty:** ⭐⭐ Beginner | **Class:** Assassin (Bounty Hunter)
+Unlock: Starter (Free)
+Difficulty: Beginner
+Class: Assassin (Bounty Hunter)
 
----
-
-## Lore
+LORE
 
 Shade has no memory of who she was before the ritual. The cult that created her intended a perfect killer — obedient, emotionless, disposable. She proved them wrong on all counts. Now she takes contracts on those who would create more like her, striking fast and collecting her due.
 
-> **"Time is money. Yours is running out."**
+"Time is money. Yours is running out."
 
----
+CORE STATS
 
-## Core Stats
+- Base: 90 HP | 15 ATK | 6 DEF
+- Resource: 12 / 50 Mana (Regen: 4/turn)
+- Crit Chance: 15% Chance | 1.5x Multiplier
+- Dodge: 12%
+- Penetration: 0%
 
-* **Base:** 90 HP | 15 ATK | 6 DEF
-* **Resource:** 12 / 50 Mana (Regen: 4/turn)
-* **Crit Chance:** 15% Chance | 1.5x Multiplier
-* **Dodge:** 12%
-* **Penetration:** 0%
+SCALING (PER LEVEL)
 
----
+- Max HP: +0 / 10 / 12 / 14 / 17 / 20 / 24
+- ATK: +0 / 2 / 3 / 3 / 4 / 4 / 5
+- DEF: +0 / 1 / 1 / 2 / 2 / 2 / 3
+- Max Mana: +0 / 5 / 8 / 11 / 14 / 17 / 20
+- Mana Regen: +0 / 0 / 1 / 0 / 1 / 0 / 1
 
-## Scaling (Per Level)
+CORE MECHANIC - CONTRACT
 
-* **Max HP:** +0 / 10 / 12 / 14 / 17 / 20 / 24
-* **ATK:** +0 / 2 / 3 / 3 / 4 / 4 / 5
-* **DEF:** +0 / 1 / 1 / 2 / 2 / 2 / 3
-* **Max Mana:** +0 / 5 / 8 / 11 / 14 / 17 / 20
-* **Mana Regen:** +0 / 0 / 1 / 0 / 1 / 0 / 1
+At the start of each encounter, Shade receives a Contract — a turn limit to kill the enemy for bonus rewards.
 
----
+[ CONTRACT: Kill in 5 turns ]
+[ Reward: +50% Crystals, +30% EXP ]
+[ Turn: 2 / 5  ██████░░░░ ]
 
-## Core Mechanic — Contract
+- Casual: 5-6 turns | +20% Crystals | +10% EXP | 45% Roll Chance
+- Standard: 4-5 turns | +30% Crystals | +20% EXP | 35% Roll Chance
+- Rush: 3-4 turns | +50% Crystals | +30% EXP | 15% Roll Chance
+- Impossible: 2 turns | +100% Crystals | +50% EXP | +5 Gold | 5% Roll Chance
 
-At the start of each encounter, Shade receives a **Contract** — a turn limit to kill the enemy for bonus rewards.
+Rules:
+- Contract assigned randomly at encounter start.
+- Kill within turn limit = bonus Crystals and EXP.
+- Miss the timer = normal rewards (no penalty).
+- Contract bonuses stack with difficulty multipliers.
 
-```
-┌─────────────────────────────────────┐
-│  CONTRACT: Kill in 5 turns          │
-│  Reward: +50% Crystals, +30% EXP    │
-│  Turn: 2 / 5  ██████░░░░            │
-└─────────────────────────────────────┘
-```
+PASSIVE - PROFESSIONAL KILLER
 
-| Contract | Turn Limit | Crystal Bonus | EXP Bonus | Roll Chance |
-|----------|------------|---------------|-----------|-------------|
-| Casual | 5-6 turns | +20% | +10% | 45% |
-| Standard | 4-5 turns | +30% | +20% | 35% |
-| Rush | 3-4 turns | +50% | +30% | 15% |
-| Impossible | 2 turns | +100% | +50%, +5 Gold | 5% |
-
-**Rules:**
-- Contract assigned randomly at encounter start
-- Kill within turn limit = bonus Crystals and EXP
-- Miss the timer = normal rewards (no penalty)
-- Contract bonuses stack with difficulty multipliers
-
-# Passive — **Professional Killer**
-
-### **Hover Tooltip**
-
-```
-Professional Killer
 Receive Contracts each encounter. Fast kills earn bonus rewards.
-```
 
-### **Expanded Tooltip Panel**
+- Contract System: Each encounter begins with a random Contract. If Shade kills within the turn limit, she is rewarded with bonus Crystals/EXP and restores 10-22% Max HP.
+- Streak Bonus: Completing 3 Contracts in a row guarantees the next Contract is one tier higher.
+- Completion Bonus: For every 5 Contracts completed, Shade gains 5-17 ATK, DEF, and Max HP permanently.
 
-```
-Professional Killer
-Shade always works under contract. Speed is profit.
+ABILITY 1 - QUICKBLADE
 
-Contract System:
-Each encounter begins with a random Contract (turn limit + reward). If Shade kills within the turn limit, she is rewarded with bonus Crystals and EXP, and restores 10 / 12 / 14 / 16 / 18 / 20 / 22% Max HP (based on level).
-
-Streak Bonus:
-Completing 3 Contracts in a row will guarantee Shade's next Contract one tier higher. For every 5 Contracts completed, Shade gains 5 / 7 / 9 / 11 / 13 / 15 / 17 ATK, DEF, and Max HP.
-```
-
----
-
-# Ability 1 — **Quickblade**
-
-### **Hover Tooltip**
-
-```
-Quickblade
-8-20 Mana | CD 2
 Fast strike. Gains ATK on kill.
-```
+- Cost: 8 / 10 / 12 / 14 / 16 / 18 / 20 Mana
+- Cooldown: 2 turns
+- Damage: 120 / 130 / 140 / 150 / 160 / 170 / 180% ATK.
+- On Kill: Gains 2 / 3 / 4 / 5 / 6 / 7 / 8 permanent ATK.
+- Contract Bonus: If Contract has 2 or fewer turns remaining, Quickblade ignores 10% enemy DEF.
 
-### **Expanded Tooltip Panel**
+ABILITY 2 - PHANTOM STEP
 
-```
-Quickblade
-Cost: 8 / 10 / 12 / 14 / 16 / 18 / 20 Mana | CD: 2 turns
+Strike and phase through shadows to dodge enemy. Extends Contract.
+- Cost: 10 / 13 / 16 / 19 / 22 / 25 / 28 Mana
+- Cooldown: 3 turns
+- Damage: 80 / 90 / 100 / 110 / 120 / 130 / 140% ATK.
+- Effect: Shade gains 75% Evade for 1 turn.
+- Contract Bonus: Extends the current Contract by 1 turn.
 
-Shade strikes with lethal efficiency, dealing 120 / 130 / 140 / 150 / 160 / 170 / 180% ATK. On Kill, Shade gains 2 / 3 / 4 / 5 / 6 / 7 / 8 permanent ATK.
+ABILITY 3 - COLLECT
 
-Contract Bonus:
-If Contract is active with 2 or fewer turns remaining, Quickblade ignores 10% enemy's DEF.
-```
-
----
-
-# Ability 2 — **Phantom Step**
-
-### **Hover Tooltip**
-
-```
-Phantom Step
-10-28 Mana | CD 3
-Strike and phase through shadows to dodge enemy. 
-Extends the current Contract by 1 turn.
-```
-
-### **Expanded Tooltip Panel**
-
-```
-Phantom Step
-Cost: 10 / 13 / 16 / 19 / 22 / 25 / 28 Mana | CD: 3 turns
-
-Shade strikes for 80 / 90 / 100 / 110 / 120 / 130 / 140% ATK, before phasing through shadow, gaining 75% Evade for a turn. Shade extends the Contract by a turn. 
-```
-
----
-
-# Ability 3 — **Collect**
-
-### **Hover Tooltip**
-
-```
-Collect
-20-44 Mana | CD 4
 High damage finisher. Bonus effects on Contract kill.
-```
+- Cost: 20 / 24 / 28 / 32 / 36 / 40 / 44 Mana
+- Cooldown: 4 turns
+- Damage: 180 / 200 / 220 / 240 / 260 / 280 / 300% ATK (ignores 25% enemy DEF).
+- On Kill: Gains 2 / 3 / 4 / 5 / 6 / 7 / 8 permanent DEF.
+- Contract Completion: Gains 5 / 10 / 15 / 25 / 50 / 75 / 125 bonus Crystals.
 
-### **Expanded Tooltip Panel**
+PLAYSTYLE SUMMARY
 
-```
-Collect
-Cost: 20 / 24 / 28 / 32 / 36 / 40 / 44 Mana | CD: 4 turns
+Shade is a high-tempo hero whose power is tied to speed and efficiency.
 
-Shade collects what she's owed, ignoring 25% enemy DEF and deals 180 / 200 / 220 / 240 / 260 / 280 / 300% ATK. On Kill, she gains 2 / 3 / 4 / 5 / 6 / 7 / 8 permanent DEF (based on level). On Contract completion, Shade gains 5 / 10 / 15 / 25 / 50 / 75 / 125 bonus Crystals (based on level).
-```
+- Combat Flow: Balance Quickblade for damage and Phantom Step to extend tight contracts or dodge heavy hits.
+- Scaling Strategy: Professional Killer rewards streaks and volume of contracts. Use Collect as a finisher to maximize gold for the shop.
+- Shop Priority: ATK is essential for meeting contract timers. Max HP increases the effectiveness of her passive heal.
 
----
+CHANGELOG
 
-# Playstyle Summary
+Unreleased:
+- (Add upcoming changes here)
 
-Shade is a high-tempo hero whose power is directly tied to her speed and efficiency. She is the only character who actively benefits from ending fights quickly via her Contract system.
-
-**Combat Flow:** You must balance using **Quickblade** for mana-efficient damage and **Phantom Step** to stay alive when a contract is about to expire.
-
-**Scaling Strategy:** Her **Professional Killer** passive rewards win streaks with permanent stat boosts, making her the "snowball" character. Use Collect as a finisher to maximize Crystal gains for the shop.
-
-**Shop Priority**:
-
-* **ATK:** Essential to ensure enemies die within the Contract turn limit.
-
-* **Max HP:** Secondary, primarily to increase the effectiveness of her % Max HP heal on successful contracts.
-
----
-
-# Changelog
-
-* **Unreleased**
-    *   (Add upcoming changes here)
-* **v1.0** — Initial release
+v1.0:
+- Initial release

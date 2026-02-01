@@ -1,147 +1,81 @@
-# Camira - *The Arrow of People*
+CAMIRA
+The Arrow of People
 
-**Unlock:** Starter (Free) | **Difficulty:** ⭐ Beginner | **Class:** Ranger (Marksman)
+Unlock: Starter (Free)
+Difficulty: Beginner
+Class: Ranger (Marksman)
 
----
-
-## Lore
+LORE
 
 Camira is an outlaw from Millbrook who steals from monsters to feed her starving village. She values precision and mobility over heavy armor.
 
-> **"Take from the beasts. Give to the people. Survive another day."**
+"Take from the beasts. Give to the people. Survive another day."
 
----
+CORE STATS
 
-## Core Stats
+- Base: 92 HP | 12 ATK | 5 DEF
+- Resource: 10 / 55 Mana (Regen: 4/turn)
+- Crit Chance: 20% Chance | 1.75x Multiplier
+- Dodge: 10%
+- Penetration: 0%
 
-* **Base:** 92 HP | 12 ATK | 5 DEF
-* **Resource:** 10 / 55 Mana (Regen: 4/turn)
-* **Crit Chance:** 20% Chance | 1.75x Multiplier
-* **Dodge:** 10%
-* **Penetration:** 0%
+SCALING (PER LEVEL)
 
----
+- Max HP: +0 / 10 / 12 / 14 / 16 / 18 / 20
+- ATK: +0 / 2 / 3 / 3 / 4 / 4 / 5
+- DEF: +0 / 1 / 1 / 2 / 2 / 2 / 3
+- Max Mana: +0 / 5 / 8 / 11 / 14 / 17 / 20
+- Mana Regen: +0 / 0 / 1 / 0 / 1 / 0 / 1
 
-## Scaling (Per Level)
+PASSIVE - DEADEYE HUSTLE
 
-* **Max HP:** +0 / 10 / 12 / 14 / 16 / 18 / 20
-* **ATK:** +0 / 2 / 3 / 3 / 4 / 4 / 5
-* **DEF:** +0 / 1 / 1 / 2 / 2 / 2 / 3
-* **Max Mana:** +0 / 5 / 8 / 11 / 14 / 17 / 20
-* **Mana Regen:** +0 / 0 / 1 / 0 / 1 / 0 / 1
-
----
-
-# Passive - **Deadeye Hustle**
-
-### **Hover Tooltip**
-
-```
-Deadeye Hustle
 Every 3rd basic attack hits harder. Crits restore Mana and reduce Rapid Fire CD.
-```
 
-### **Expanded Tooltip Panel**
+- Precision: Every 3rd basic attack deals bonus 30-60% ATK damage.
+- Crit Synergy: On Crit, restores 2-5 Mana and reduces Rapid Fire cooldown by 1 turn.
 
-```
-Deadeye Hustle
-Camira's survival instincts and precision make every shot count.
-Every 3rd basic attack, she deals bonus 30 / 35 / 40 / 45 / 50 / 55 / 60% ATK damage (based on level).
-On Crit, she restores 2-5 Mana and reduces the cooldown of Rapid Fire by 1 turn.
-```
+ABILITY 1 - RAPID FIRE
 
----
-
-# Ability 1 - **Rapid Fire**
-
-### **Hover Tooltip**
-
-```
-Rapid Fire
-9-27 Mana | CD 2
 Two arrows. Heals from damage dealt.
-```
+- Cost: 9 / 12 / 15 / 18 / 21 / 24 / 27 Mana
+- Cooldown: 2 turns
+- Damage: Fire two arrows, each dealing 70-100% ATK.
+- Effect: Heal for 30-60% of total damage dealt.
 
-### **Expanded Tooltip Panel**
+ABILITY 2 - FOREST AGILITY
 
-```
-Rapid Fire
-Cost: 9 / 12 / 15 / 18 / 21 / 24 / 27 Mana | CD: 2 turns
-
-Fire two arrows, each dealing 70 / 75 / 80 / 85 / 90 / 95 / 100% ATK.
-Heal for 30 / 35 / 40 / 45 / 50 / 55 / 60% of total damage dealt.
-```
-
----
-
-# Ability 2 — **Forest Agility**
-
-### **Hover Tooltip**
-
-```
-Forest Agility
-10-34 Mana | CD 3
 60% evasion + permanent stats.
-```
+- Cost: 10 / 14 / 18 / 22 / 26 / 30 / 34 Mana
+- Cooldown: 3 turns
+- Effect: Gains 60% evasion for the next attack.
+- Scaling: Gain 3-9 permanent ATK and DEF per cast.
+- Level 5+: Also gain 12-15 random permanent Max HP per cast.
 
-### **Expanded Tooltip Panel**
+ABILITY 3 - JACKPOT ARROW
 
-```
-Forest Agility
-Cost: 10 / 14 / 18 / 22 / 26 / 30 / 34 Mana | CD: 3 turns
-
-Tap survival instincts: 60% evasion for next attack.
-Gain 3 / 4 / 5 / 6 / 7 / 8 / 9 permanent ATK and DEF.
-From Level 5: Also gain 12-15 random max HP.
-```
-
----
-
-# Ability 3 — **Jackpot Arrow**
-
-### **Hover Tooltip**
-
-```
-Jackpot Arrow
-16-40 Mana | CD 4
 Magic arrow. Massive crystal bonus on kill.
-```
+- Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana
+- Cooldown: 4 turns
+- Damage: 140-260% ATK, ignoring 30-60% enemy DEF.
+- On Kill: Gain 20 / 40 / 75 / 125 / 200 / 350 / 600 bonus crystals.
+- Scaling: Each use grants +3% Crit Chance and Crit Damage (max +24%).
 
-### **Expanded Tooltip Panel**
+PLAYSTYLE SUMMARY
 
-```
-Jackpot Arrow
-Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana | CD: 4 turns
+Camira plays the "Economy Game," generating massive amounts of Crystals for the shop.
 
-Fire a magic arrow: 140 / 160 / 180 / 200 / 220 / 240 / 260% ATK, ignoring 30 / 35 / 40 / 45 / 50 / 55 / 60% DEF.
-On Kill: Gain 20 / 40 / 75 / 125 / 200 / 350 / 600 bonus crystals.
-Each use grants +3% crit chance and crit damage (max 8 stacks = +24%).
-```
+- Tactical Loop: Rapid Fire and Jackpot Arrow do not trigger the passive. Use them when the passive is on cooldown or for their utility.
+- Economy: Prioritize landing the killing blow with Jackpot Arrow for the crystal bonus.
+- Defense: Time Forest Agility to evade heavy hits and use Rapid Fire to heal back health.
+- Shop Priority: ATK (synergizes with crits and lifesteal) and DEF (for stability).
 
----
+CHANGELOG
 
-# Playstyle Summary
+Unreleased:
+- (Add upcoming changes here)
 
-Camira plays the "Economy Game." She is relatively fragile early on, but her ability to generate massive amounts of Crystals makes her the most consistent shopper.
+0.1.1:
+- Tooltip clarifications for Jackpot Arrow rewards and Passive trigger count.
 
-**Tactical Loop:** Since Rapid Fire and Jackpot Arrow do not trigger the passive, they should be used when the passive is not ready or when you need their specific utility (healing or gold stealing).
-
-**Economy:** Her primary goal is to reach the killing blow with Jackpot Arrow, which can drop up to 600 bonus Crystals at level 7.
-
-**Defense:** Survival depends on timing Forest Agility to evade heavy hits and using Rapid Fire to heal back health after taking damage.
-
-**Shop Priority:**
-
-* **ATK:** Synergizes with her high crit chance and Rapid Fire's healing-on-damage.
-
-* **DEF:** Since she can steal Max HP via crits (Wait, passive says Mana not Max HP, code check: Passive restores Mana. Forest Agility grants Max HP from lvl 5. Code says "From Level 5: Also gain 12-15 random max HP"). Corrected based on code.
-
----
-
-# Changelog
-
-* **Unreleased**
-    *   (Add upcoming changes here)
-* **0.1.1**
-    *   Tooltip clarifications for Jackpot Arrow rewards and Passive trigger count.
-* **v1.0** — Initial release
+v1.0:
+- Initial release

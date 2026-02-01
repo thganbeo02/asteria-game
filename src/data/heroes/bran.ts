@@ -45,20 +45,20 @@ export const BRAN: HeroDefinition = {
       id: "bran_shield_slam",
       name: "Shield Slam",
       description: "Stun enemy for 1 turn.",
-      expandedDescription: `Bran slams his shield at the enemy, dealing 110-170% ATK + 25% DEF damage
+      expandedDescription: `Bran slams his shield at the enemy, dealing 90-150% ATK + 25% DEF damage
       and stunning it for 1 turn (skip their next action).`,
       manaCost: [8, 10, 12, 14, 16, 18, 20],
       cooldown: 2,
       currentCooldown: 0,
-      damageScaling: [110, 120, 130, 140, 150, 160, 170],
+      damageScaling: [90, 100, 110, 120, 130, 140, 150],
       tags: ["stun", "def_scaling"],
     },
     {
       id: "bran_fortify",
       name: "Fortify",
       description: "Massive DEF buff for 3 turns.",
-      expandedDescription: `Bran braces for impact, gaining 30-75% bonus DEF for 3 turns. 
-      He then shrugs off, gaining 5-15 permanent Max HP. After 6 uses, Bran also gains 20 ATK and 15% Penetration.`,
+      expandedDescription: `Bran braces for impact, gaining 40-70% bonus DEF for 3 turns. 
+      He then shrugs off, gaining 5-15 permanent Max HP. Every 5 uses, Bran gains 10 ATK and 5% Penetration.`,
       manaCost: [10, 14, 18, 22, 26, 30, 34],
       cooldown: 4,
       currentCooldown: 0,
@@ -68,12 +68,12 @@ export const BRAN: HeroDefinition = {
       id: "bran_crushing_blow",
       name: "Crushing Blow",
       description: "Execute. More damage to low HP enemies.",
-      expandedDescription: `Bran strikes down the enemy boldly, dealing 160-250% ATK + 25% enemy missing HP.
-    On Kill, he gains 2-8 permanent ATK and DEF.`,
+      expandedDescription: `Bran strikes down the enemy boldly, dealing 140-230% ATK + 20% enemy missing HP.
+      On Kill, he gains 3-15 permanent ATK and DEF.`,
       manaCost: [18, 22, 26, 30, 34, 38, 42],
       cooldown: 4,
       currentCooldown: 0,
-      damageScaling: [160, 175, 190, 205, 220, 235, 250],
+      damageScaling: [140, 155, 170, 185, 200, 215, 230],
       tags: ["execute", "stats_on_kill"],
     },
   ],
@@ -91,15 +91,15 @@ export const BRAN_PENETRATION_UNLOCK_LEVEL = 4;
 export const BRAN_PASSIVE_PENETRATION = 20;
 
 // Fortify: DEF bonus percentage
-export const BRAN_FORTIFY_DEF_BONUS = [30, 37.5, 45, 52.5, 60, 67.5, 75];
+export const BRAN_FORTIFY_DEF_BONUS = [40, 45, 50, 55, 60, 65, 70];
 
 // Fortify: Max HP gained when buff expires
 export const BRAN_FORTIFY_HP_GAIN = [5, 7, 9, 11, 13, 15, 15];
 
 // Fortify: Uses needed for permanent bonus
-export const BRAN_FORTIFY_THRESHOLD = 6;
-export const BRAN_FORTIFY_BONUS_ATK = 20;
-export const BRAN_FORTIFY_BONUS_PEN = 15;
+export const BRAN_FORTIFY_THRESHOLD = 5;
+export const BRAN_FORTIFY_BONUS_ATK = 10;
+export const BRAN_FORTIFY_BONUS_PEN = 5;
 export const BRAN_INITIAL_PASSIVE_STATE = {
   fortifyUses: 0,
   fortifyBonusUnlocked: false,
@@ -111,7 +111,7 @@ export const BRAN_INITIAL_PASSIVE_STATE = {
 export const BRAN_SHIELD_SLAM_DEF_SCALE = 25;  // +25% of DEF as damage
 
 // Crushing Blow: Missing HP scaling
-export const BRAN_CRUSHING_BLOW_MISSING_HP = 25;  // +25% of enemy missing HP
+export const BRAN_CRUSHING_BLOW_MISSING_HP = 20;  // +20% of enemy missing HP
 
 // Crushing Blow: Stats on kill
-export const BRAN_CRUSHING_BLOW_KILL_STATS = [2, 3, 4, 5, 6, 7, 8];
+export const BRAN_CRUSHING_BLOW_KILL_STATS = [3, 5, 7, 9, 11, 13, 15];

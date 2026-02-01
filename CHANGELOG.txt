@@ -469,4 +469,39 @@ CHANGES:
  SUGGESTED NEXT FEATURES (today)
  - Premium class items: implement the 3 premium slots per shop (Section 12 tables) + real purchase effects.
  - Shop value shaping: add more common options per category (reduce "solved" dominance of Whetstone/Mana Crystal).
- - Run objective: define a real "clear" condition (boss / encounter target) so benchmarks can include meaningful success rates.
+  - Run objective: define a real "clear" condition (boss / encounter target) so benchmarks can include meaningful success rates.
+
+
+--------------------------------------------------------------------------------
+2026-01-31 - Documentation Tracking, Patch Notes Workflow, Manual Run Traces & Manual Strategy
+--------------------------------------------------------------------------------
+
+OVERVIEW:
+- Kept CHANGELOG.txt as the internal implementation log.
+- Introduced player-facing patch notes (LoL-style) + an UNRELEASED -> weekly release workflow.
+- Stopped ignoring docs/tests in git so balance/docs artifacts can be tracked (while keeping generated balance reports ignored).
+- Experiment: implemented a manual run decision dataset + learned benchmark strategy, then reverted it (too heavy for now).
+  - Kept: exported JSON runs in `runs/manual/` for possible future analysis.
+
+SESSION 1 - PATCH NOTES + DOC STRUCTURE (player-facing)
+
+1) docs/patch-notes/
+   - Added player-facing patch notes file:
+     - docs/patch-notes/0.1.1.md
+   - Added rolling weekly buffer:
+     - docs/patch-notes/UNRELEASED.md
+   - Added workflow instructions:
+     - docs/patch-notes/README.md
+
+2) docs/heroes/
+   - Updated hero docs to support per-hero tracking:
+     - Added/standardized an `Unreleased` section (WIP changes) and versioned entries.
+     - Updated existing hero docs (Bran/Camira/Lyra/Shade + future hero placeholders) to align with tracked docs.
+
+3) docs/BALANCE_AND_TESTING.md
+   - Documented manual run traces (decision dataset) and how to use the manual strategy in benchmarks.
+
+4) .gitignore
+   - Reorganized ignores so documentation and tests are tracked.
+   - Left generated benchmark reports ignored:
+     - docs/balance/

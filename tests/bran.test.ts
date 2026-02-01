@@ -75,7 +75,7 @@ describe("Bran Kit Tests", () => {
       const hero = useCombatStore.getState().hero!;
       const fortify = hero.statusEffects.find((e) => e.type === "fortify");
       expect(fortify).toBeDefined();
-      expect(fortify?.value).toBe(30);
+      expect(fortify?.value).toBe(40);
       expect(fortify?.duration).toBe(3);
 
       expect(hero.passiveState.pendingFortifyHpGain).toBe(BRAN_FORTIFY_HP_GAIN[0]);
@@ -108,6 +108,37 @@ describe("Bran Kit Tests", () => {
       } finally {
         vi.useRealTimers();
       }
+    });
+
+    it("should grant bonus stats every 5 Fortify uses", () => {
+      // 1. Set uses to 4 (so next cast is the 5th)
+      useCombatStore.getState().updatePassiveState({ fortifyUses: 4 });
+      
+      // 2. Cast 5th time
+      TurnManager.executeAbility(1);
+      
+      // 3. Check stats (10 ATK, 5 Pen)
+      // Must re-fetch state after updates
+      const heroAfterFirst = useCombatStore.getState().hero!;
+      expect(heroAfterFirst.stats.bonusAtk).toBe(10);
+      expect(heroAfterFirst.stats.bonusPenetration).toBe(5);
+      
+      // 4. Set uses to 9 (so next cast is the 10th)
+      useCombatStore.getState().updatePassiveState({ fortifyUses: 9 });
+      
+      // Force reset cooldown to cast immediately
+      const hero = useCombatStore.getState().hero!;
+      const abilities = [...hero.abilities];
+      abilities[1] = { ...abilities[1], currentCooldown: 0 };
+      useCombatStore.setState({ hero: { ...hero, abilities } });
+
+      // 5. Cast 10th time
+      TurnManager.executeAbility(1);
+      
+      // 6. Check stats (20 ATK, 10 Pen)
+      const heroAfterSecond = useCombatStore.getState().hero!;
+      expect(heroAfterSecond.stats.bonusAtk).toBe(20);
+      expect(heroAfterSecond.stats.bonusPenetration).toBe(10);
     });
   });
 

@@ -71,9 +71,13 @@ Bran is the master of the long game. While other heroes fear longer fights, Bran
 CHANGELOG
 
 Unreleased:
+
+- (Add upcoming changes here)
+
+0.1.2:
 - Shield Slam: Reduced ATK scaling 110-170% -> 90-150%.
-- Fortify: Increased early DEF bonus 30% -> 40%. Changed Mastery from "Once after 6 uses" to "Every 5 uses (+10 ATK, +5% Pen)".
-- Crushing Blow: Reduced ATK scaling 160-250% -> 140-230%. Reduced Missing HP scaling 25% -> 20%. Increased Stats on Kill +2-8 -> +3-15.
+- Fortify: DEF bonus 30-75% -> 40-70%. Mastery changed from "Once after 6 uses" to "Every 5 uses (+10 ATK, +5% Pen, stacks)".
+- Crushing Blow: ATK scaling 160-250% -> 140-230%. Missing HP scaling 25% -> 20%. On-kill stats +2-8 -> +3-15.
 
 0.1.1:
 - Shield Slam: Added +25% DEF scaling to damage.

@@ -125,9 +125,9 @@ function getExpandedAbilityParagraph(
   if (ability.id === "camira_jackpot_arrow") {
     const penPct = CAMIRA_JACKPOT_PEN[idx] ?? 0;
     const crystals = CAMIRA_JACKPOT_CRYSTALS[idx] ?? 0;
-    const stacks = CAMIRA_JACKPOT_MAX_STACKS;
     const perUse = CAMIRA_JACKPOT_CRIT_PER_USE;
-    const max = stacks * perUse;
+    const stacksMax = CAMIRA_JACKPOT_MAX_STACKS;
+    const stacksNow = Math.max(0, Math.min(stacksMax, Number(hero.passiveState.jackpotStacks ?? 0)));
 
     return (
       <p className="text-sm leading-relaxed">
@@ -135,7 +135,7 @@ function getExpandedAbilityParagraph(
         <span className="font-semibold">{penPct}% enemy&apos;s DEF</span>. On Kill, she gains{" "}
         <span className="font-semibold">{crystals} bonus Crystals</span>. Each use also grants{" "}
         <span className="font-semibold">{perUse}% Crit Chance</span> and <span className="font-semibold">{perUse}% Crit Damage</span>,
-        stacking up to {stacks} times (<span className="font-semibold">+{max}% total</span>).
+        stacking up to {stacksMax} times (<span className="font-semibold">{stacksNow}/{stacksMax}</span>).
       </p>
     );
   }

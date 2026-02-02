@@ -37,7 +37,7 @@ export function getMonsterAction(monster: MonsterState): AIDecision {
     const threshold = behavior.specialAbility.triggerValue ?? 50;
 
     if (hpPercent <= threshold) {
-      return handleHpThresholdAbility(definition, monster);
+      return handleHpThresholdAbility(definition);
     }
   }
 
@@ -64,7 +64,6 @@ function createBasicAttack(monsterName: string): AIDecision {
 
 function handleHpThresholdAbility(
   definition: MonsterDefinition,
-  monster: MonsterState,
 ): AIDecision {
   switch (definition.id) {
     case "orc":
@@ -87,46 +86,48 @@ function resolvePatternAction(
   definition: MonsterDefinition,
   patternAction: string,
 ): AIDecision {
-  const name = definition.name;
+  const monsterName = definition.name;
 
-  switch (name) {
+  switch (patternAction) {
     case "attack":
-      return createBasicAttack(name);
+      return createBasicAttack(monsterName);
 
     case "wait":
       return {
         action: { type: "wait", name: "Wait", multiplier: 0 },
-        message: `${name} is waiting...`,
+        message: `${monsterName} is waiting...`,
       };
 
     case "pounce":
       return {
         action: { type: "special", name: "Pounce", multiplier: 1.5 },
-        message: `${name} pounces!`,
+        message: `${monsterName} pounces!`,
       };
 
     case "bone_throw":
       return {
         action: { type: "special", name: "Bone Throw", multiplier: 1.2 },
-        message: `${name} throws a bone!`,
+        message: `${monsterName} throws a bone!`,
       };
 
     case "surprise_attack":
       return {
         action: { type: "special", name: "Surprise Attack", multiplier: 1.8 },
-        message: `${name} lunges with a surprise attack!`,
+        message: `${monsterName} lunges with a surprise attack!`,
       };
 
-    case "life_drain":
-      return {
-        action: {
-          type: "special",
-          name: "Life Drain",
-          multiplier: 0.8,
-          effect: "lifesteal_50",
-        },
-        message: `${name} drains your life force!`,
-      };
+      case "life_drain":
+        // TODO: Implement lifesteal effect - heal monster for 50% of damage dealt
+        // Requires tracking last damage dealt to hero
+        return {
+          action: {
+            type: "special",
+            name: "Life Drain",
+            multiplier: 0.8,
+            effect: "lifesteal_50",
+          },
+          message: `${monsterName} drains your life force!`,
+        };
 
     case "fire_breath":
       return {
@@ -136,11 +137,11 @@ function resolvePatternAction(
           multiplier: 2.0,
           effect: "apply_burn",
         },
-        message: `${name} breathes fire!`,
+        message: `${monsterName} breathes fire!`,
       };
 
     default:
-      return createBasicAttack(name);
+      return createBasicAttack(monsterName);
   }
 }
 

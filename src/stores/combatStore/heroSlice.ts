@@ -1,7 +1,8 @@
 import { createHeroState } from "@/data/heroes";
 import { HeroSlice, SliceCreator } from "./types";
-import { ItemStats, StatusEffect } from "@/types";
+import { ItemStats } from "@/types";
 import { applyHealing } from "@/systems/combat/damageCalculator";
+import { getUpdatedEffectsAfterApply, getUpdatedEffectsAfterRemove } from "@/systems/combat/statusEffects";
 
 export const createHeroSlice: SliceCreator<HeroSlice> = (set,get) => ({
   hero: null,
@@ -192,24 +193,10 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set,get) => ({
     set((state) => {
       if (!state.hero) return {};
 
-      const existingIndex = state.hero.statusEffects.findIndex(
-        e => e.type === effect.type
+      const newEffects = getUpdatedEffectsAfterApply(
+        state.hero.statusEffects,
+        effect,
       );
-
-      let newEffects: StatusEffect[];
-
-      if (existingIndex >= 0) {
-        // Stack or refresh existing
-        newEffects = [...state.hero.statusEffects];
-        const existing = newEffects[existingIndex];
-        newEffects[existingIndex] = {
-          ...existing,
-          stacks: existing.stacks + effect.stacks,
-          duration: Math.max(existing.duration, effect.duration),
-        };
-      } else {
-        newEffects = [...state.hero.statusEffects, effect];
-      }
 
       return {
         hero: { ...state.hero, statusEffects: newEffects },
@@ -221,10 +208,15 @@ export const createHeroSlice: SliceCreator<HeroSlice> = (set,get) => ({
     set((state) => {
       if (!state.hero) return {};
 
+      const newEffects = getUpdatedEffectsAfterRemove(
+        state.hero.statusEffects,
+        type,
+      );
+
       return {
         hero: {
           ...state.hero,
-          statusEffects: state.hero.statusEffects.filter(e => e.type !== type),
+          statusEffects: newEffects,
         },
       };
     });

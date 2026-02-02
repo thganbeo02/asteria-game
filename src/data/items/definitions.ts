@@ -13,6 +13,10 @@ function tiers(category: ItemCategory): {
   };
 }
 
+// TODO: Implement premium items system (isPremium: true)
+// Premium items require premium currency, have unique effects, class restrictions, etc.
+// See: src/types/item.ts for classRestriction field
+
 // =============================================================================
 // RANDOM STAT ITEMS (GDD)
 // =============================================================================

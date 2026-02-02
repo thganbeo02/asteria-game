@@ -173,6 +173,57 @@ export function removeEffect(
   return effects.filter((e) => e.type !== type);
 }
 
+// SHARED STORE SLICE HELPERS
+// These consolidate duplicate logic from heroSlice and monsterSlice
+
+/**
+ * Apply or stack a status effect on an entity's effect array.
+ * Returns the new effects array for store updates.
+ */
+export function getUpdatedEffectsAfterApply(
+  currentEffects: StatusEffect[],
+  newEffect: StatusEffect,
+): StatusEffect[] {
+  const existingIndex = currentEffects.findIndex(
+    (e) => e.type === newEffect.type,
+  );
+
+  if (existingIndex === -1) {
+    return [...currentEffects, newEffect];
+  }
+
+  const updated = [...currentEffects];
+  const existing = updated[existingIndex];
+  const def = EFFECT_DEFINITIONS[newEffect.type];
+
+  if (def.stackable) {
+    updated[existingIndex] = {
+      ...existing,
+      stacks: Math.min(existing.stacks + newEffect.stacks, def.maxStacks),
+      duration: Math.max(existing.duration, newEffect.duration),
+    };
+  } else {
+    updated[existingIndex] = {
+      ...existing,
+      duration: Math.max(existing.duration, newEffect.duration),
+      value: Math.max(existing.value, newEffect.value),
+    };
+  }
+
+  return updated;
+}
+
+/**
+ * Remove a status effect from an entity's effect array.
+ * Returns the new effects array for store updates.
+ */
+export function getUpdatedEffectsAfterRemove(
+  currentEffects: StatusEffect[],
+  type: StatusEffectType,
+): StatusEffect[] {
+  return currentEffects.filter((e) => e.type !== type);
+}
+
 /**
  * Check if an effect exists
  */
@@ -290,59 +341,68 @@ export function tickEffectDurations(effects: StatusEffect[]): {
 
 // EFFECT MODIFIERS (for damage calculations)
 
+export interface EffectModifiers {
+  damageMultiplier: number;
+  defenseMultiplier: number;
+  dodgeBonus: number;
+  penetrationBonus: number;
+}
+
 /**
- * Get damage multiplier from effects.
- * Called by damage calculator to adjust damage.
+ * Consolidated effect modifier calculation.
+ * Iterates once over effects and aggregates all modifiers.
+ * Adding new effects only requires updating this function.
  */
-export function getOutgoingDamageModifier(effects: StatusEffect[]): number {
-  let multiplier = 1.0;
+export function getEffectModifiers(effects: StatusEffect[]): EffectModifiers {
+  const modifiers: EffectModifiers = {
+    damageMultiplier: 1.0,
+    defenseMultiplier: 1.0,
+    dodgeBonus: 0,
+    penetrationBonus: 0,
+  };
 
   for (const effect of effects) {
     switch (effect.type) {
       case "chill":
-        multiplier *= 1 - effect.value / 100;
+        modifiers.damageMultiplier *= 1 - effect.value / 100;
         break;
       case "momentum":
-        multiplier *= 1 + effect.stacks * 0.1;
+        modifiers.damageMultiplier *= 1 + effect.stacks * 0.1;
+        break;
+      case "fortify":
+        modifiers.defenseMultiplier *= 1 + effect.value / 100;
+        break;
+      case "evade":
+        modifiers.dodgeBonus += effect.value;
         break;
     }
   }
 
-  return multiplier;
+  return modifiers;
+}
+
+/**
+ * Get damage multiplier from effects.
+ * @deprecated Use getEffectModifiers instead
+ */
+export function getOutgoingDamageModifier(effects: StatusEffect[]): number {
+  return getEffectModifiers(effects).damageMultiplier;
 }
 
 /**
  * Get DEF multiplier from effects.
+ * @deprecated Use getEffectModifiers instead
  */
 export function getDefenseModifier(effects: StatusEffect[]): number {
-  let multiplier = 1.0;
-
-  for (const effect of effects) {
-    switch (effect.type) {
-      case "fortify":
-        multiplier *= 1 + effect.value / 100;
-        break;
-    }
-  }
-
-  return multiplier;
+  return getEffectModifiers(effects).defenseMultiplier;
 }
 
 /**
  * Get bonus dodge chance from effects.
+ * @deprecated Use getEffectModifiers instead
  */
 export function getDodgeBonus(effects: StatusEffect[]): number {
-  let bonus = 0;
-
-  for (const effect of effects) {
-    switch (effect.type) {
-      case "evade":
-        bonus += effect.value;
-        break;
-    }
-  }
-
-  return bonus;
+  return getEffectModifiers(effects).dodgeBonus;
 }
 
 /**

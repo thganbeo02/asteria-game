@@ -136,42 +136,68 @@ export interface HeroCombatStats {
 }
 
 /**
- * Calculate hero basic attack damage.
- * Uses calculateDamage internally - no duplicate logic.
+ * Helper to create hero damage context - consolidates duplicate context building
  */
-export function calculateHeroBasicAttack(
-  heroStats: HeroCombatStats,
-  monsterDef: number
-): DamageResult {
-  return calculateDamage({
-    attackerAtk: heroStats.atk + heroStats.bonusAtk,
-    defenderDef: monsterDef,
-    penetration: heroStats.penetration + heroStats.bonusPenetration,
-    critChance: heroStats.critChance + heroStats.bonusCritChance,
-    critMultiplier: heroStats.critMultiplier + heroStats.bonusCritMultiplier,
-    dodgeChance: 0,  // Monsters don't dodge in MVP
-    damageMultiplier: 1.0,
-  });
-}
-
-export function calculateHeroAbility(
+function createHeroDamageContext(
   heroStats: HeroCombatStats,
   monsterDef: number,
-  abilityScaling: number,  // e.g., 1.4 for 140% ATK
-  extraPenetration: number = 0,
-  canCrit: boolean = true
-): DamageResult {
-  return calculateDamage({
+  options: {
+    damageMultiplier?: number;
+    extraPenetration?: number;
+    canCrit?: boolean;
+    dodgeChance?: number;
+  } = {},
+): DamageContext {
+  const {
+    damageMultiplier = 1.0,
+    extraPenetration = 0,
+    canCrit = true,
+    dodgeChance = 0,
+  } = options;
+
+  return {
     attackerAtk: heroStats.atk + heroStats.bonusAtk,
     defenderDef: monsterDef,
     penetration: heroStats.penetration + heroStats.bonusPenetration + extraPenetration,
     critChance: canCrit ? heroStats.critChance + heroStats.bonusCritChance : 0,
     critMultiplier: heroStats.critMultiplier + heroStats.bonusCritMultiplier,
-    dodgeChance: 0,
-    damageMultiplier: abilityScaling,
-  });
+    dodgeChance,
+    damageMultiplier,
+  };
 }
 
+/**
+ * Calculate hero basic attack damage.
+ */
+export function calculateHeroBasicAttack(
+  heroStats: HeroCombatStats,
+  monsterDef: number
+): DamageResult {
+  return calculateDamage(createHeroDamageContext(heroStats, monsterDef));
+}
+
+/**
+ * Calculate hero ability damage.
+ */
+export function calculateHeroAbility(
+  heroStats: HeroCombatStats,
+  monsterDef: number,
+  abilityScaling: number,
+  extraPenetration: number = 0,
+  canCrit: boolean = true
+): DamageResult {
+  return calculateDamage(
+    createHeroDamageContext(heroStats, monsterDef, {
+      damageMultiplier: abilityScaling,
+      extraPenetration,
+      canCrit,
+    }),
+  );
+}
+
+/**
+ * Calculate monster attack damage.
+ */
 export function calculateMonsterAttack(
   monsterAtk: number,
   heroDef: number,
@@ -181,8 +207,8 @@ export function calculateMonsterAttack(
   return calculateDamage({
     attackerAtk: monsterAtk,
     defenderDef: heroDef,
-    penetration: 0,    // Monsters don't have penetration in MVP
-    critChance: 0,     // Monsters don't crit in MVP
+    penetration: 0,
+    critChance: 0,
     critMultiplier: 1.5,
     dodgeChance: heroDodge,
     damageMultiplier,

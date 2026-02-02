@@ -49,6 +49,8 @@ export interface TurnSlice {
 
 export interface LogSlice {
   combatLog: CombatLog[];
+  // TODO: Implement animation system - queueAnimation is called but never consumed
+  // See: framer-motion integration needed in CombatLayout components
   animationQueue: AnimationEvent[];
 
   // aCTIONS

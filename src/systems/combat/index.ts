@@ -30,19 +30,22 @@ export {
   getEffect,
   processEffectTick,
   tickEffectDurations,
+  getEffectModifiers,
   getOutgoingDamageModifier,
   getDefenseModifier,
   getDodgeBonus,
   processShieldAbsorption,
+  getUpdatedEffectsAfterApply,
+  getUpdatedEffectsAfterRemove,
   EFFECT_DEFINITIONS,
   type EffectDefinition,
   type TickResult,
+  type EffectModifiers,
 } from "./statusEffects";
 
 // Monster AI
 export {
   getMonsterAction,
-  getNextPatternIndex,
   getEffectiveMonsterAtk,
   shouldDoubleAttack,
   type MonsterAction,

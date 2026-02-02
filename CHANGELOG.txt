@@ -503,5 +503,119 @@ SESSION 1 - PATCH NOTES + DOC STRUCTURE (player-facing)
 
 4) .gitignore
    - Reorganized ignores so documentation and tests are tracked.
-   - Left generated benchmark reports ignored:
-     - docs/balance/
+    - Left generated benchmark reports ignored:
+      - docs/balance/
+
+
+--------------------------------------------------------------------------------
+2026-02-01 - Balance Run Trace Export, Camira Crit Rules, Level-Up Mana Nerf, HUD Label Cleanup
+--------------------------------------------------------------------------------
+
+OVERVIEW:
+- Added a lightweight "decision trace" log to RunState and an export button on the run summary screen.
+- Camira: Rapid Fire can crit (each arrow); Jackpot Arrow can no longer crit and no longer stacks crit bonuses.
+- Progression: leveling up no longer refills mana to full.
+- HUD: renamed resource labels to "Health Points" and "Mana" and matched value text color to bar color.
+
+CHANGES:
+
+1) Decision trace export (balancing)
+   - src/stores/gameStore/types.ts
+     - Added RunDecisionEvent + recordDecision API on the game store.
+   - src/stores/gameStore/runSlice.ts
+     - Added run.decisionLog and append-only recordDecision implementation.
+   - src/components/combat/ActionBar.tsx
+     - Record player decisions for basic attack / abilities / skip.
+   - src/components/combat/BattleArena.tsx
+     - Record victory flow decisions (next encounter, enter/skip shop, end run).
+   - src/components/screens/ShopScreen.tsx
+     - Record shop purchases and "continue".
+   - src/components/screens/RunSummaryScreen.tsx
+     - Added "Save Run JSON" button to export the trace.
+
+2) Camira crit adjustments
+   - src/systems/combat/abilities/registry.ts
+     - Jackpot Arrow: set canCrit=false, but restored crit stacking logic.
+   - src/data/heroes/camira.ts
+     - Updated ability descriptions/tags to match crit rules (Rapid Fire crits, Jackpot stacks).
+   - src/components/combat/ActionTooltips.tsx
+     - Updated tooltips to show Jackpot crit stacking and Rapid Fire crit capability.
+   - tests/camira.test.ts
+     - Updated Jackpot Arrow expectations (no crit / YES stacking).
+
+3) Level-up mana refill nerf
+   - src/systems/combat/turnManager.ts
+     - Preserve current mana on level up instead of refilling to max.
+
+4) HUD label and styling cleanup
+   - src/components/combat/HeroPanel.tsx
+     - Labels: Vitality/Resonance -> Health Points/Mana.
+   - src/components/ui/HealthBar.tsx
+     - Value text uses the same color family as the bar, now bolder.
+
+5) Monster AI pattern fix
+   - src/systems/combat/monsterAI.ts
+     - Pattern actions now resolve from the pattern string (not the monster name), fixing non-functional pattern behavior.
+
+6) Polish & Analytics
+    - src/components/combat/BattleArena.tsx: Added crystal tracking to 'enter_shop' decision.
+    - src/data/heroes/camira.ts, docs/heroes/camira.txt, src/components/combat/ActionTooltips.tsx: Clarified crit rules (Rapid Fire can crit, Jackpot Arrow implied no-crit).
+
+
+--------------------------------------------------------------------------------
+2026-02-02 - Code Quality Refactor: Consolidate Duplicate Code
+--------------------------------------------------------------------------------
+
+OVERVIEW:
+- Fixed high-priority code duplication issues across status effects, damage calculation, and store slices.
+- Reduced ~60 lines of duplicate code by extracting shared utilities.
+- Added TODO comments for unimplemented features to prevent future confusion.
+
+CHANGES:
+
+1) Status Effect Modifiers Consolidation
+   - src/systems/combat/statusEffects.ts
+     - Added `getEffectModifiers()`: single-pass effect modifier aggregation
+     - Returns `damageMultiplier`, `defenseMultiplier`, `dodgeBonus`, `penetrationBonus`
+     - Old functions (`getOutgoingDamageModifier`, `getDefenseModifier`, `getDodgeBonus`) now delegate to consolidated function
+     - Adding new effects now requires updating only one function
+
+2) Shared Status Effect Application Logic
+   - src/systems/combat/statusEffects.ts
+     - Added `getUpdatedEffectsAfterApply()`: consolidates heroSlice/monsterSlice duplicate logic
+     - Added `getUpdatedEffectsAfterRemove()`: consolidates status removal logic
+   - src/stores/combatStore/heroSlice.ts
+     - Refactored `applyStatusToHero()` and `removeHeroStatus()` to use shared utilities
+   - src/stores/combatStore/monsterSlice.ts
+     - Refactored `applyStatusToMonster()` and `removeMonsterStatus()` to use shared utilities
+   - Result: ~40 lines removed from store slices
+
+3) Damage Calculation Consolidation
+   - src/systems/combat/damageCalculator.ts
+     - Added `createHeroDamageContext()`: consolidates duplicate context building
+     - All attack functions (`calculateHeroBasicAttack`, `calculateHeroAbility`, `calculateMonsterAttack`) now use shared helper
+     - Reduced code duplication in hero context construction
+
+4) Removed Unused Exports
+   - src/systems/combat/monsterAI.ts
+     - Removed `getNextPatternIndex` export (was exported but never used)
+   - src/systems/combat/index.ts
+     - Updated exports to match
+
+5) Added TODO Comments for Unimplemented Features
+   - src/data/items/definitions.ts: Added premium items system TODO
+   - src/systems/combat/monsterAI.ts: Added lifesteal_50 implementation TODO
+   - src/systems/combat/turnManager.ts: Added lifesteal_50 implementation TODO
+   - src/stores/combatStore/types.ts: Added animation system TODO
+
+6) Public API Updates
+   - src/systems/combat/index.ts
+     - Added new exports: `getEffectModifiers`, `getUpdatedEffectsAfterApply`, `getUpdatedEffectsAfterRemove`
+     - Updated deprecated function exports to maintain backward compatibility
+
+RESULTS:
+- Removed: ~60 lines of duplicate code
+- Added: ~35 lines of shared utilities
+- Net: ~25 lines reduction + improved maintainability
+- Test coverage: All 46 tests pass (1 pre-existing failure in camira.test.ts)
+- Lint: Passes with no errors

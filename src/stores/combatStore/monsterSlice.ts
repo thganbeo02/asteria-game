@@ -1,8 +1,8 @@
 import type { MonsterSlice, SliceCreator } from "./types";
-import type { StatusEffect, Difficulty } from "@/types";
 import { selectRandomMonster, MONSTERS } from "@/data/monsters";
 import { useGameStore } from "@/stores/gameStore";
 import { applyHealing } from "@/systems/combat/damageCalculator";
+import { getUpdatedEffectsAfterApply, getUpdatedEffectsAfterRemove } from "@/systems/combat/statusEffects";
 
 // MONSTER SLICE
 
@@ -91,23 +91,10 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
     set((state) => {
       if (!state.monster) return {};
 
-      const existingIndex = state.monster.statusEffects.findIndex(
-        (e) => e.type === effect.type,
+      const newEffects = getUpdatedEffectsAfterApply(
+        state.monster.statusEffects,
+        effect,
       );
-
-      let newEffects: StatusEffect[];
-
-      if (existingIndex >= 0) {
-        newEffects = [...state.monster.statusEffects];
-        const existing = newEffects[existingIndex];
-        newEffects[existingIndex] = {
-          ...existing,
-          stacks: existing.stacks + effect.stacks,
-          duration: Math.max(existing.duration, effect.duration),
-        };
-      } else {
-        newEffects = [...state.monster.statusEffects, effect];
-      }
 
       return {
         monster: { ...state.monster, statusEffects: newEffects },
@@ -119,12 +106,15 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
     set((state) => {
       if (!state.monster) return {};
 
+      const newEffects = getUpdatedEffectsAfterRemove(
+        state.monster.statusEffects,
+        type,
+      );
+
       return {
         monster: {
           ...state.monster,
-          statusEffects: state.monster.statusEffects.filter(
-            (e) => e.type !== type,
-          ),
+          statusEffects: newEffects,
         },
       };
     });

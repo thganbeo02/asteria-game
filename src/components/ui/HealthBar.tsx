@@ -15,17 +15,20 @@ const variantStyles = {
   health: {
     bar: "bg-emerald-500",
     track: "bg-emerald-950",
-    label: "text-emerald-400",
+    label: "text-emerald-400 font-bold",
+    value: "text-emerald-500 font-extrabold",
   },
   mana: {
     bar: "bg-blue-500",
     track: "bg-blue-950",
-    label: "text-blue-400",
+    label: "text-blue-400 font-bold",
+    value: "text-blue-500 font-extrabold",
   },
   enemy: {
     bar: "bg-rose-500",
     track: "bg-rose-950",
-    label: "text-blue-400",
+    label: "text-rose-400 font-bold",
+    value: "text-rose-500 font-extrabold",
   },
 };
 
@@ -50,9 +53,9 @@ export function HealthBar({
     <div className={cn("w-full", className)}>
       {/* Label and Values row */}
       <div className="flex justify-between items-center mb-1">
-        <span>{label}</span>
+        <span className={cn("text-sm font-medium", styles.label)}>{label}</span>
         {showValues && (
-          <span className="text-sm font-semibold text-gray-200">
+          <span className={cn("text-sm font-semibold tabular-nums", styles.value)}>
             {Math.floor(current)} / {max}
             {shieldValue > 0 && (
               <span className="text-cyan-400"> (+{Math.floor(shieldValue)})</span>

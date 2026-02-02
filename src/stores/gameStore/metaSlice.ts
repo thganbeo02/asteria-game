@@ -2,7 +2,7 @@ import type { MetaSlice, GameSliceCreator } from "./types";
 
 // META SLICE
 
-export const createMetaSlice: GameSliceCreator<MetaSlice> = (set, get) => ({
+export const createMetaSlice: GameSliceCreator<MetaSlice> = (set) => ({
   totalGold: 0,
   unlockedHeroes: ["lyra", "bran", "shade", "camira"],  // Starters
   settings: {

@@ -123,7 +123,7 @@ export function HeroPanel() {
       <HealthBar
         current={currentHp}
         max={maxHp}
-        label="Vitality (HP)"
+        label="Health Points"
         variant="health"
         shield={shieldAmount}
       />
@@ -132,7 +132,7 @@ export function HeroPanel() {
       <HealthBar
         current={currentMana}
         max={maxMana}
-        label="Resonance (MP)"
+        label="Mana"
         variant="mana"
       />
 

@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { calculateDamage, DamageContext, calculateEffectiveDef, applyDamageFormula } from './damageCalculator';
-import { DAMAGE_FORMULA_CONSTANT, MINIMUM_DAMAGE } from '@/lib/constants';
+import { MINIMUM_DAMAGE } from '@/lib/constants';
 
 describe('damageCalculator', () => {
   describe('calculateEffectiveDef', () => {

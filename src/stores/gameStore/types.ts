@@ -1,5 +1,32 @@
-import { Difficulty, GamePhase, ItemInstance, MonsterBaseStats, MonsterType } from "@/types";
+import { Difficulty, GamePhase, ItemInstance, MonsterBaseStats, MonsterType, TurnPhase } from "@/types";
 import type { ShopState } from "@/types";
+
+export type RunDecisionKind =
+  | "basic_attack"
+  | "cast_ability"
+  | "skip_turn"
+  | "end_run"
+  | "next_encounter"
+  | "enter_shop"
+  | "skip_shop"
+  | "shop_buy_offer"
+  | "shop_buy_potion"
+  | "shop_continue";
+
+export interface RunDecisionEvent {
+  seq: number;
+  at: string; // ISO timestamp
+  kind: RunDecisionKind;
+  phase: GamePhase;
+  heroId: string;
+  difficulty: Difficulty;
+  encounter: number;
+  internalEncounter: number;
+  currentLevel: number;
+  turnCount?: number;
+  turnPhase?: TurnPhase;
+  payload?: Record<string, unknown>;
+}
 
 export interface RunState {
   heroId: string;
@@ -30,6 +57,9 @@ export interface RunState {
   purchasedItems: ItemInstance[];
   healthPotionsUsedThisLevel: number;
   shopsSkipped: number;
+
+  // Balancing / analytics (not persisted)
+  decisionLog: RunDecisionEvent[];
 
   // Hero-specific (Shade contracts, etc.)
   contractState?: {
@@ -69,6 +99,7 @@ export interface RunSlice {
   addScore: (points: number) => void;
   addExp: (amount: number) => void;
   getMonsterSnapshot: (monsterType: MonsterType) => MonsterBaseStats;
+  recordDecision: (kind: RunDecisionKind, payload?: Record<string, unknown>) => void;
 }
 
 export interface EconomySlice {

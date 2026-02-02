@@ -4,7 +4,7 @@ import type { LogSlice, SliceCreator } from "./types";
 // LOG SLICE
 // =============================================================================
 
-export const createLogSlice: SliceCreator<LogSlice> = (set, get) => ({
+export const createLogSlice: SliceCreator<LogSlice> = (set) => ({
   combatLog: [],
   animationQueue: [],
 

@@ -147,7 +147,7 @@ function getExpandedAbilityParagraph(
       <p className="text-sm leading-relaxed">
         {heroName} fires two arrows, each dealing <span className="font-semibold">{perArrow} damage</span> (up to{" "}
         <span className="font-semibold">{perArrow * 2} damage</span> total), then heals for{" "}
-        <span className="font-semibold">{healPct}%</span> of the total damage dealt.
+        <span className="font-semibold">{healPct}%</span> of the total damage dealt. Each arrow can <span className="font-semibold">Crit</span>.
       </p>
     );
   }

@@ -1,4 +1,5 @@
-import { useCombatStore, useGameStore } from "@/stores";
+import { useCombatStore } from "@/stores/combatStore";
+import { useGameStore } from "@/stores/gameStore";
 import {
   calculateHeroAbility,
   calculateHeroBasicAttack,
@@ -23,7 +24,6 @@ import { EXP_THRESHOLDS, MAX_LEVEL } from "@/lib/constants";
 import {
   getEffectiveMonsterAtk,
   getMonsterAction,
-  getNextPatternIndex,
   shouldDoubleAttack,
 } from "./monsterAI";
 
@@ -326,7 +326,6 @@ export class TurnManager {
     }
 
     // Advance pattern
-    const newIndex = getNextPatternIndex(monster);
     store.advanceMonsterPattern();
 
     // Check defeat or continue
@@ -466,7 +465,8 @@ export class TurnManager {
         break;
 
       case "lifesteal_50":
-        // Would need to track last damage dealt
+        // TODO: Implement lifesteal - monster heals for 50% of damage dealt
+        // Requires tracking monster's last damage dealt to hero
         break;
 
       case "double_attack":
@@ -703,32 +703,36 @@ export class TurnManager {
       const gainIdx = Math.max(0, Math.min(6, nextLevel - 1));
       const scaling = def.levelScaling;
 
-      useCombatStore.setState((state) => {
-        if (!state.hero) return {};
-        const h = state.hero;
-        const maxHp = h.stats.maxHp + (scaling.maxHp[gainIdx] ?? 0);
-        const atk = h.stats.atk + (scaling.atk[gainIdx] ?? 0);
-        const defStat = h.stats.def + (scaling.def[gainIdx] ?? 0);
-        const maxMana = h.stats.maxMana + (scaling.maxMana[gainIdx] ?? 0);
-        const manaRegen = h.stats.manaRegen + (scaling.manaRegen[gainIdx] ?? 0);
+        useCombatStore.setState((state) => {
+          if (!state.hero) return {};
+          const h = state.hero;
+          const maxHp = h.stats.maxHp + (scaling.maxHp[gainIdx] ?? 0);
+          const atk = h.stats.atk + (scaling.atk[gainIdx] ?? 0);
+          const defStat = h.stats.def + (scaling.def[gainIdx] ?? 0);
+          const maxMana = h.stats.maxMana + (scaling.maxMana[gainIdx] ?? 0);
+          const manaRegen = h.stats.manaRegen + (scaling.manaRegen[gainIdx] ?? 0);
 
-        return {
-          hero: {
-            ...h,
-            level: nextLevel,
-            stats: {
-              ...h.stats,
-              maxHp,
-              atk,
-              def: defStat,
-              maxMana,
-              manaRegen,
-              hp: maxHp + h.stats.bonusMaxHp,
-              mana: maxMana + h.stats.bonusMaxMana,
+          const maxManaTotal = maxMana + h.stats.bonusMaxMana;
+          const preservedMana = Math.min(maxManaTotal, h.stats.mana);
+
+          return {
+            hero: {
+              ...h,
+              level: nextLevel,
+              stats: {
+                ...h.stats,
+                maxHp,
+                atk,
+                def: defStat,
+                maxMana,
+                manaRegen,
+                hp: maxHp + h.stats.bonusMaxHp,
+                // Leveling up should not refill mana to full.
+                mana: preservedMana,
+              },
             },
-          },
-        };
-      });
+          };
+        });
 
       useCombatStore.getState().addLogEntry({
         actor: "hero",

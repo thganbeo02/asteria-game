@@ -40,6 +40,7 @@ Two arrows. Heals from damage dealt.
 - Cost: 9 / 12 / 15 / 18 / 21 / 24 / 27 Mana
 - Cooldown: 2 turns
 - Damage: Fire two arrows, each dealing 70-100% ATK.
+- Crit: Each arrow can **Crit**.
 - Effect: Heal for 30-60% of total damage dealt.
 
 ABILITY 2 - FOREST AGILITY
@@ -58,7 +59,7 @@ Magic arrow. Massive crystal bonus on kill.
 - Cooldown: 4 turns
 - Damage: 140-260% ATK, ignoring 30-60% enemy DEF.
 - On Kill: Gain 20 / 40 / 75 / 125 / 200 / 350 / 600 bonus crystals.
-- Scaling: Each use grants +3% Crit Chance and Crit Damage (max +24%).
+- Crit Stacking: **3% Crit Chance and Crit Damage**, up to 8 times (**0 / 8**). Each use increments the counter.
 
 PLAYSTYLE SUMMARY
 
@@ -72,7 +73,8 @@ Camira plays the "Economy Game," generating massive amounts of Crystals for the 
 CHANGELOG
 
 Unreleased:
-- (Add upcoming changes here)
+- Rapid Fire (Adjust): Can critically strike (each arrow).
+- Jackpot Arrow (Adjust): Can no longer critically strike.
 
 0.1.1:
 - Tooltip clarifications for Jackpot Arrow rewards and Passive trigger count.

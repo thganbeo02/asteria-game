@@ -8,8 +8,8 @@ import {
   CAMIRA_FOREST_HP_MAX,
   CAMIRA_FOREST_HP_MIN,
   CAMIRA_FOREST_STATS,
-  CAMIRA_JACKPOT_CRIT_PER_USE,
   CAMIRA_JACKPOT_CRYSTALS,
+  CAMIRA_JACKPOT_CRIT_PER_USE,
   CAMIRA_JACKPOT_MAX_STACKS,
   CAMIRA_JACKPOT_PEN,
   CAMIRA_RAPID_FIRE_HEAL,
@@ -193,7 +193,8 @@ const camiraJackpotArrow: AbilityHandler = ({ hero, monster, ability }) => {
   const effectiveDef = Math.floor(monster.def * defModifier);
   const extraPen = CAMIRA_JACKPOT_PEN[levelIndex];
 
-  const result = calculateHeroAbility(heroStats, effectiveDef, scaling, extraPen, true);
+  // Jackpot Arrow cannot crit.
+  const result = calculateHeroAbility(heroStats, effectiveDef, scaling, extraPen, false);
   
   if (result.isDodged) {
     store.addLogEntry({
@@ -219,16 +220,6 @@ const camiraJackpotArrow: AbilityHandler = ({ hero, monster, ability }) => {
       value: result.finalDamage,
       isCrit: result.isCrit,
     });
-
-    if (result.isCrit) {
-      triggerOnCrit({
-        hero: refreshed,
-        monster,
-        source: "ability",
-        abilityId: ability.id,
-        damage: result.finalDamage,
-      });
-    }
 
     const updatedMonster = useCombatStore.getState().monster;
     if (updatedMonster && updatedMonster.hp <= 0) {

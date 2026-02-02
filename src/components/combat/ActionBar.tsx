@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { useCombatStore, useGameStore } from "@/stores";
+import type { RunDecisionKind } from "@/stores/gameStore/types";
 import { Button, Tooltip } from "@/components/ui";
 import { cn } from "@/lib/cn";
 import { performSkipTurn } from "@/systems/combat/combatActions";
@@ -17,6 +18,7 @@ export function ActionBar() {
   const hero = useCombatStore((state) => state.hero);
   const monster = useCombatStore((state) => state.monster);
   const turnPhase = useCombatStore((state) => state.turnPhase);
+  const turnCount = useCombatStore((state) => state.turnCount);
   const skipTurnsUsed = useCombatStore((state) => state.skipTurnsUsed);
   const basicAttack = useCombatStore((state) => state.basicAttack);
   const castAbility = useCombatStore((state) => state.useAbility);
@@ -26,6 +28,20 @@ export function ActionBar() {
 
   const isPlayerTurn = turnPhase === "player_turn";
   const skipsRemaining = 3 - skipTurnsUsed;
+
+  const recordDecision = (kind: RunDecisionKind, payload?: Record<string, unknown>) => {
+    useGameStore.getState().recordDecision(kind, {
+      turnCount,
+      turnPhase,
+      heroHp: hero.stats.hp,
+      heroMaxHp: hero.stats.maxHp + hero.stats.bonusMaxHp,
+      heroMana: hero.stats.mana,
+      heroMaxMana: hero.stats.maxMana + hero.stats.bonusMaxMana,
+      monsterId: monster?.definitionId ?? null,
+      monsterHp: monster?.hp ?? null,
+      ...payload,
+    });
+  };
 
   return (
     <div className="bg-bg-panel border-t border-border px-6 py-4">
@@ -42,7 +58,10 @@ export function ActionBar() {
             <Button
               variant="secondary"
               size="lg"
-              onClick={() => basicAttack()}
+              onClick={() => {
+                recordDecision("basic_attack");
+                basicAttack();
+              }}
               disabled={!isPlayerTurn}
               className="min-w-[100px]"
             >
@@ -75,7 +94,14 @@ export function ActionBar() {
                 <Button
                   variant={canUse ? "primary" : "secondary"}
                   size="lg"
-                  onClick={() => castAbility(index)}
+                  onClick={() => {
+                    recordDecision("cast_ability", {
+                      abilityIndex: index,
+                      abilityId: ability.id,
+                      manaCost,
+                    });
+                    castAbility(index);
+                  }}
                   disabled={!canUse}
                   className={cn(
                     "min-w-[100px] relative",
@@ -132,7 +158,10 @@ export function ActionBar() {
           <Button
             variant="ghost"
             size="md"
-            onClick={() => performSkipTurn()}
+            onClick={() => {
+              recordDecision("skip_turn", { skipsRemaining });
+              performSkipTurn();
+            }}
             disabled={!isPlayerTurn || skipsRemaining <= 0}
           >
             Skip Turn ({skipsRemaining}/3)

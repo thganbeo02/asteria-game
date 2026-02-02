@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { 
   createStatusEffect, 
   applyEffect, 
@@ -10,7 +10,6 @@ import {
   TickContext
 } from './statusEffects';
 import { StatusEffect } from '@/types';
-import * as damageCalculator from './damageCalculator';
 
 describe('statusEffects', () => {
   describe('createStatusEffect', () => {

@@ -46,8 +46,8 @@ export const CAMIRA: HeroDefinition = {
       id: "camira_rapid_fire",
       name: "Rapid Fire",
       description: "Two arrows. Heals from damage dealt.",
-      expandedDescription: `Fire two arrows, each dealing 70-100% ATK.
-Heal for 30-60% of total damage dealt.`,
+      expandedDescription: `Fire two arrows, each dealing 70-100% ATK (each arrow can Crit).
+ Heal for 30-60% of total damage dealt.`,
       manaCost: [9, 12, 15, 18, 21, 24, 27],
       cooldown: 2,
       currentCooldown: 0,
@@ -71,8 +71,8 @@ From Level 5: Also gain 12-15 random max HP.`,
       name: "Jackpot Arrow",
       description: "Magic arrow. Massive crystal bonus on kill.",
       expandedDescription: `Fire a magic arrow: 140-260% ATK, ignoring 30-60% DEF.
-      On Kill: Gain 20-600 bonus crystals.
-      Each use grants +3% crit chance and crit damage (max 8 stacks = +24%).`,
+        On Kill: Gain 20-600 bonus crystals.
+        Each use grants **3% Crit Chance and Crit Damage**, up to 8 times (**${0} / 8**).`,
       manaCost: [16, 20, 24, 28, 32, 36, 40],
       cooldown: 4,
       currentCooldown: 0,

@@ -30,6 +30,38 @@ export function RunSummaryScreen() {
     combat.initCombat(heroId, difficulty);
   };
 
+  const saveRunJson = () => {
+    const game = useGameStore.getState();
+    const combat = useCombatStore.getState();
+    const runState = game.run;
+    if (!runState) return;
+
+    const exportedAt = new Date();
+    const pad = (n: number) => String(n).padStart(2, "0");
+    const fileStamp =
+      `${exportedAt.getFullYear()}${pad(exportedAt.getMonth() + 1)}${pad(exportedAt.getDate())}_` +
+      `${pad(exportedAt.getHours())}${pad(exportedAt.getMinutes())}${pad(exportedAt.getSeconds())}`;
+
+    const payload = {
+      exportedAt: exportedAt.toISOString(),
+      kind: "balance_run_trace",
+      run: runState,
+      decisions: runState.decisionLog ?? [],
+      combatLog: combat.combatLog,
+    };
+
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `asteria_${runState.heroId}_${runState.difficulty}_${fileStamp}.json`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.setTimeout(() => URL.revokeObjectURL(url), 250);
+  };
+
   return (
     <div className="min-h-screen flex items-center justify-center p-6">
       <div className={cn("w-full max-w-2xl", "rounded-2xl border border-border bg-bg-panel p-6")}>
@@ -60,6 +92,11 @@ export function RunSummaryScreen() {
         )}
 
         <div className="mt-6 flex flex-col sm:flex-row gap-3 sm:justify-end">
+          {run && (
+            <Button variant="secondary" size="lg" onClick={() => saveRunJson()}>
+              Save Run JSON
+            </Button>
+          )}
           <Button variant="secondary" size="lg" onClick={() => useGameStore.getState().setPhase("hero_select")}>
             Hero Select
           </Button>

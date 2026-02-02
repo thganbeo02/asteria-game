@@ -6,6 +6,7 @@ import { DIFFICULTY_CONFIG } from "@/lib/constants";
 import { proceedToNextEncounter } from "@/systems/combat/combatActions";
 import { getSkipBonusCrystalsForLevel } from "@/systems/shop/generateShopOffers";
 import { useCombatStore, useGameStore } from "@/stores";
+import type { RunDecisionKind } from "@/stores/gameStore/types";
 import { useState } from "react";
 
 export function BattleArena() {
@@ -21,6 +22,15 @@ export function BattleArena() {
   const isPlayerTurn = turnPhase === "player_turn";
   const isMonsterTurn = turnPhase === "monster_turn";
   const isVictory = phase === "victory" && turnPhase === "combat_end";
+
+  const recordDecision = (kind: RunDecisionKind, payload?: Record<string, unknown>) => {
+    useGameStore.getState().recordDecision(kind, {
+      turnPhase,
+      monsterId: monster?.definitionId ?? null,
+      monsterHp: monster?.hp ?? null,
+      ...payload,
+    });
+  };
 
   if (isVictory && run && monster) {
     const nextEncounter = run.encounter + 1;
@@ -55,7 +65,10 @@ export function BattleArena() {
             <Button
               variant="secondary"
               size="lg"
-              onClick={() => useGameStore.getState().endRun(true)}
+              onClick={() => {
+                recordDecision("end_run", { victory: true });
+                useGameStore.getState().endRun(true);
+              }}
             >
               End Run
             </Button>
@@ -65,9 +78,12 @@ export function BattleArena() {
               size="lg"
               onClick={() => {
                 if (willShop) {
+                  recordDecision("next_encounter", { willShop: true });
                   setShopPromptOpen(true);
                   return;
                 }
+
+                recordDecision("next_encounter", { willShop: false });
                 proceedToNextEncounter();
               }}
             >
@@ -106,6 +122,7 @@ export function BattleArena() {
                   size="lg"
                   onClick={() => {
                     setShopPromptOpen(false);
+                    recordDecision("skip_shop", { skipBonusCrystals: skipBonus });
                     proceedToNextEncounter("skip_shop");
                   }}
                 >
@@ -116,6 +133,7 @@ export function BattleArena() {
                   size="lg"
                   onClick={() => {
                     setShopPromptOpen(false);
+                    recordDecision("enter_shop", { crystals: run?.crystals ?? 0 });
                     proceedToNextEncounter("shop");
                   }}
                 >

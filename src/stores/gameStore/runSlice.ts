@@ -51,6 +51,8 @@ function createInitialRunState(heroId: string, difficulty: Difficulty): RunState
     healthPotionsUsedThisLevel: 0,
     shopsSkipped: 0,
 
+    decisionLog: [],
+
     contractState: heroId === "shade" ? {
       currentTurnLimit: 5,
       currentTurn: 0,
@@ -209,5 +211,33 @@ export const createRunSlice: GameSliceCreator<RunSlice> = (set, get) => ({
       return MONSTERS[monsterType].baseStats;
     }
     return run.monsterSnapshots[monsterType];
+  },
+
+  recordDecision: (kind, payload) => {
+    set((state) => {
+      if (!state.run) return {};
+      const run = state.run;
+      const nextSeq = (run.decisionLog?.length ?? 0) + 1;
+
+      const evt = {
+        seq: nextSeq,
+        at: new Date().toISOString(),
+        kind,
+        phase: state.phase,
+        heroId: run.heroId,
+        difficulty: run.difficulty,
+        encounter: run.encounter,
+        internalEncounter: run.internalEncounter,
+        currentLevel: run.currentLevel,
+        payload,
+      };
+
+      return {
+        run: {
+          ...run,
+          decisionLog: [...run.decisionLog, evt],
+        },
+      };
+    });
   },
 });

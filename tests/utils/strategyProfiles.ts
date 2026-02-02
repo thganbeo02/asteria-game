@@ -40,13 +40,13 @@ export function getHeroKitSummary(heroId: string): string {
   if (heroId === "camira") {
     return [
       "Kit: Rapid Fire (2 hits + heal), Forest Agility (evade + permanent stats), ",
-      "Jackpot Arrow (high pen finisher + bonus crystals on kill + crit stacking). ",
+      "Jackpot Arrow (high pen finisher + bonus crystals on kill). ",
       "AI uses estimates for kill shots + incoming damage, plus a finisher mana reserve.",
     ].join("");
   }
   if (heroId === "bran") {
     return [
-      "Kit: Shield Slam (stun + DEF-scaling damage), Fortify (temp DEF then permanent Max HP on expiry; mastery after 6 uses), ",
+      "Kit: Shield Slam (stun + DEF-scaling damage), Fortify (temp DEF then permanent Max HP on expiry; mastery every 5 uses), ",
       "Crushing Blow (execute scales with enemy missing HP; permanent ATK/DEF on kill), Iron Will (heal on kill; penetration unlock at level 4).",
     ].join("");
   }

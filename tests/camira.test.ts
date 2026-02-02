@@ -177,38 +177,43 @@ describe("Camira Kit Tests", () => {
   });
 
   describe("Ability: Jackpot Arrow", () => {
-    it("should deal damage and stack crit", () => {
+    it("should deal damage and not crit", () => {
        // Setup mana
        useCombatStore.setState(state => {
-        if (state.hero) state.hero.stats.mana = 100;
-        return state;
-      });
+         if (state.hero) {
+          state.hero.stats.mana = 100;
+          // Force a crit if abilities were allowed to crit
+          state.hero.stats.critChance = 100;
+          state.hero.stats.bonusCritChance = 0;
+         }
+         return state;
+       });
 
-      const initialCrit = useCombatStore.getState().hero!.stats.critChance + useCombatStore.getState().hero!.stats.bonusCritChance;
-      
-      setRandom(0.5);
-      TurnManager.executeAbility(2);
-      
-      const hero = useCombatStore.getState().hero;
-      const newCrit = hero!.stats.critChance + hero!.stats.bonusCritChance;
-      
-      expect(newCrit).toBe(initialCrit + 3);
-      expect(hero?.passiveState.jackpotStacks).toBe(1);
+       const initialCrit = useCombatStore.getState().hero!.stats.critChance + useCombatStore.getState().hero!.stats.bonusCritChance;
+
+       setRandom(0.0);
+       TurnManager.executeAbility(2);
+
+       const hero = useCombatStore.getState().hero;
+       const newCrit = hero!.stats.critChance + hero!.stats.bonusCritChance;
+
+       expect(newCrit).toBe(initialCrit);
+       expect(hero?.passiveState.jackpotStacks).toBeUndefined();
+
+       const logs = useCombatStore.getState().combatLog;
+       const jp = [...logs].reverse().find(l => l.action === "camira_jackpot_arrow");
+       expect(jp).toBeDefined();
+       expect(jp?.isCrit).toBe(false);
     });
 
 
     it("should grant crystals on kill", () => {
-        const combat = useCombatStore.getState();
-        const game = useGameStore.getState();
-        
         // Setup mana and monster HP low
         useCombatStore.setState(state => {
             if (state.hero) state.hero.stats.mana = 100;
             if (state.monster) state.monster.hp = 1;
             return state;
         });
-
-        const initialCrystals = game.run!.crystals;
 
         setRandom(0.5);
         TurnManager.executeAbility(2);

@@ -6,37 +6,67 @@ import { RunSummaryScreen } from "@/components/screens/RunSummaryScreen";
 import { ShopScreen } from "@/components/screens/ShopScreen";
 import { Button } from "@/components/ui";
 import { useCombatStore, useGameStore } from "@/stores";
-import { useEffect } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 
 export default function Home() {
+  const [mounted, setMounted] = useState(false);
+  const autoStartAttempted = useRef(false);
+  
   const startRun = useGameStore((state) => state.startRun);
+  const setPhase = useGameStore((state) => state.setPhase);
   const initCombat = useCombatStore((state) => state.initCombat);
+  const clearCombat = useCombatStore((state) => state.clearCombat);
   const hero = useCombatStore((state) => state.hero);
   const phase = useGameStore((state) => state.phase);
   const unlockedHeroes = useGameStore((state) => state.unlockedHeroes);
 
-  // Auto-start a test combat on mount
+  // Handle hydration
   useEffect(() => {
-    if (!hero && phase === "combat") {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  // Auto-start a test combat on mount if no hero and phase is combat
+  useEffect(() => {
+    if (mounted && !hero && phase === "combat" && !autoStartAttempted.current) {
+      autoStartAttempted.current = true;
+      console.log("Auto-starting test combat...");
       startRun("lyra", "hard");
       initCombat("lyra", "hard");
     }
-  }, [hero, phase, startRun, initCombat]);
+  }, [mounted, hero, phase, startRun, initCombat]);
+
+  const handleStartRun = useCallback(
+    (heroId: string, difficulty: "easy" | "medium" | "hard") => {
+      clearCombat();
+      startRun(heroId, difficulty);
+      initCombat(heroId, difficulty);
+    },
+    [clearCombat, startRun, initCombat]
+  );
+
+  const handleBackToSelect = useCallback(() => {
+    clearCombat();
+    setPhase("hero_select");
+  }, [clearCombat, setPhase]);
+
+  // Prevent hydration mismatch with a clearer message
+  if (!mounted) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-bg-dark text-text-muted">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-8 h-8 border-4 border-class-mage border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm font-medium animate-pulse">Initializing Asteria...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (phase === "combat" || phase === "victory") {
     return <CombatLayout />;
   }
 
   if (phase === "hero_select") {
-    const start = (heroId: string, difficulty: "easy" | "medium" | "hard") => {
-      const game = useGameStore.getState();
-      const combat = useCombatStore.getState();
-
-      combat.clearCombat();
-      game.startRun(heroId, difficulty);
-      combat.initCombat(heroId, difficulty);
-    };
-
     return (
       <div className="min-h-screen flex items-center justify-center p-6">
         <div className="w-full max-w-3xl rounded-2xl border border-border bg-bg-panel p-6">
@@ -52,13 +82,13 @@ export default function Home() {
                 <div className="text-sm text-text-muted mt-1">Start a new run</div>
 
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <Button variant="secondary" size="md" onClick={() => start(heroId, "easy")}>
+                  <Button variant="secondary" size="md" onClick={() => handleStartRun(heroId, "easy")}>
                     Easy
                   </Button>
-                  <Button variant="secondary" size="md" onClick={() => start(heroId, "medium")}>
+                  <Button variant="secondary" size="md" onClick={() => handleStartRun(heroId, "medium")}>
                     Medium
                   </Button>
-                  <Button variant="primary" size="md" onClick={() => start(heroId, "hard")}>
+                  <Button variant="primary" size="md" onClick={() => handleStartRun(heroId, "hard")}>
                     Hard
                   </Button>
                 </div>
@@ -88,16 +118,7 @@ export default function Home() {
         <div className="text-2xl font-bold text-text-primary">{phase}</div>
         <div className="text-text-secondary mt-2">This screen is not wired up yet.</div>
         <div className="mt-6 flex justify-end">
-          <Button
-            variant="secondary"
-            size="lg"
-            onClick={() => {
-              const combat = useCombatStore.getState();
-
-              combat.clearCombat();
-              useGameStore.getState().setPhase("hero_select");
-            }}
-          >
+          <Button variant="secondary" size="lg" onClick={handleBackToSelect}>
             Back
           </Button>
         </div>

@@ -13,7 +13,7 @@ Born in the farming village of Oakenshield, Bran picked up a sword not for glory
 
 CORE STATS
 
-- Base: 110 HP | 14 ATK | 10 DEF
+- Base: 110 HP | 16 ATK | 10 DEF
 - Resource: 10 / 40 Mana (Regen: 3/turn)
 - Crit Chance: 5% Chance | 1.5x Multiplier
 - Dodge: 5%
@@ -29,11 +29,11 @@ SCALING (PER LEVEL)
 
 PASSIVE - IRON WILL
 
-Heal when you kill. Gain penetration at level 4.
+Heal when you kill. Gain penetration per level.
 
 Bran's determination keeps him standing.
 - On Kill: Heals for 24 / 28 / 32 / 36 / 40 / 44 / 48% of missing HP (scales with level).
-- Level 4: Bran also gains 20% Penetration.
+- Passive: Bran gains 5% Penetration per level (0-30% total).
 
 ABILITY 1 - SHIELD SLAM
 
@@ -50,7 +50,7 @@ Massive DEF buff for 3 turns.
 - Cooldown: 4 turns
 - Effect: Bran braces for impact, gaining 40 / 45 / 50 / 55 / 60 / 65 / 70% bonus DEF for 3 turns.
 - Permanent Gain: He then shrugs off, gaining 5 / 7 / 9 / 11 / 13 / 15 / 15 permanent Max HP on expiry.
-- Mastery: Every 5 uses, Bran gains 10 ATK and 5% Penetration. Every 5 uses he grows more resilient.
+- Mastery: Every 5 uses, Bran gains 12 ATK and 5% Penetration. Every 5 uses he grows more resilient.
 
 ABILITY 3 - CRUSHING BLOW
 

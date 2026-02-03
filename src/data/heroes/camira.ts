@@ -11,8 +11,8 @@ export const CAMIRA: HeroDefinition = {
   quote: "Take from the beasts. Give to the people. Survive another day.",
 
   baseStats: {
-    maxHp: 92,
-    hp: 92,
+    maxHp: 97,
+    hp: 97,
     atk: 12,
     def: 5,
     maxMana: 55,
@@ -57,8 +57,8 @@ export const CAMIRA: HeroDefinition = {
     {
       id: "camira_forest_agility",
       name: "Forest Agility",
-      description: "60% evasion + permanent stats.",
-      expandedDescription: `Tap survival instincts: 60% evasion for next attack.
+      description: "70% evasion + permanent stats.",
+      expandedDescription: `Tap survival instincts: 70% evasion for next attack.
 Gain 3-9 permanent ATK and DEF.
 From Level 5: Also gain 12-15 random max HP.`,
       manaCost: [10, 14, 18, 22, 26, 30, 34],
@@ -72,8 +72,8 @@ From Level 5: Also gain 12-15 random max HP.`,
       description: "Magic arrow. Massive crystal bonus on kill.",
       expandedDescription: `Fire a magic arrow: 140-260% ATK, ignoring 30-60% DEF.
         On Kill: Gain 20-600 bonus crystals.
-        Each use grants **3% Crit Chance and Crit Damage**, up to 8 times (**${0} / 8**).`,
-      manaCost: [16, 20, 24, 28, 32, 36, 40],
+        Each use grants **3% Crit Chance and Crit Damage**, up to 6 times (**${0} / 6**).`,
+      manaCost: [14, 18, 22, 26, 30, 34, 38],
       cooldown: 4,
       currentCooldown: 0,
       damageScaling: [140, 160, 180, 200, 220, 240, 260],
@@ -103,7 +103,7 @@ export const CAMIRA_CRIT_CD_REDUCTION = 1;
 export const CAMIRA_RAPID_FIRE_HEAL = [30, 35, 40, 45, 50, 55, 60];
 
 // Forest Agility
-export const CAMIRA_FOREST_EVADE = 60;
+export const CAMIRA_FOREST_EVADE = 70;
 export const CAMIRA_FOREST_STATS = [3, 4, 5, 6, 7, 8, 9];
 export const CAMIRA_FOREST_HP_LEVEL = 5; // Level at which HP bonus starts
 export const CAMIRA_FOREST_HP_MIN = 12;
@@ -113,4 +113,4 @@ export const CAMIRA_FOREST_HP_MAX = 15;
 export const CAMIRA_JACKPOT_PEN = [30, 35, 40, 45, 50, 55, 60];
 export const CAMIRA_JACKPOT_CRYSTALS = [20, 40, 75, 125, 200, 350, 600];
 export const CAMIRA_JACKPOT_CRIT_PER_USE = 3;
-export const CAMIRA_JACKPOT_MAX_STACKS = 8;
+export const CAMIRA_JACKPOT_MAX_STACKS = 6;

@@ -10,8 +10,6 @@ import {
 } from "@/data/heroes/camira";
 import {
   BRAN_KILL_HEAL_PERCENT,
-  BRAN_PENETRATION_UNLOCK_LEVEL,
-  BRAN_PASSIVE_PENETRATION,
 } from "@/data/heroes/bran";
 
 function randomInt(min: number, max: number): number {
@@ -120,19 +118,9 @@ const branPassives: PassiveHandler = {
       store.queueAnimation({ type: "heal", target: "hero", value: healAmount });
     }
 
-    // Iron Will: Level 4+ penetration (one-time unlock)
-    if (hero.level >= BRAN_PENETRATION_UNLOCK_LEVEL) {
-      const penApplied = hero.passiveState.penetrationApplied ?? false;
-      if (!penApplied) {
-        store.addHeroBonusStats("bonusPenetration", BRAN_PASSIVE_PENETRATION);
-        store.updatePassiveState({ penetrationApplied: true });
-        store.addLogEntry({
-          actor: "hero",
-          action: "bran_penetration_unlock",
-          message: `Iron Will: +${BRAN_PASSIVE_PENETRATION}% Penetration unlocked!`,
-        });
-      }
-    }
+    // Iron Will: Penetration is now passive/stat-based, handled in damageCalculator or stats application.
+    // The previous "unlock at level 4" logic is removed in favor of the per-level scaling array.
+    // We don't need to apply a one-time buff here anymore.
   },
 };
 

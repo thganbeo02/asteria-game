@@ -1,9 +1,11 @@
 LYRA
-The Ember Scholar
+The Emblar Sorcerer
 
 Unlock: Starter (Free)
 Difficulty: Beginner
 Class: Mage (Elementalist)
+
+Class Innate: Mage basic attacks deal 75% ATK damage.
 
 LORE
 
@@ -13,7 +15,7 @@ Lyra was a librarian's apprentice at the Ashen Academy until she accidentally bu
 
 CORE STATS
 
-- Base: 85 HP | 12 ATK | 4 DEF
+- Base: 93 HP | 15 ATK | 4 DEF
 - Resource: 12 / 62 Mana (Regen: 5/turn)
 - Crit Chance: 7% Chance | 1.5x Multiplier
 - Dodge: 8%
@@ -35,16 +37,15 @@ Consecutive spells grow stronger. Basic attacks reset the chain but restore mana
 - 1 Stack: +10% ability damage.
 - 2 Stacks: +20% ability damage.
 - 3 Stacks: +30% ability damage and spells ignore 15% DEF.
-- Reset: Using a basic attack resets Momentum to 0. If resetting from max stacks, Lyra restores 3-21 Mana.
+- Reset: Using a basic attack resets Momentum to 0. If resetting from max stacks, Lyra restores 4-28 Mana.
 
 ABILITY 1 - FIREBOLT
 
 Quick fire spell. Burns enemy over time.
 - Cost: 10 / 12 / 14 / 16 / 18 / 20 / 22 Mana
 - Cooldown: 1 turn
-- Damage: 100 / 120 / 140 / 160 / 180 / 200 / 220% ATK.
+- Damage: 120 / 140 / 160 / 180 / 200 / 220 / 240% ATK.
 - Effect: Applies Burn for 3 turns (5% enemy Max HP per turn).
-- Synergy: If enemy is already Burning, Firebolt heals Lyra for 20-50% damage dealt.
 - On Kill: Regains 4 / 6 / 8 / 10 / 12 / 14 / 16 Mana.
 
 ABILITY 2 - FROST BARRIER
@@ -52,13 +53,13 @@ ABILITY 2 - FROST BARRIER
 Shield that absorbs damage. Shatters to damage and slow enemy.
 - Cost: 14 / 17 / 20 / 23 / 26 / 29 / 32 Mana
 - Cooldown: 3 turns
-- Effect: Absorbs up to 50% Max HP in damage for 2 turns.
-- Shatter: When it breaks/expires, it deals 60-120% ATK to the enemy and applies Chilled (enemy deals 15% less damage for 2 turns).
+- Effect: Absorbs up to 40% Max HP in damage for 2 turns.
+- Shatter: When it breaks/expires, it deals 70-130% ATK to the enemy and applies Chilled (enemy deals 15% less damage for 2 turns).
 
 ABILITY 3 - PYROCLASM
 
 Massive fire burst. Stronger against Burning enemies.
-- Cost: 28 / 32 / 36 / 40 / 44 / 48 / 52 Mana
+- Cost: 18 / 22 / 26 / 30 / 34 / 38 / 42 Mana
 - Cooldown: 4 turns
 - Damage: 180 / 210 / 240 / 270 / 300 / 330 / 360% ATK.
 - Synergy: If enemy is Burning, consumes the Burn to deal 100% of remaining Burn damage instantly.
@@ -75,7 +76,16 @@ Lyra is a technical caster who rewards turn planning to maintain Arcane Momentum
 CHANGELOG
 
 Unreleased:
-- (Add upcoming changes here)
+- Buff: Base HP 85 -> 93.
+- Buff: Base ATK 12 -> 15.
+- Buff: Firebolt damage scaling 100-220% -> 120-240%.
+- Buff: Frost Barrier shatter damage scaling 60-120% -> 70-130%.
+- Buff: Pyroclasm mana cost 24-48 -> 18-42.
+- Buff: Arcane Momentum reset mana 3-21 -> 4-28.
+- Fix: Implement Arcane Momentum (ability stacking 0 -> 3, +10/20/30% ability damage; at 3 stacks, +15% Penetration).
+- Fix: Arcane Momentum now resets on basic attack; resetting from 3 stacks restores 4-28 Mana.
+- Fix: Firebolt now restores 4-16 Mana on Kill.
+- Fix: Pyroclasm now consumes Burn for bonus damage equal to remaining Burn and grants 2-14 permanent ATK and Max HP per cast.
 
 v1.0:
 - Initial release

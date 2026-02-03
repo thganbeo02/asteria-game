@@ -24,10 +24,16 @@ export function BattleArena() {
   const isVictory = phase === "victory" && turnPhase === "combat_end";
 
   const recordDecision = (kind: RunDecisionKind, payload?: Record<string, unknown>) => {
+    const hero = useCombatStore.getState().hero;
     useGameStore.getState().recordDecision(kind, {
       turnPhase,
       monsterId: monster?.definitionId ?? null,
       monsterHp: monster?.hp ?? null,
+      heroHp: hero?.stats.hp ?? null,
+      heroMaxHp: hero ? hero.stats.maxHp + hero.stats.bonusMaxHp : null,
+      heroMana: hero?.stats.mana ?? null,
+      heroMaxMana: hero ? hero.stats.maxMana + hero.stats.bonusMaxMana : null,
+      crystals: run?.crystals ?? 0,
       ...payload,
     });
   };

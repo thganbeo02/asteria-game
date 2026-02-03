@@ -233,8 +233,23 @@ CHANGES:
 
 7. src/components/screens/RunSummaryScreen.tsx
    - Minimal summary screen for ending a run intentionally:
-     - Start New Run
-     - Hero Select
+      - Start New Run
+      - Hero Select
+
+
+--------------------------------------------------------------------------------
+2026-02-03 - Frost Barrier Shatter Victory Trigger
+--------------------------------------------------------------------------------
+
+ISSUE:
+- If Lyra's Frost Barrier expired and the shatter damage reduced the monster to 0 HP, combat could get stuck.
+- Root cause: shield-expiry shatter damage was applied inside a delayed timeout chain after end-of-round death checks.
+
+CHANGES:
+
+1. src/systems/combat/turnManager.ts
+   - handleShieldShatter() now triggers handleVictory() immediately when shatter damage kills the monster.
+   - executeMonsterTurn() now re-checks monster HP after executeMonsterAttack() to handle reactive kills.
 
 
 --------------------------------------------------------------------------------

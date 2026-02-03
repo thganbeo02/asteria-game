@@ -27,10 +27,27 @@ export const createShopSlice: GameSliceCreator<ShopSlice> = (set, get) => ({
       healthPotionsUsedThisLevel: state.run.healthPotionsUsedThisLevel,
     });
 
-    set({ shop });
+    const itemOffersCount = shop.offers.filter(o => o.type === "item").length;
+
+    set((s) => ({
+      shop,
+      run: s.run ? {
+        ...s.run,
+        totalItemsOffered: s.run.totalItemsOffered + itemOffersCount,
+      } : s.run
+    }));
   },
 
   closeShop: () => {
+    const { shop, run } = get();
+    if (shop && run) {
+      const itemsRemaining = shop.offers.filter((o) => o.type === "item" && o.remainingStock > 0).length;
+      if (itemsRemaining === 0 && shop.offers.some((o) => o.type === "item")) {
+        set((s) => ({
+          run: s.run ? { ...s.run, totalShopClears: s.run.totalShopClears + 1 } : s.run,
+        }));
+      }
+    }
     set({ shop: null });
   },
 

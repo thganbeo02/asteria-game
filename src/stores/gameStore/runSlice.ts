@@ -46,12 +46,16 @@ function createInitialRunState(heroId: string, difficulty: Difficulty): RunState
       orc: 0,
       dragon: 0,
     },
+    totalItemsOffered: 0,
+    totalShopClears: 0,
 
     purchasedItems: [],
     healthPotionsUsedThisLevel: 0,
     shopsSkipped: 0,
 
     decisionLog: [],
+    crystalsEarnedPerLevel: {},
+    crystalsSpentPerLevel: {},
 
     contractState: heroId === "shade" ? {
       currentTurnLimit: 5,

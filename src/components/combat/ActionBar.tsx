@@ -30,6 +30,7 @@ export function ActionBar() {
   const skipsRemaining = 3 - skipTurnsUsed;
 
   const recordDecision = (kind: RunDecisionKind, payload?: Record<string, unknown>) => {
+    const run = useGameStore.getState().run;
     useGameStore.getState().recordDecision(kind, {
       turnCount,
       turnPhase,
@@ -37,6 +38,7 @@ export function ActionBar() {
       heroMaxHp: hero.stats.maxHp + hero.stats.bonusMaxHp,
       heroMana: hero.stats.mana,
       heroMaxMana: hero.stats.maxMana + hero.stats.bonusMaxMana,
+      crystals: run?.crystals ?? 0,
       monsterId: monster?.definitionId ?? null,
       monsterHp: monster?.hp ?? null,
       ...payload,

@@ -27,7 +27,6 @@ import {
   BRAN_FORTIFY_THRESHOLD,
   BRAN_KILL_HEAL_PERCENT,
   BRAN_PASSIVE_PENETRATION,
-  BRAN_PENETRATION_UNLOCK_LEVEL,
   BRAN_SHIELD_SLAM_DEF_SCALE,
 } from "@/data/heroes/bran";
 import {
@@ -49,6 +48,7 @@ import {
   SHADE_STREAK_UPGRADE,
 } from "@/data/heroes/shade";
 import { getHeroDefinition } from "@/data/heroes";
+import { calculateBurnDamage } from "@/systems/combat/damageCalculator";
 import { getDefenseModifier } from "@/systems/combat/statusEffects";
 import type { Ability, HeroState, MonsterState } from "@/types";
 
@@ -240,7 +240,7 @@ function getExpandedAbilityParagraph(
   if (ability.id === "lyra_firebolt") {
     const dmg = rawDamage ?? 0;
     const killMana = LYRA_FIREBOLT_KILL_MANA[idx] ?? 0;
-    const burnPerTurn = monster ? Math.floor(monster.maxHp * 0.05) : null;
+    const burnPerTurn = monster ? calculateBurnDamage(monster.maxHp, 5, monster.def) : null;
 
     return (
       <p className="text-sm leading-relaxed">
@@ -274,8 +274,8 @@ function getExpandedAbilityParagraph(
     const dmg = rawDamage ?? 0;
     const statGain = LYRA_PYROCLASM_STAT_GAIN[idx] ?? 0;
     const burn = monster?.statusEffects.find((e) => e.type === "burn");
-    const burnPerTurn = monster ? Math.floor(monster.maxHp * 0.05) : null;
-    const burnBonus = burn && burnPerTurn != null ? burnPerTurn * Math.max(0, burn.duration) : null;
+    const burnTick = burn && monster ? calculateBurnDamage(monster.maxHp, burn.value, monster.def) : null;
+    const burnBonus = burn && burnTick != null ? burnTick * Math.max(0, burn.duration) : null;
 
     return (
       <p className="text-sm leading-relaxed">
@@ -400,7 +400,7 @@ export function PassiveTooltipContent({ hero, mode, contractState }: PassiveTool
     const maxHp = getMaxHp(hero);
     const missing = Math.max(0, maxHp - hero.stats.hp);
     const heal = Math.floor((missing * healPct) / 100);
-    const hasPen = hero.level >= BRAN_PENETRATION_UNLOCK_LEVEL;
+    const pen = BRAN_PASSIVE_PENETRATION[idx] ?? 0;
 
     return (
       <div className="max-w-sm">
@@ -408,16 +408,7 @@ export function PassiveTooltipContent({ hero, mode, contractState }: PassiveTool
         <p className="text-sm leading-relaxed">
           On Kill, {heroName} heals for <span className="font-semibold">{heal} HP</span> (based on{" "}
           <span className="font-semibold">{p.possessive} missing HP</span>).{" "}
-          {hasPen ? (
-            <>
-              {heroName} also has <span className="font-semibold">{BRAN_PASSIVE_PENETRATION}% Penetration</span>.
-            </>
-          ) : (
-            <>
-              At Level {BRAN_PENETRATION_UNLOCK_LEVEL}, {heroName} gains{" "}
-              <span className="font-semibold">{BRAN_PASSIVE_PENETRATION}% Penetration</span>.
-            </>
-          )}
+          {heroName} passively has <span className="font-semibold">{pen}% Penetration</span>.
         </p>
       </div>
     );

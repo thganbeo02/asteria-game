@@ -11,7 +11,7 @@ export const SLIME: MonsterDefinition = {
   minLevel: 1,
 
   baseStats: {
-    hp: 40,
+    hp: 38,
     atk: 3,
     def: 2,
     crystal: 10,
@@ -60,7 +60,7 @@ export const WOLF: MonsterDefinition = {
   minLevel: 1,
 
   baseStats: {
-    hp: 42,
+    hp: 40,
     atk: 4,
     def: 1,
     crystal: 12,
@@ -114,7 +114,7 @@ export const ZOMBIE: MonsterDefinition = {
   minLevel: 1,
   
   baseStats: {
-    hp: 48,
+    hp: 46,
     atk: 5,
     def: 5,
     crystal: 14,
@@ -162,8 +162,8 @@ export const SKELETON: MonsterDefinition = {
   minLevel: 1,
   
   baseStats: {
-    hp: 42,
-    atk: 7,
+    hp: 40,
+    atk: 5,
     def: 1,
     crystal: 18,
     exp: 50,
@@ -215,7 +215,7 @@ export const MIMIC: MonsterDefinition = {
   minLevel: 2,
   
   baseStats: {
-    hp: 56,
+    hp: 54,
     atk: 9,
     def: 7,
     crystal: 34,
@@ -268,7 +268,7 @@ export const VAMPIRE: MonsterDefinition = {
   minLevel: 4,
   
   baseStats: {
-    hp: 50,
+    hp: 48,
     atk: 12,
     def: 6,
     crystal: 40,
@@ -321,7 +321,7 @@ export const ORC: MonsterDefinition = {
   minLevel: 5,
   
   baseStats: {
-    hp: 68,
+    hp: 66,
     atk: 15,
     def: 8,
     crystal: 30,
@@ -375,7 +375,7 @@ export const DRAGON: MonsterDefinition = {
   minLevel: 6,
   
   baseStats: {
-    hp: 78,
+    hp: 76,
     atk: 20,
     def: 12,
     crystal: 47,

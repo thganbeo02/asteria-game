@@ -13,7 +13,7 @@ export const BRAN: HeroDefinition = {
   baseStats: {
     maxHp: 110,
     hp: 110,
-    atk: 14,
+    atk: 16,
     def: 10,
     maxMana: 40,
     mana: 10,
@@ -34,10 +34,10 @@ export const BRAN: HeroDefinition = {
 
   passive: {
     name: "Iron Will",
-    description: "Heal on kill. Gain penetration at level 4.",
+    description: "Heal on kill. Gain penetration per level.",
     expandedDescription: `Bran's determination keeps him standing.
     On Kill, he heals for 24-48% of missing HP (scales with level).
-    On level 4, Bran also gains 20% Penetration.`,
+    He passively gains 5% Penetration per level (0-30% total).`,
   },
 
   abilities: [
@@ -58,7 +58,7 @@ export const BRAN: HeroDefinition = {
       name: "Fortify",
       description: "Massive DEF buff for 3 turns.",
       expandedDescription: `Bran braces for impact, gaining 40-70% bonus DEF for 3 turns. 
-      He then shrugs off, gaining 5-15 permanent Max HP. Every 5 uses, Bran gains 10 ATK and 5% Penetration.`,
+      He then shrugs off, gaining 5-15 permanent Max HP. Every 5 uses, Bran gains 12 ATK and 5% Penetration.`,
       manaCost: [10, 14, 18, 22, 26, 30, 34],
       cooldown: 4,
       currentCooldown: 0,
@@ -70,7 +70,7 @@ export const BRAN: HeroDefinition = {
       description: "Execute. More damage to low HP enemies.",
       expandedDescription: `Bran strikes down the enemy boldly, dealing 140-230% ATK + 20% enemy missing HP.
       On Kill, he gains 3-15 permanent ATK and DEF.`,
-      manaCost: [18, 22, 26, 30, 34, 38, 42],
+      manaCost: [15, 19, 23, 27, 31, 35, 39],
       cooldown: 4,
       currentCooldown: 0,
       damageScaling: [140, 155, 170, 185, 200, 215, 230],
@@ -87,8 +87,7 @@ export const BRAN: HeroDefinition = {
 export const BRAN_KILL_HEAL_PERCENT = [24, 28, 32, 36, 40, 44, 48];
 
 // Level at which passive penetration unlocks
-export const BRAN_PENETRATION_UNLOCK_LEVEL = 4;
-export const BRAN_PASSIVE_PENETRATION = 20;
+export const BRAN_PASSIVE_PENETRATION = [0, 5, 10, 15, 20, 25, 30];
 
 // Fortify: DEF bonus percentage
 export const BRAN_FORTIFY_DEF_BONUS = [40, 45, 50, 55, 60, 65, 70];
@@ -98,7 +97,7 @@ export const BRAN_FORTIFY_HP_GAIN = [5, 7, 9, 11, 13, 15, 15];
 
 // Fortify: Uses needed for permanent bonus
 export const BRAN_FORTIFY_THRESHOLD = 5;
-export const BRAN_FORTIFY_BONUS_ATK = 10;
+export const BRAN_FORTIFY_BONUS_ATK = 12;
 export const BRAN_FORTIFY_BONUS_PEN = 5;
 export const BRAN_INITIAL_PASSIVE_STATE = {
   fortifyUses: 0,

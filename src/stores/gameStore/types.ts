@@ -52,6 +52,8 @@ export interface RunState {
   // Tracking
   score: number;
   monstersKilled: Record<MonsterType, number>;
+  totalItemsOffered: number;
+  totalShopClears: number;
 
   // Inventory
   purchasedItems: ItemInstance[];
@@ -60,6 +62,8 @@ export interface RunState {
 
   // Balancing / analytics (not persisted)
   decisionLog: RunDecisionEvent[];
+  crystalsEarnedPerLevel: Record<number, number>;
+  crystalsSpentPerLevel: Record<number, number>;
 
   // Hero-specific (Shade contracts, etc.)
   contractState?: {

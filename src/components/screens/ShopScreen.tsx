@@ -75,7 +75,9 @@ export function ShopScreen() {
     // Double-click guard: lock phase first.
     game.setPhase("combat");
 
-    game.recordDecision("shop_continue", undefined);
+    game.recordDecision("shop_continue", {
+      crystals: game.run.crystals,
+    });
 
     game.closeShop();
 
@@ -87,13 +89,15 @@ export function ShopScreen() {
   const onBuy = async (offer: ShopOffer) => {
     if (offer.type !== "item" && offer.type !== "potion") return;
 
-    useGameStore.getState().recordDecision(
+    const game = useGameStore.getState();
+    game.recordDecision(
       offer.type === "potion" ? "shop_buy_potion" : "shop_buy_offer",
       {
         offerId: offer.id,
         offerType: offer.type,
         name: offer.name,
         cost: offer.cost,
+        crystals: game.run?.crystals ?? 0,
         stats: offer.type === "item" ? offer.stats : undefined,
         healPercent: offer.type === "potion" ? offer.healPercent : undefined,
       }

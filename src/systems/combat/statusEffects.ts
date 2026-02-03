@@ -1,4 +1,5 @@
 import { StatusEffect, StatusEffectType } from "@/types";
+import { LYRA_MAX_MOMENTUM_PENETRATION } from "@/data/heroes/lyra";
 import {
   calculatePoisonDamage,
   calculateBurnDamage,
@@ -368,6 +369,9 @@ export function getEffectModifiers(effects: StatusEffect[]): EffectModifiers {
         break;
       case "momentum":
         modifiers.damageMultiplier *= 1 + effect.stacks * 0.1;
+        if (effect.stacks >= 3) {
+          modifiers.penetrationBonus += LYRA_MAX_MOMENTUM_PENETRATION;
+        }
         break;
       case "fortify":
         modifiers.defenseMultiplier *= 1 + effect.value / 100;

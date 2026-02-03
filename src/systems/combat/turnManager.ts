@@ -8,6 +8,7 @@ import {
 } from "./damageCalculator";
 import {
   createStatusEffect,
+  getEffectModifiers,
   getDefenseModifier,
   getDodgeBonus,
   getOutgoingDamageModifier,
@@ -20,6 +21,7 @@ import { abilityRegistry } from "./abilities/registry";
 import { applyAbilityTags } from "./abilities/tags";
 import { triggerOnBasicAttackResolved, triggerOnCrit, triggerOnKill } from "./passives/registry";
 import { getHeroDefinition } from "@/data/heroes";
+import { LYRA_MOMENTUM_MANA_RESTORE } from "@/data/heroes/lyra";
 import { EXP_THRESHOLDS, MAX_LEVEL } from "@/lib/constants";
 import {
   getEffectiveMonsterAtk,
@@ -43,10 +45,15 @@ export class TurnManager {
 
     if (!hero || !monster) return;
 
+    // Class innates: basic attack scaling by class.
+    // Currently: mages deal reduced basic attack damage.
+    const heroDef = getHeroDefinition(hero.definitionId);
+    const basicAtkMultiplier = heroDef?.class === "mage" ? 0.75 : 1;
+
     // Build stats object for dmg calc
     const heroStats: HeroCombatStats = {
-      atk: hero.stats.atk,
-      bonusAtk: hero.stats.bonusAtk,
+      atk: Math.floor(hero.stats.atk * basicAtkMultiplier),
+      bonusAtk: Math.floor(hero.stats.bonusAtk * basicAtkMultiplier),
       critChance: hero.stats.critChance,
       bonusCritChance: hero.stats.bonusCritChance,
       critMultiplier: hero.stats.critMultiplier,
@@ -107,6 +114,37 @@ export class TurnManager {
       });
     }
 
+    // Lyra: Basic attacks reset Arcane Momentum.
+    if (hero.definitionId === "lyra") {
+      const prev = Math.max(0, Math.min(3, Number(hero.passiveState.momentum ?? 0)));
+      if (prev > 0) {
+        // Reset effect + passive state
+        store.updatePassiveState({ momentum: 0 });
+        useCombatStore.setState((state) => {
+          if (!state.hero) return {};
+          return {
+            hero: {
+              ...state.hero,
+              statusEffects: state.hero.statusEffects.filter((e) => e.type !== "momentum"),
+            },
+          };
+        });
+
+        if (prev >= 3) {
+          const idx = Math.min(hero.level - 1, 6);
+          const manaRestore = LYRA_MOMENTUM_MANA_RESTORE[idx] ?? 0;
+          if (manaRestore > 0) {
+            store.restoreMana(manaRestore);
+            store.addLogEntry({
+              actor: "hero",
+              action: "momentum_reset",
+              message: `Arcane Momentum reset: +${manaRestore} Mana.`,
+            });
+          }
+        }
+      }
+    }
+
     // Restore mana on basic attack
     store.restoreMana(hero.stats.manaRegen);
 
@@ -149,35 +187,70 @@ export class TurnManager {
 
     store.setAbilityCooldown(abilityIndex, ability.cooldown);
 
+    // Lyra: Arcane Momentum stacks on consecutive abilities.
+    // Apply BEFORE damage so this cast benefits from the new stack.
+    if (hero.definitionId === "lyra") {
+      const prev = Math.max(0, Math.min(3, Number(hero.passiveState.momentum ?? 0)));
+      const next = Math.max(0, Math.min(3, prev + 1));
+
+      if (next !== prev) {
+        store.updatePassiveState({ momentum: next });
+      }
+
+      // Keep a momentum status effect in sync for damage modifiers.
+      useCombatStore.setState((state) => {
+        if (!state.hero) return {};
+
+        const without = state.hero.statusEffects.filter((e) => e.type !== "momentum");
+        if (next <= 0) {
+          return { hero: { ...state.hero, statusEffects: without } };
+        }
+
+        return {
+          hero: {
+            ...state.hero,
+            statusEffects: [...without, createStatusEffect("momentum", "hero", 0, -1, next)],
+          },
+        };
+      });
+    }
+
+    // Refresh refs after any momentum updates.
+    const refreshed = useCombatStore.getState();
+    const heroNow = refreshed.hero;
+    const monsterNow = refreshed.monster;
+    if (!heroNow || !monsterNow) return;
+
     const abilityHandler = abilityRegistry[ability.id];
     if (abilityHandler) {
-      abilityHandler({ hero, monster, ability, abilityIndex });
+      abilityHandler({ hero: heroNow, monster: monsterNow, ability, abilityIndex });
       this.checkVictoryOrContinue();
       return;
     }
 
     // Calculate dmg
     const scaling =
-      (ability.damageScaling?.[Math.min(hero.level - 1, 6)] ?? 100) / 100;
-    const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
+      (ability.damageScaling?.[Math.min(heroNow.level - 1, 6)] ?? 100) / 100;
+    const dmgModifier = getOutgoingDamageModifier(heroNow.statusEffects);
+    const extraPen = getEffectModifiers(heroNow.statusEffects).penetrationBonus;
 
     const heroStats: HeroCombatStats = {
-      atk: Math.floor((hero.stats.atk + hero.stats.bonusAtk) * dmgModifier),
+      atk: Math.floor((heroNow.stats.atk + heroNow.stats.bonusAtk) * dmgModifier),
       bonusAtk: 0, // Already applied above
-      critChance: hero.stats.critChance,
-      bonusCritChance: hero.stats.bonusCritChance,
-      critMultiplier: hero.stats.critMultiplier,
-      bonusCritMultiplier: hero.stats.bonusCritMultiplier,
-      penetration: hero.stats.penetration,
-      bonusPenetration: hero.stats.bonusPenetration,
-      dodge: hero.stats.dodge,
-      bonusDodge: hero.stats.bonusDodge,
+      critChance: heroNow.stats.critChance,
+      bonusCritChance: heroNow.stats.bonusCritChance,
+      critMultiplier: heroNow.stats.critMultiplier,
+      bonusCritMultiplier: heroNow.stats.bonusCritMultiplier,
+      penetration: heroNow.stats.penetration,
+      bonusPenetration: heroNow.stats.bonusPenetration,
+      dodge: heroNow.stats.dodge,
+      bonusDodge: heroNow.stats.bonusDodge,
     };
 
-    const defModifier = getDefenseModifier(monster.statusEffects);
-    const effectiveDef = Math.floor(monster.def * defModifier);
+    const defModifier = getDefenseModifier(monsterNow.statusEffects);
+    const effectiveDef = Math.floor(monsterNow.def * defModifier);
 
-    const result = calculateHeroAbility(heroStats, effectiveDef, scaling);
+    const result = calculateHeroAbility(heroStats, effectiveDef, scaling, extraPen);
 
     // Shield abilities (like Frost Barrier) don't deal damage on cast
     // They deal damage when the shield breaks or expires
@@ -209,21 +282,21 @@ export class TurnManager {
         isCrit: result.isCrit,
       });
 
-      if (result.isCrit) {
-        triggerOnCrit({
-          hero,
-          monster,
-          source: "ability",
-          abilityId: ability.id,
-          damage: result.finalDamage,
-        });
+        if (result.isCrit) {
+          triggerOnCrit({
+            hero: heroNow,
+            monster: monsterNow,
+            source: "ability",
+            abilityId: ability.id,
+            damage: result.finalDamage,
+          });
+        }
       }
     }
-  }
 
     // Tag-driven effects
     if (ability.tags?.length) {
-      applyAbilityTags(ability.tags, { hero, monster, ability, abilityIndex, abilityScaling: scaling });
+      applyAbilityTags(ability.tags, { hero: heroNow, monster: monsterNow, ability, abilityIndex, abilityScaling: scaling });
     }
 
     // Check victory or continue
@@ -257,6 +330,13 @@ export class TurnManager {
         target: "monster",
         value: shatterDamage,
       });
+
+      // If the shatter kills the monster (common on expiry), end combat immediately.
+      const after = useCombatStore.getState().monster;
+      if (after && after.hp <= 0) {
+        this.handleVictory();
+        return;
+      }
     }
 
     // Apply Chill to monster: 15% less damage for 2 turns
@@ -308,6 +388,13 @@ export class TurnManager {
     } else {
       // Attack or special
       this.executeMonsterAttack(decision.action.multiplier);
+
+      // Monster can die from reactive effects (e.g. Lyra Frost Barrier shatter).
+      const afterAttack = useCombatStore.getState().monster;
+      if (!afterAttack || afterAttack.hp <= 0) {
+        this.handleVictory();
+        return;
+      }
 
       // Handle special effects
       if (decision.action.effect) {

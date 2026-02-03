@@ -46,7 +46,6 @@ export function RunSummaryScreen() {
       exportedAt: exportedAt.toISOString(),
       kind: "balance_run_trace",
       run: runState,
-      decisions: runState.decisionLog ?? [],
       combatLog: combat.combatLog,
     };
 

@@ -13,7 +13,7 @@ Camira is an outlaw from Millbrook who steals from monsters to feed her starving
 
 CORE STATS
 
-- Base: 92 HP | 12 ATK | 5 DEF
+- Base: 97 HP | 12 ATK | 5 DEF
 - Resource: 10 / 55 Mana (Regen: 4/turn)
 - Crit Chance: 20% Chance | 1.75x Multiplier
 - Dodge: 10%
@@ -45,21 +45,21 @@ Two arrows. Heals from damage dealt.
 
 ABILITY 2 - FOREST AGILITY
 
-60% evasion + permanent stats.
+70% evasion + permanent stats.
 - Cost: 10 / 14 / 18 / 22 / 26 / 30 / 34 Mana
 - Cooldown: 3 turns
-- Effect: Gains 60% evasion for the next attack.
+- Effect: Gains 70% evasion for the next attack.
 - Scaling: Gain 3-9 permanent ATK and DEF per cast.
 - Level 5+: Also gain 12-15 random permanent Max HP per cast.
 
 ABILITY 3 - JACKPOT ARROW
 
 Magic arrow. Massive crystal bonus on kill.
-- Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana
+- Cost: 14 / 18 / 22 / 26 / 30 / 34 / 38 Mana
 - Cooldown: 4 turns
 - Damage: 140-260% ATK, ignoring 30-60% enemy DEF.
 - On Kill: Gain 20 / 40 / 75 / 125 / 200 / 350 / 600 bonus crystals.
-- Crit Stacking: **3% Crit Chance and Crit Damage**, up to 8 times (**0 / 8**). Each use increments the counter.
+- Crit Stacking: **3% Crit Chance and Crit Damage**, up to 6 times (**0 / 6**). Each use increments the counter.
 
 PLAYSTYLE SUMMARY
 
@@ -73,8 +73,12 @@ Camira plays the "Economy Game," generating massive amounts of Crystals for the 
 CHANGELOG
 
 Unreleased:
-- Rapid Fire (Adjust): Can critically strike (each arrow).
-- Jackpot Arrow (Adjust): Can no longer critically strike.
+- Base HP (Buff): 92 -> 97.
+- Forest Agility (Buff): Evasion 60% -> 70%.
+- Jackpot Arrow (Adjust): Mana cost -2 at all levels (16-40 -> 14-38).
+- Jackpot Arrow (Nerf): Max crit stacks 8 -> 6.
+
+Camira's survivability and ability usage patterns needed adjustment. Forest Agility was too inconsistent at 60% evasion, so we increased it to 70% to make it a more reliable defensive tool. Jackpot Arrow was underused due to its high mana cost, so we reduced the cost across all levels, but reduced the max crit stacks to 6 to keep the scaling curve in check.
 
 0.1.1:
 - Tooltip clarifications for Jackpot Arrow rewards and Passive trigger count.

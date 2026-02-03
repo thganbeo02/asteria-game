@@ -11,9 +11,9 @@ export const LYRA: HeroDefinition = {
   lore: "Lyra was a librarian's apprentice at the Ashen Academy until she accidentally burned it down discovering her gift. Now she wanders, turning her volatile magic into a force for good—one carefully controlled explosion at a time.",
 
   baseStats: {
-    maxHp: 85,
-    hp: 85,
-    atk: 12,
+    maxHp: 93,
+    hp: 93,
+    atk: 15,
     def: 4,
     maxMana: 62,
     mana: 12,
@@ -43,7 +43,7 @@ export const LYRA: HeroDefinition = {
       - 2 Stacks: +20% ability damage
       - 3 Stacks: +30% ability damage + 15% Penetration
 
-      Basic attacks reset Momentum to 0. When reset from max stacks, she restores 3-21 Mana.`,
+      Basic attacks reset Momentum to 0. When reset from max stacks, she restores 4-28 Mana.`,
   },
 
   abilities: [
@@ -54,14 +54,14 @@ export const LYRA: HeroDefinition = {
       id: "lyra_firebolt",
       name: "Firebolt",
       description: "Quick fire spell. Burns enemy over time.",
-      expandedDescription: `Lyra hurls a bolt of flame, dealing 100-220% ATK (scales with level), and
+      expandedDescription: `Lyra hurls a bolt of flame, dealing 120-240% ATK (scales with level), and
         applies Burn for 3 turns (5% enemy Max HP per turn). On Kill, restore 4-16 mana.`,
 
       // These arrays have 7 values: one per level
       manaCost: [10, 12, 14, 16, 18, 20, 22],
       cooldown: 1,
       currentCooldown: 0,
-      damageScaling: [100, 120, 140, 160, 180, 200, 220],
+      damageScaling: [120, 140, 160, 180, 200, 220, 240],
       tags: ["burn", "mana_on_kill"],
     },
 
@@ -73,13 +73,13 @@ export const LYRA: HeroDefinition = {
       name: "Frost Barrier",
       description: "Shield that absorbs damage. Shatters to damage and slow.",
       expandedDescription: `Lyra conjures a frost barrier that absorbs up to 40% Max HP for 2 turns.
-        When the barrier breaks or expires, it shatters, dealing 60-120% ATK to enemy and applies Chill for 2 turns 
+        When the barrier breaks or expires, it shatters, dealing 70-130% ATK to enemy and applies Chill for 2 turns 
         (enemy deals 15% less damage).`,
 
       manaCost: [14, 17, 20, 23, 26, 29, 32],
       cooldown: 3,
       currentCooldown: 0,
-      damageScaling: [60, 70, 80, 90, 100, 110, 120],
+      damageScaling: [70, 80, 90, 100, 110, 120, 130],
       tags: ["shield", "chill"],
     },
 
@@ -93,7 +93,7 @@ export const LYRA: HeroDefinition = {
       expandedDescription: `Lyra unleashes an explosive flame, dealing 180-360% ATK. If enemy is already Burning, 
         consumes it for bonus damage equal to remaining burn. Each cast grants her permanent 2-14 ATK and Max HP.`,
 
-      manaCost: [24, 28, 32, 36, 40, 44, 48],
+      manaCost: [18, 22, 26, 30, 34, 38, 42],
       cooldown: 4,
       currentCooldown: 0,
       damageScaling: [180, 210, 240, 270, 300, 330, 360],
@@ -112,7 +112,7 @@ export const LYRA_INITIAL_PASSIVE_STATE = {
   momentum: 0,
 };
 
-export const LYRA_MOMENTUM_MANA_RESTORE = [3, 6, 9, 12, 15, 18, 21];
+export const LYRA_MOMENTUM_MANA_RESTORE = [4, 8, 12, 16, 20, 24, 28];
 
 // Arcane Momentum: Damage multiplier per stack
 export const LYRA_MOMENTUM_BONUS = {

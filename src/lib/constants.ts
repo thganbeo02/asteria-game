@@ -49,8 +49,8 @@ export const MINIMUM_DAMAGE = 1;
 export const SHOP_ITEM_COUNT = 4;
 
 export const HEALTH_POTION = {
-  maxPerLevel: 3,
-  healPercent: [25, 30, 35, 40, 45, 50, 50],
+  maxPerLevel: 4,
+  healPercent: [35, 35, 40, 40, 45, 50, 50],
   cost: [30, 45, 65, 90, 120, 155, 195],
 };
 

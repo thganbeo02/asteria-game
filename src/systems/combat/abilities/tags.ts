@@ -1,5 +1,5 @@
 import type { AbilityTag } from "@/types";
-import { createStatusEffect } from "../statusEffects";
+import { createStatusEffect, getOutgoingDamageModifier } from "../statusEffects";
 import { calculateBurnDamage } from "../damageCalculator";
 import { useCombatStore } from "@/stores";
 import type { AbilityExecutionContext } from "./types";
@@ -14,8 +14,10 @@ const handleShield: TagHandler = ({ hero, abilityScaling }) => {
   // Shatter damage stored in snapshotAtk for when shield breaks/expires.
   const maxHp = hero.stats.maxHp + hero.stats.bonusMaxHp;
   const heroAtk = hero.stats.atk + hero.stats.bonusAtk;
+  const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
   const shieldValue = Math.floor(maxHp * 0.4);
-  const shatterDamage = Math.floor(heroAtk * abilityScaling);
+  // Stored as pre-mitigation damage; applied later on break/expiry.
+  const shatterDamage = Math.floor(heroAtk * dmgModifier * abilityScaling);
 
   const shieldEffect = createStatusEffect(
     "shield",

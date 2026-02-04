@@ -5,6 +5,7 @@ import {
   calculateHeroBasicAttack,
   calculateMonsterAttack,
   HeroCombatStats,
+  rollChance,
 } from "./damageCalculator";
 import {
   createStatusEffect,
@@ -22,6 +23,11 @@ import { applyAbilityTags } from "./abilities/tags";
 import { triggerOnBasicAttackResolved, triggerOnCrit, triggerOnKill } from "./passives/registry";
 import { getHeroDefinition } from "@/data/heroes";
 import { LYRA_MOMENTUM_MANA_RESTORE } from "@/data/heroes/lyra";
+import {
+  SHADE_CONTRACT_HEAL,
+  SHADE_STREAK_STAT_GAIN,
+  SHADE_STREAK_STATS,
+} from "@/data/heroes/shade";
 import { EXP_THRESHOLDS, MAX_LEVEL } from "@/lib/constants";
 import {
   getEffectiveMonsterAtk,
@@ -46,9 +52,20 @@ export class TurnManager {
     if (!hero || !monster) return;
 
     // Class innates: basic attack scaling by class.
-    // Currently: mages deal reduced basic attack damage.
     const heroDef = getHeroDefinition(hero.definitionId);
-    const basicAtkMultiplier = heroDef?.class === "mage" ? 0.75 : 1;
+    let basicAtkMultiplier = 1.0;
+    let bonusFlatDamage = 0;
+
+    if (heroDef?.class === "mage") {
+      basicAtkMultiplier = 0.75;
+    } else if (heroDef?.class === "warrior") {
+      basicAtkMultiplier = 0.8;
+      // Include temporary DEF modifiers (e.g., Fortify) in the warrior bonus.
+      const baseDef = hero.stats.def + hero.stats.bonusDef;
+      const defMod = getDefenseModifier(hero.statusEffects);
+      const effectiveDef = Math.floor(baseDef * defMod);
+      bonusFlatDamage = Math.floor(effectiveDef * 0.2);
+    }
 
     // Build stats object for dmg calc
     const heroStats: HeroCombatStats = {
@@ -62,12 +79,13 @@ export class TurnManager {
       bonusPenetration: hero.stats.bonusPenetration,
       dodge: hero.stats.dodge,
       bonusDodge: hero.stats.bonusDodge,
+      heroClass: heroDef?.class,
     };
 
     // apply def modifier from monster effects
     const defModifier = getDefenseModifier(monster.statusEffects);
     const effectiveDef = Math.floor(monster.def * defModifier);
-    const result = calculateHeroBasicAttack(heroStats, effectiveDef);
+    const result = calculateHeroBasicAttack(heroStats, effectiveDef, bonusFlatDamage);
 
     // Update store with results
     if (!result.isDodged) {
@@ -233,6 +251,7 @@ export class TurnManager {
       (ability.damageScaling?.[Math.min(heroNow.level - 1, 6)] ?? 100) / 100;
     const dmgModifier = getOutgoingDamageModifier(heroNow.statusEffects);
     const extraPen = getEffectModifiers(heroNow.statusEffects).penetrationBonus;
+    const heroDef = getHeroDefinition(heroNow.definitionId);
 
     const heroStats: HeroCombatStats = {
       atk: Math.floor((heroNow.stats.atk + heroNow.stats.bonusAtk) * dmgModifier),
@@ -245,12 +264,14 @@ export class TurnManager {
       bonusPenetration: heroNow.stats.bonusPenetration,
       dodge: heroNow.stats.dodge,
       bonusDodge: heroNow.stats.bonusDodge,
+      heroClass: heroDef?.class,
     };
 
     const defModifier = getDefenseModifier(monsterNow.statusEffects);
     const effectiveDef = Math.floor(monsterNow.def * defModifier);
 
-    const result = calculateHeroAbility(heroStats, effectiveDef, scaling, extraPen);
+    // Abilities do not crit unless explicitly stated.
+    const result = calculateHeroAbility(heroStats, effectiveDef, scaling, extraPen, false);
 
     // Shield abilities (like Frost Barrier) don't deal damage on cast
     // They deal damage when the shield breaks or expires
@@ -275,12 +296,12 @@ export class TurnManager {
           message: `${ability.name} deals ${result.finalDamage} damage!`,
         });
 
-      store.queueAnimation({
-        type: "damage",
-        target: "monster",
-        value: result.finalDamage,
-        isCrit: result.isCrit,
-      });
+        store.queueAnimation({
+          type: "damage",
+          target: "monster",
+          value: result.finalDamage,
+          isCrit: result.isCrit,
+        });
 
         if (result.isCrit) {
           triggerOnCrit({
@@ -310,25 +331,48 @@ export class TurnManager {
    */
   private static handleShieldShatter(shatterDamage: number, reason: "broken" | "expired"): void {
     const store = useCombatStore.getState();
-    const { monster } = store;
+    const { hero, monster } = store;
 
-    if (!monster) return;
+    if (!hero || !monster) return;
 
     const reasonText = reason === "broken" ? "Shield broken!" : "Shield expired!";
 
-    // Deal shatter damage to monster
+    // Resolve shatter like a normal hit (mitigated by DEF + penetration), but it cannot crit.
     if (shatterDamage > 0) {
-      store.dealDamageToMonster(shatterDamage);
+      const defModifier = getDefenseModifier(monster.statusEffects);
+      const effectiveDef = Math.floor(monster.def * defModifier);
+      const extraPen = getEffectModifiers(hero.statusEffects).penetrationBonus;
+
+      const shatterStats: HeroCombatStats = {
+        atk: Math.floor(shatterDamage),
+        bonusAtk: 0,
+        critChance: 0,
+        bonusCritChance: 0,
+        critMultiplier: hero.stats.critMultiplier,
+        bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+        penetration: hero.stats.penetration,
+        bonusPenetration: hero.stats.bonusPenetration,
+        dodge: 0,
+        bonusDodge: 0,
+      };
+
+      const result = calculateHeroAbility(shatterStats, effectiveDef, 1, extraPen, false);
+
+      if (result.finalDamage > 0) {
+        store.dealDamageToMonster(result.finalDamage);
+      }
       store.addLogEntry({
         actor: "hero",
         action: "shield_shatter",
-        damage: shatterDamage,
-        message: `${reasonText} Frost Barrier shatters for ${shatterDamage} damage!`,
+        damage: result.finalDamage,
+        isCrit: false,
+        message: `${reasonText} Frost Barrier shatters for ${result.finalDamage} damage!`,
       });
       store.queueAnimation({
         type: "damage",
         target: "monster",
-        value: shatterDamage,
+        value: result.finalDamage,
+        isCrit: false,
       });
 
       // If the shatter kills the monster (common on expiry), end combat immediately.
@@ -465,6 +509,33 @@ export class TurnManager {
         action: "attack",
         message: "You dodged the attack!",
       });
+
+      // Assassin Innate: counter-attack on dodge
+      const heroDef = getHeroDefinition(hero.definitionId);
+      if (heroDef?.class === "assassin" && rollChance(20)) {
+        const heroAtk = hero.stats.atk + hero.stats.bonusAtk;
+        const counterDamage = Math.max(1, Math.floor(heroAtk * 0.25));
+
+        store.addLogEntry({
+          actor: "hero",
+          action: "counter_attack",
+          damage: counterDamage,
+          message: `Counter-attack! Deals ${counterDamage} damage.`,
+        });
+
+        store.dealDamageToMonster(counterDamage);
+        store.queueAnimation({
+          type: "damage",
+          target: "monster",
+          value: counterDamage,
+        });
+
+        // Check if counter-attack killed the monster
+        const monsterAfter = useCombatStore.getState().monster;
+        if (monsterAfter && monsterAfter.hp <= 0) {
+          this.handleVictory();
+        }
+      }
       return;
     }
 
@@ -721,6 +792,16 @@ export class TurnManager {
     // Start next player turn
     store.setTurnPhase("player_turn");
     store.incrementTurn();
+
+    const updatedCombat = useCombatStore.getState();
+    const updatedRun = useGameStore.getState().run;
+    if (updatedRun?.heroId === "shade" && updatedRun.contractState) {
+      const nextTurn = Math.max(0, updatedCombat.turnCount - 1);
+      useGameStore.getState().updateContractState((prev) => ({
+        ...prev,
+        currentTurn: Math.min(nextTurn, prev.currentTurnLimit),
+      }));
+    }
   }
 
   // VICTORY / DEFEAT
@@ -752,6 +833,76 @@ export class TurnManager {
     game.addCrystals(monster.crystalReward);
 
     game.addExp(monster.expReward);
+
+    if (hero.definitionId === "shade" && run.contractState) {
+      const contract = run.contractState;
+      const completedInTime = combat.turnCount <= contract.currentTurnLimit;
+
+      if (completedInTime) {
+        const crystalBonus = Math.floor(monster.crystalReward * contract.crystalBonus);
+        const expBonus = Math.floor(monster.expReward * contract.expBonus);
+        const goldBonus = contract.goldBonus;
+
+        if (crystalBonus > 0) game.addCrystals(crystalBonus);
+        if (expBonus > 0) game.addExp(expBonus);
+        if (goldBonus > 0) game.addGold(goldBonus);
+
+        const idx = Math.min(hero.level - 1, 6);
+        const healPct = SHADE_CONTRACT_HEAL[idx] ?? 0;
+        const maxHp = hero.stats.maxHp + hero.stats.bonusMaxHp;
+        const healAmount = Math.floor((maxHp * healPct) / 100);
+
+        if (healAmount > 0) {
+          combat.healHero(healAmount);
+          combat.addLogEntry({
+            actor: "hero",
+            action: "contract_heal",
+            message: `Contract complete: Healed ${healAmount} HP.`,
+          });
+          combat.queueAnimation({ type: "heal", target: "hero", value: healAmount });
+        }
+
+        const nextStreak = contract.streak + 1;
+        const nextCompleted = contract.completed + 1;
+        game.updateContractState((prev) => ({
+          ...prev,
+          streak: nextStreak,
+          completed: nextCompleted,
+        }));
+        combat.updatePassiveState({ contractStreak: nextStreak });
+
+        combat.addLogEntry({
+          actor: "hero",
+          action: "contract_complete",
+          message: `Contract complete! +${crystalBonus} Crystals, +${expBonus} EXP${goldBonus > 0 ? `, +${goldBonus} Gold` : ""}.`,
+        });
+
+        // SHADE_STREAK_STATS is now 4 (was 5)
+        if (nextCompleted > 0 && nextCompleted % SHADE_STREAK_STATS === 0) {
+          const statGain = SHADE_STREAK_STAT_GAIN[idx] ?? 0;
+          if (statGain > 0) {
+            combat.addHeroBonusStats("bonusDef", statGain);
+            combat.addHeroBonusStats("bonusMaxHp", statGain);
+            combat.addLogEntry({
+              actor: "hero",
+              action: "contract_streak_bonus",
+              message: `Contract streak bonus: +${statGain} DEF, +${statGain} Max HP permanently.`,
+            });
+          }
+        }
+      } else {
+        game.updateContractState((prev) => ({
+          ...prev,
+          streak: 0,
+        }));
+        combat.updatePassiveState({ contractStreak: 0 });
+        combat.addLogEntry({
+          actor: "hero",
+          action: "contract_failed",
+          message: "Contract failed: Rewards forfeited.",
+        });
+      }
+    }
 
     const scoreMultiplier =
       run.difficulty === "easy" ? 1.0 : run.difficulty === "medium" ? 1.5 : 2.0;

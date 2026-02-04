@@ -40,7 +40,7 @@ describe('damageCalculator', () => {
       critMultiplier: 2,
       dodgeChance: 0,
       damageMultiplier: 1,
-      bonusFlatDmage: 0,
+      bonusFlatDamage: 0,
     };
 
     beforeEach(() => {
@@ -113,7 +113,7 @@ describe('damageCalculator', () => {
 
     it('applies flat bonus damage after multipliers', () => {
       vi.mocked(Math.random).mockReturnValue(0.99);
-      const result = calculateDamage({ ...baseContext, bonusFlatDmage: 10 });
+      const result = calculateDamage({ ...baseContext, bonusFlatDamage: 10 });
       expect(result.finalDamage).toBe(110);
     });
 
@@ -126,7 +126,7 @@ describe('damageCalculator', () => {
 
     it('invariant: finalDamage is non-negative', () => {
       vi.mocked(Math.random).mockReturnValue(0.99);
-      const result = calculateDamage({ ...baseContext, bonusFlatDmage: -500 }); // Should be clamped
+      const result = calculateDamage({ ...baseContext, bonusFlatDamage: -500 }); // Should be clamped
       expect(result.finalDamage).toBeGreaterThanOrEqual(MINIMUM_DAMAGE);
     });
     

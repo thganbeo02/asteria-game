@@ -11,7 +11,7 @@ export interface DamageContext {
   critMultiplier: number;
   dodgeChance: number;
   damageMultiplier?: number;  // Ability scaling
-  bonusFlatDmage?: number;    // Added after multiplier
+  bonusFlatDamage?: number;    // Added after multiplier
 }
 
 export interface DamageResult {
@@ -70,7 +70,7 @@ export function calculateDamage(context: DamageContext): DamageResult {
     critMultiplier,
     dodgeChance,
     damageMultiplier = 1.0,
-    bonusFlatDmage = 0,
+    bonusFlatDamage = 0,
   } = context;
 
   // 1. Check dodge
@@ -102,7 +102,7 @@ export function calculateDamage(context: DamageContext): DamageResult {
   const afterCrit = isCrit ? postMitigatedDamage * critMultiplier : postMitigatedDamage;
 
   // 4. Flat bonus, if applicable
-  const afterBonus = afterCrit + bonusFlatDmage;
+  const afterBonus = afterCrit + bonusFlatDamage;
 
   // 5. Final damage
   const finalDamage = Math.max(MINIMUM_DAMAGE, Math.floor(afterBonus));
@@ -133,6 +133,7 @@ export interface HeroCombatStats {
   bonusPenetration: number;
   dodge: number;
   bonusDodge: number;
+  heroClass?: string;
 }
 
 /**
@@ -146,23 +147,37 @@ function createHeroDamageContext(
     extraPenetration?: number;
     canCrit?: boolean;
     dodgeChance?: number;
+    bonusFlatDamage?: number;
   } = {},
 ): DamageContext {
   const {
-    damageMultiplier = 1.0,
     extraPenetration = 0,
     canCrit = true,
     dodgeChance = 0,
+    bonusFlatDamage = 0,
   } = options;
+
+  let { damageMultiplier = 1.0 } = options;
+  let critChance = canCrit ? heroStats.critChance + heroStats.bonusCritChance : 0;
+  let penetration = heroStats.penetration + heroStats.bonusPenetration + extraPenetration;
+
+  // Ranger Innate: excess crit conversion
+  if (heroStats.heroClass === "ranger" && critChance > 100) {
+    const excess = critChance - 100;
+    penetration += excess;
+    damageMultiplier += excess * 0.1;
+    critChance = 100;
+  }
 
   return {
     attackerAtk: heroStats.atk + heroStats.bonusAtk,
     defenderDef: monsterDef,
-    penetration: heroStats.penetration + heroStats.bonusPenetration + extraPenetration,
-    critChance: canCrit ? heroStats.critChance + heroStats.bonusCritChance : 0,
+    penetration,
+    critChance,
     critMultiplier: heroStats.critMultiplier + heroStats.bonusCritMultiplier,
     dodgeChance,
     damageMultiplier,
+    bonusFlatDamage,
   };
 }
 
@@ -171,9 +186,10 @@ function createHeroDamageContext(
  */
 export function calculateHeroBasicAttack(
   heroStats: HeroCombatStats,
-  monsterDef: number
+  monsterDef: number,
+  bonusFlatDamage: number = 0
 ): DamageResult {
-  return calculateDamage(createHeroDamageContext(heroStats, monsterDef));
+  return calculateDamage(createHeroDamageContext(heroStats, monsterDef, { bonusFlatDamage }));
 }
 
 /**

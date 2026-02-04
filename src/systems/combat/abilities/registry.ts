@@ -24,6 +24,14 @@ import {
   BRAN_CRUSHING_BLOW_MISSING_HP,
   BRAN_CRUSHING_BLOW_KILL_STATS,
 } from "@/data/heroes/bran";
+import {
+  SHADE_COLLECT_CONTRACT_CRYSTALS,
+  SHADE_COLLECT_DEF_GAIN,
+  SHADE_COLLECT_PENETRATION,
+  SHADE_PHANTOM_EVADE,
+  SHADE_QUICKBLADE_ATK_GAIN,
+  SHADE_QUICKBLADE_CONTRACT_PEN,
+} from "@/data/heroes/shade";
 import { triggerOnCrit } from "../passives/registry";
 
 function randomInt(min: number, max: number): number {
@@ -438,6 +446,268 @@ const branCrushingBlow: AbilityHandler = ({ hero, monster, ability }) => {
   }
 };
 
+// =============================================================================
+// SHADE ABILITIES
+// =============================================================================
+
+const shadeQuickblade: AbilityHandler = ({ hero, monster, ability }) => {
+  const store = useCombatStore.getState();
+  const run = useGameStore.getState().run;
+
+  const levelIndex = Math.min(hero.level - 1, 6);
+  const scaling = (ability.damageScaling?.[levelIndex] ?? 120) / 100;
+  const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
+
+  const heroStats: HeroCombatStats = {
+    atk: Math.floor((hero.stats.atk + hero.stats.bonusAtk) * dmgModifier),
+    bonusAtk: 0,
+    critChance: hero.stats.critChance,
+    bonusCritChance: hero.stats.bonusCritChance,
+    critMultiplier: hero.stats.critMultiplier,
+    bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+    penetration: hero.stats.penetration,
+    bonusPenetration: hero.stats.bonusPenetration,
+    dodge: hero.stats.dodge,
+    bonusDodge: hero.stats.bonusDodge,
+  };
+
+  const defModifier = getDefenseModifier(monster.statusEffects);
+  const effectiveDef = Math.floor(monster.def * defModifier);
+
+  const remainingTurns = run?.contractState
+    ? Math.max(0, run.contractState.currentTurnLimit - run.contractState.currentTurn)
+    : null;
+  const extraPen = remainingTurns != null && remainingTurns <= 2
+    ? SHADE_QUICKBLADE_CONTRACT_PEN
+    : 0;
+
+  const result = calculateHeroAbility(heroStats, effectiveDef, scaling, extraPen, false);
+
+  if (result.isDodged) {
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      message: `${ability.name} was dodged!`,
+    });
+    return;
+  }
+
+  if (result.finalDamage > 0) {
+    store.dealDamageToMonster(result.finalDamage);
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      damage: result.finalDamage,
+      isCrit: result.isCrit,
+      message: `${ability.name} deals ${result.finalDamage} damage!`,
+    });
+    store.queueAnimation({
+      type: "damage",
+      target: "monster",
+      value: result.finalDamage,
+      isCrit: result.isCrit,
+    });
+
+    if (result.isCrit) {
+      triggerOnCrit({
+        hero,
+        monster,
+        source: "ability",
+        abilityId: ability.id,
+        damage: result.finalDamage,
+      });
+    }
+
+    const updatedMonster = useCombatStore.getState().monster;
+    if (updatedMonster && updatedMonster.hp <= 0) {
+      const atkGain = SHADE_QUICKBLADE_ATK_GAIN[levelIndex] ?? 0;
+      if (atkGain > 0) {
+        store.addHeroBonusStats("bonusAtk", atkGain);
+        store.addLogEntry({
+          actor: "hero",
+          action: "quickblade_kill",
+          message: `Quickblade kill! +${atkGain} ATK permanently.`,
+        });
+      }
+    }
+  }
+};
+
+const shadePhantomStep: AbilityHandler = ({ hero, monster, ability }) => {
+  const store = useCombatStore.getState();
+  const game = useGameStore.getState();
+
+  const levelIndex = Math.min(hero.level - 1, 6);
+  const scaling = (ability.damageScaling?.[levelIndex] ?? 80) / 100;
+  const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
+
+  const heroStats: HeroCombatStats = {
+    atk: Math.floor((hero.stats.atk + hero.stats.bonusAtk) * dmgModifier),
+    bonusAtk: 0,
+    critChance: hero.stats.critChance,
+    bonusCritChance: hero.stats.bonusCritChance,
+    critMultiplier: hero.stats.critMultiplier,
+    bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+    penetration: hero.stats.penetration,
+    bonusPenetration: hero.stats.bonusPenetration,
+    dodge: hero.stats.dodge,
+    bonusDodge: hero.stats.bonusDodge,
+  };
+
+  const defModifier = getDefenseModifier(monster.statusEffects);
+  const effectiveDef = Math.floor(monster.def * defModifier);
+  const result = calculateHeroAbility(heroStats, effectiveDef, scaling, 0, false);
+
+  if (result.isDodged) {
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      message: `${ability.name} was dodged!`,
+    });
+  } else if (result.finalDamage > 0) {
+    store.dealDamageToMonster(result.finalDamage);
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      damage: result.finalDamage,
+      isCrit: result.isCrit,
+      message: `${ability.name} deals ${result.finalDamage} damage!`,
+    });
+    store.queueAnimation({
+      type: "damage",
+      target: "monster",
+      value: result.finalDamage,
+      isCrit: result.isCrit,
+    });
+
+    if (result.isCrit) {
+      triggerOnCrit({
+        hero,
+        monster,
+        source: "ability",
+        abilityId: ability.id,
+        damage: result.finalDamage,
+      });
+    }
+  }
+
+  const evadeEffect = createStatusEffect("evade", "hero", SHADE_PHANTOM_EVADE, 1);
+  store.applyStatusToHero(evadeEffect);
+  store.addLogEntry({
+    actor: "hero",
+    action: ability.id,
+    statusApplied: "evade",
+    message: `Phantom Step: +${SHADE_PHANTOM_EVADE}% Evasion for 1 turn.`,
+  });
+  store.queueAnimation({ type: "buff", target: "hero", value: SHADE_PHANTOM_EVADE });
+
+  if (game.run?.contractState) {
+    game.updateContractState((prev) => ({
+      ...prev,
+      currentTurnLimit: prev.currentTurnLimit + 1,
+    }));
+    store.addLogEntry({
+      actor: "hero",
+      action: "contract_extend",
+      message: "Contract extended by 1 turn.",
+    });
+  }
+};
+
+const shadeCollect: AbilityHandler = ({ hero, monster, ability }) => {
+  const store = useCombatStore.getState();
+  const game = useGameStore.getState();
+  const run = game.run;
+
+  const levelIndex = Math.min(hero.level - 1, 6);
+  const scaling = (ability.damageScaling?.[levelIndex] ?? 180) / 100;
+  const dmgModifier = getOutgoingDamageModifier(hero.statusEffects);
+
+  const heroStats: HeroCombatStats = {
+    atk: Math.floor((hero.stats.atk + hero.stats.bonusAtk) * dmgModifier),
+    bonusAtk: 0,
+    critChance: hero.stats.critChance,
+    bonusCritChance: hero.stats.bonusCritChance,
+    critMultiplier: hero.stats.critMultiplier,
+    bonusCritMultiplier: hero.stats.bonusCritMultiplier,
+    penetration: hero.stats.penetration,
+    bonusPenetration: hero.stats.bonusPenetration,
+    dodge: hero.stats.dodge,
+    bonusDodge: hero.stats.bonusDodge,
+  };
+
+  const defModifier = getDefenseModifier(monster.statusEffects);
+  const effectiveDef = Math.floor(monster.def * defModifier);
+  const result = calculateHeroAbility(
+    heroStats,
+    effectiveDef,
+    scaling,
+    SHADE_COLLECT_PENETRATION,
+    false,
+  );
+
+  if (result.isDodged) {
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      message: `${ability.name} was dodged!`,
+    });
+    return;
+  }
+
+  if (result.finalDamage > 0) {
+    store.dealDamageToMonster(result.finalDamage);
+    store.addLogEntry({
+      actor: "hero",
+      action: ability.id,
+      damage: result.finalDamage,
+      isCrit: result.isCrit,
+      message: `${ability.name} deals ${result.finalDamage} damage!`,
+    });
+    store.queueAnimation({
+      type: "damage",
+      target: "monster",
+      value: result.finalDamage,
+      isCrit: result.isCrit,
+    });
+
+    if (result.isCrit) {
+      triggerOnCrit({
+        hero,
+        monster,
+        source: "ability",
+        abilityId: ability.id,
+        damage: result.finalDamage,
+      });
+    }
+
+    const updatedMonster = useCombatStore.getState().monster;
+    if (updatedMonster && updatedMonster.hp <= 0) {
+      const defGain = SHADE_COLLECT_DEF_GAIN[levelIndex] ?? 0;
+      if (defGain > 0) {
+        store.addHeroBonusStats("bonusDef", defGain);
+        store.addLogEntry({
+          actor: "hero",
+          action: "collect_kill",
+          message: `Collect kill! +${defGain} DEF permanently.`,
+        });
+      }
+
+      if (run?.contractState && useCombatStore.getState().turnCount <= run.contractState.currentTurnLimit) {
+        const bonusCrystals = SHADE_COLLECT_CONTRACT_CRYSTALS[levelIndex] ?? 0;
+        if (bonusCrystals > 0) {
+          game.addCrystals(bonusCrystals);
+          store.addLogEntry({
+            actor: "hero",
+            action: "contract_bonus",
+            message: `Collect Contract bonus: +${bonusCrystals} Crystals.`,
+          });
+        }
+      }
+    }
+  }
+};
+
 export const abilityRegistry: Record<string, AbilityHandler> = {
   camira_rapid_fire: camiraRapidFire,
   camira_forest_agility: camiraForestAgility,
@@ -446,4 +716,8 @@ export const abilityRegistry: Record<string, AbilityHandler> = {
   bran_shield_slam: branShieldSlam,
   bran_fortify: branFortify,
   bran_crushing_blow: branCrushingBlow,
+  // Shade
+  shade_quickblade: shadeQuickblade,
+  shade_phantom_step: shadePhantomStep,
+  shade_collect: shadeCollect,
 };

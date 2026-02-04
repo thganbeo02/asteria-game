@@ -1,6 +1,7 @@
-import type { RunSlice, RunState, GameSliceCreator } from "./types";
+import type { ContractState, RunSlice, RunState, GameSliceCreator } from "./types";
 import type { Difficulty, MonsterType, MonsterBaseStats } from "@/types";
 import { ALL_MONSTERS, MONSTERS } from "@/data/monsters";
+import { generateContract, rollContractTier } from "@/data/heroes/shade";
 
 // =============================================================================
 // HELPERS
@@ -14,6 +15,22 @@ function createInitialMonsterSnapshots(): Record<MonsterType, MonsterBaseStats> 
   }
 
   return snapshots;
+}
+
+function createContractState(streak: number, completed: number): ContractState {
+  const tier = rollContractTier(streak);
+  const contract = generateContract(tier);
+
+  return {
+    tier,
+    currentTurnLimit: contract.turnLimit,
+    currentTurn: 0,
+    crystalBonus: contract.crystalBonus,
+    expBonus: contract.expBonus,
+    goldBonus: contract.goldBonus,
+    streak,
+    completed,
+  };
 }
 
 function createInitialRunState(heroId: string, difficulty: Difficulty): RunState {
@@ -57,13 +74,7 @@ function createInitialRunState(heroId: string, difficulty: Difficulty): RunState
     crystalsEarnedPerLevel: {},
     crystalsSpentPerLevel: {},
 
-    contractState: heroId === "shade" ? {
-      currentTurnLimit: 5,
-      currentTurn: 0,
-      crystalBonus: 0.2,
-      expBonus: 0.1,
-      streak: 0,
-    } : undefined,
+    contractState: heroId === "shade" ? createContractState(0, 0) : undefined,
   };
 }
 
@@ -240,6 +251,55 @@ export const createRunSlice: GameSliceCreator<RunSlice> = (set, get) => ({
         run: {
           ...run,
           decisionLog: [...run.decisionLog, evt],
+        },
+      };
+    });
+  },
+
+  assignContract: () => {
+    set((state) => {
+      if (!state.run || state.run.heroId !== "shade") return {};
+
+      const streak = state.run.contractState?.streak ?? 0;
+      const completed = state.run.contractState?.completed ?? 0;
+
+      return {
+        run: {
+          ...state.run,
+          contractState: createContractState(streak, completed),
+        },
+      };
+    });
+  },
+
+  setContractState: (contractState) => {
+    set((state) => {
+      if (!state.run) return {};
+      return {
+        run: {
+          ...state.run,
+          contractState,
+        },
+      };
+    });
+  },
+
+  updateContractState: (updater) => {
+    set((state) => {
+      if (!state.run || !state.run.contractState) return {};
+
+      const nextState =
+        typeof updater === "function"
+          ? updater(state.run.contractState)
+          : {
+              ...state.run.contractState,
+              ...(typeof updater === "object" ? updater : {}),
+            };
+
+      return {
+        run: {
+          ...state.run,
+          contractState: nextState,
         },
       };
     });

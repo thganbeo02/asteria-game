@@ -1,5 +1,5 @@
 import type { MonsterSlice, SliceCreator } from "./types";
-import { selectRandomMonster, MONSTERS } from "@/data/monsters";
+import { createMonsterState, selectRandomMonster, MONSTERS } from "@/data/monsters";
 import { useGameStore } from "@/stores/gameStore";
 import { applyHealing } from "@/systems/combat/damageCalculator";
 import { getUpdatedEffectsAfterApply, getUpdatedEffectsAfterRemove } from "@/systems/combat/statusEffects";
@@ -27,44 +27,8 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
     // Get snapshotted base stats
     const snapshotBase = gameStore.getMonsterSnapshot(monsterDef.id);
 
-    // Calculate final stats: snapshot + (growth × encounters)
-    const idx = Math.min(currentLevel - 1, 6);
-    const growth = monsterDef.growth;
-
-    // encounters start at 1, so first monster gets growth * 1
-    const encounters = internalEncounter;
-
-      const finalStats = {
-      hp: Math.round(snapshotBase.hp + growth.hp[difficulty][idx] * encounters),
-      atk: Math.round(
-        snapshotBase.atk + growth.atk[difficulty][idx] * encounters,
-      ),
-      def: Math.round(
-        snapshotBase.def + growth.def[difficulty][idx] * encounters,
-      ),
-      crystal: Math.round(
-        snapshotBase.crystal + growth.crystal[difficulty][idx] * encounters,
-      ),
-      exp: Math.round(
-        snapshotBase.exp + growth.exp[difficulty][idx] * encounters,
-      ),
-      score: monsterDef.baseStats.score || 0,
-    };
-
     set({
-      monster: {
-        definitionId: monsterDef.id,
-        maxHp: finalStats.hp,
-        hp: finalStats.hp,
-        atk: finalStats.atk,
-        def: finalStats.def,
-        crystalReward: finalStats.crystal,
-        expReward: finalStats.exp,
-        scoreReward: finalStats.score,
-        statusEffects: [],
-        turnCount: 0,
-        patternIndex: 0,
-      },
+      monster: createMonsterState(monsterDef, snapshotBase, currentLevel, internalEncounter, difficulty),
     });
 
 
@@ -73,6 +37,18 @@ export const createMonsterSlice: SliceCreator<MonsterSlice> = (set, get) => ({
       action: "spawn",
       message: `A wild ${monsterDef.name} appears!`,
     });
+
+    if (run.heroId === "shade") {
+      gameStore.assignContract();
+      const contractState = useGameStore.getState().run?.contractState;
+      if (contractState) {
+        get().addLogEntry({
+          actor: "hero",
+          action: "contract",
+          message: `Contract issued: ${contractState.tier.toUpperCase()} (${contractState.currentTurnLimit} turns).`,
+        });
+      }
+    }
   },
 
   dealDamageToMonster: (amount) => {

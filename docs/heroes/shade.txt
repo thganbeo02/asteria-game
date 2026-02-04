@@ -4,6 +4,7 @@ The Hollow Blade
 Unlock: Starter (Free)
 Difficulty: Beginner
 Class: Assassin (Bounty Hunter)
+Innate: On dodge, there is a 20% chance to counter-attack, dealing 25% ATK damage.
 
 LORE
 
@@ -35,10 +36,10 @@ At the start of each encounter, Shade receives a Contract — a turn limit to ki
 [ Reward: +50% Crystals, +30% EXP ]
 [ Turn: 2 / 5  ██████░░░░ ]
 
-- Casual: 5-6 turns | +20% Crystals | +10% EXP | 45% Roll Chance
-- Standard: 4-5 turns | +30% Crystals | +20% EXP | 35% Roll Chance
-- Rush: 3-4 turns | +50% Crystals | +30% EXP | 15% Roll Chance
-- Impossible: 2 turns | +100% Crystals | +50% EXP | +5 Gold | 5% Roll Chance
+- Casual: 5-6 turns | +10% Crystals | +10% EXP | 45% Roll Chance
+- Standard: 4-5 turns | +15% Crystals | +20% EXP | 35% Roll Chance
+- Rush: 3-4 turns | +25% Crystals | +30% EXP | 15% Roll Chance
+- Impossible: 2 turns | +50% Crystals | +50% EXP | +5 Gold | 5% Roll Chance
 
 Rules:
 - Contract assigned randomly at encounter start.
@@ -50,16 +51,16 @@ PASSIVE - PROFESSIONAL KILLER
 
 Receive Contracts each encounter. Fast kills earn bonus rewards.
 
-- Contract System: Each encounter begins with a random Contract. If Shade kills within the turn limit, she is rewarded with bonus Crystals/EXP and restores 10-22% Max HP.
+- Contract System: Each encounter begins with a random Contract. If Shade kills within the turn limit, she is rewarded with bonus Crystals/EXP and restores 12-24% Max HP.
 - Streak Bonus: Completing 3 Contracts in a row guarantees the next Contract is one tier higher.
-- Completion Bonus: For every 5 Contracts completed, Shade gains 5-17 ATK, DEF, and Max HP permanently.
+- Completion Bonus: For every 4 Contracts completed, Shade gains 4-16 DEF and Max HP permanently.
 
 ABILITY 1 - QUICKBLADE
 
 Fast strike. Gains ATK on kill.
 - Cost: 8 / 10 / 12 / 14 / 16 / 18 / 20 Mana
 - Cooldown: 2 turns
-- Damage: 120 / 130 / 140 / 150 / 160 / 170 / 180% ATK.
+- Damage: 100 / 108 / 116 / 125 / 133 / 142 / 150% ATK.
 - On Kill: Gains 2 / 3 / 4 / 5 / 6 / 7 / 8 permanent ATK.
 - Contract Bonus: If Contract has 2 or fewer turns remaining, Quickblade ignores 10% enemy DEF.
 
@@ -75,9 +76,9 @@ Strike and phase through shadows to dodge enemy. Extends Contract.
 ABILITY 3 - COLLECT
 
 High damage finisher. Bonus effects on Contract kill.
-- Cost: 20 / 24 / 28 / 32 / 36 / 40 / 44 Mana
+- Cost: 16 / 20 / 24 / 28 / 32 / 36 / 40 Mana
 - Cooldown: 4 turns
-- Damage: 180 / 200 / 220 / 240 / 260 / 280 / 300% ATK (ignores 25% enemy DEF).
+- Damage: 150 / 170 / 190 / 210 / 230 / 250 / 270% ATK (ignores 25% enemy DEF).
 - On Kill: Gains 2 / 3 / 4 / 5 / 6 / 7 / 8 permanent DEF.
 - Contract Completion: Gains 5 / 10 / 15 / 25 / 50 / 75 / 125 bonus Crystals.
 
@@ -92,7 +93,12 @@ Shade is a high-tempo hero whose power is tied to speed and efficiency.
 CHANGELOG
 
 Unreleased:
-- (Add upcoming changes here)
+- Contract system implemented in combat with contract rewards, streak tracking, and completion bonuses.
+- Professional Killer: Contract completion grants 12-24% Max HP heal, +10-50% Crystals, +10-50% EXP.
+- Professional Killer: Streak bonus every 4 contracts grants permanent +4-16 ATK/DEF/Max HP.
+- Quickblade (100-220% ATK): Grants permanent ATK on kill; +10% Penetration if contract <= 2 turns.
+- Phantom Step (80-140% ATK): Grants 75% Evade for 1 turn; extends contract by 1 turn.
+- Collect (150-270% ATK): Ignores 25% DEF; grants permanent DEF on kill; bonus Crystals on contract completion.
 
 v1.0:
 - Initial release

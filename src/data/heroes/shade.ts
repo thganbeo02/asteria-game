@@ -37,10 +37,10 @@ export const SHADE: HeroDefinition = {
     description: "Contracts give bonus rewards for fast kills.",
     expandedDescription: `Each encounter, Shade is given a Contract that has a specified turn limit and reward accordingly.
       If Shade kills within the turn limit, she is rewarded with bonus Crystals and EXP, 
-      and restores 10-22% Max HP (based on level).
+      and restores 12-24% Max HP (based on level).
 
       Completing 3 Contracts in a row will guarantee Shade's next Contract one tier higher. 
-      For every 5 Contracts completed, Shade gains 5-17 ATK, DEF, and Max HP`,
+      For every 4 Contracts completed, Shade gains 4-16 DEF and Max HP`,
   },
 
   abilities: [
@@ -48,14 +48,14 @@ export const SHADE: HeroDefinition = {
       id: "shade_quickblade",
       name: "Quickblade",
       description: "Fast strike. Gains ATK on kill.",
-      expandedDescription: `Shade strikes with lethal efficiency for 120-180% ATK.
+      expandedDescription: `Shade strikes with lethal efficiency for 100-220% ATK.
         On Kill, she gains 2-8 permanent ATK.
         
         If Contract is active with 2 or fewer turns remaining, Quickblade ignores 10% enemy's DEF.`,
       manaCost: [8, 10, 12, 14, 16, 18, 20],
       cooldown: 2,
       currentCooldown: 0,
-      damageScaling: [120, 130, 140, 150, 160, 170, 180],
+      damageScaling: [100, 120, 140, 160, 180, 200, 220],
       tags: ["atk_on_kill", "contract_bonus", "permanent_stats"],
     },
     {
@@ -74,12 +74,12 @@ export const SHADE: HeroDefinition = {
       id: "shade_collect",
       name: "Collect",
       description: "High damage finisher with contract bonus.",
-      expandedDescription: `Shade collects what she's owed, ignoring 25% enemy DEF and deals 180-300% ATK. 
+      expandedDescription: `Shade collects what she's owed, ignoring 25% enemy DEF and deals 150-270% ATK. 
         On Kill, she gains 2-8 DEF, and on Contract completion, Shade gains 5-125 bonus Crystals.`,
-      manaCost: [20, 24, 28, 32, 36, 40, 44],
+      manaCost: [16, 20, 24, 28, 32, 36, 40],
       cooldown: 4,
       currentCooldown: 0,
-      damageScaling: [180, 200, 220, 240, 260, 280, 300],
+      damageScaling: [150, 170, 190, 210, 230, 250, 270],
       tags: ["penetration", "def_on_kill", "contract_bonus", "permanent_stats"],
     },
   ],
@@ -104,7 +104,7 @@ export const CONTRACT_TIERS: Record<ContractTier, ContractConfig> = {
   casual: {
     turnLimitMin: 5,
     turnLimitMax: 6,
-    crystalBonus: 0.2,
+    crystalBonus: 0.1,
     expBonus: 0.1,
     goldBonus: 0,
     rollChance: 45,
@@ -112,7 +112,7 @@ export const CONTRACT_TIERS: Record<ContractTier, ContractConfig> = {
   standard: {
     turnLimitMin: 4,
     turnLimitMax: 5,
-    crystalBonus: 0.3,
+    crystalBonus: 0.15,
     expBonus: 0.2,
     goldBonus: 0,
     rollChance: 35,
@@ -120,7 +120,7 @@ export const CONTRACT_TIERS: Record<ContractTier, ContractConfig> = {
   rush: {
     turnLimitMin: 3,
     turnLimitMax: 4,
-    crystalBonus: 0.5,
+    crystalBonus: 0.25,
     expBonus: 0.3,
     goldBonus: 0,
     rollChance: 15,
@@ -128,7 +128,7 @@ export const CONTRACT_TIERS: Record<ContractTier, ContractConfig> = {
   impossible: {
     turnLimitMin: 2,
     turnLimitMax: 2,
-    crystalBonus: 1.0,
+    crystalBonus: 0.5,
     expBonus: 0.5,
     goldBonus: 5,
     rollChance: 5,
@@ -140,14 +140,14 @@ export const CONTRACT_TIERS: Record<ContractTier, ContractConfig> = {
 // =============================================================================
 
 // HP healed on contract completion
-export const SHADE_CONTRACT_HEAL = [10, 12, 14, 16, 18, 20, 22];
+export const SHADE_CONTRACT_HEAL = [12, 14, 16, 18, 20, 22, 24];
 
 // Streak thresholds
 export const SHADE_STREAK_UPGRADE = 3; // Guaranteed tier upgrade
-export const SHADE_STREAK_STATS = 5; // Permanent stat bonus
+export const SHADE_STREAK_STATS = 4; // Permanent stat bonus
 
-// Permanent stats at 5 streak
-export const SHADE_STREAK_STAT_GAIN = [5, 7, 9, 11, 13, 15, 17];
+// Permanent stats at 4 streak
+export const SHADE_STREAK_STAT_GAIN = [4, 6, 8, 10, 12, 14, 16];
 
 // Quickblade
 export const SHADE_QUICKBLADE_ATK_GAIN = [2, 3, 4, 5, 6, 7, 8];

@@ -1,11 +1,13 @@
 "use client";
 
-import { useCombatStore } from "@/stores";
+import { useCombatStore, useGameStore } from "@/stores";
 import { MONSTERS } from "@/data/monsters";
 import { HealthBar } from "@/components/ui";
+import { cn } from "@/lib/cn";
 
 export function MonsterPanel() {
   const monster = useCombatStore((state) => state.monster);
+  const run = useGameStore((state) => state.run);
 
   if (!monster) {
     return (
@@ -17,6 +19,8 @@ export function MonsterPanel() {
 
   const definition = MONSTERS[monster.definitionId];
   if (!definition) return null;
+
+  const contractState = run?.heroId === "shade" ? run.contractState : undefined;
 
   return (
     <div className="liquid-panel p-6 flex flex-col gap-5">
@@ -82,6 +86,61 @@ export function MonsterPanel() {
           ✨ {monster.expReward} EXP
         </span>
       </div>
+
+      {contractState && (
+        (() => {
+          const remaining = Math.max(0, contractState.currentTurnLimit - contractState.currentTurn);
+          const pct = contractState.currentTurnLimit > 0
+            ? Math.min(1, contractState.currentTurn / contractState.currentTurnLimit)
+            : 0;
+          const deadline = remaining > 0 && remaining <= 2;
+          const tierStyles: Record<string, string> = {
+            casual: "bg-emerald-500/15 text-emerald-300 border-emerald-500/40",
+            standard: "bg-amber-500/15 text-amber-300 border-amber-500/40",
+            rush: "bg-orange-500/15 text-orange-300 border-orange-500/40",
+            impossible: "bg-red-500/15 text-red-300 border-red-500/40",
+          };
+
+          return (
+            <div className="rounded-xl border border-border bg-bg-panel p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div className="text-sm font-semibold text-text-primary">Contract</div>
+                <span
+                  className={cn(
+                    "text-[11px] uppercase tracking-wide border px-2 py-0.5 rounded-full",
+                    tierStyles[contractState.tier] ?? "bg-bg-dark/40 text-text-muted border-border",
+                  )}
+                >
+                  {contractState.tier}
+                </span>
+              </div>
+
+              <div className="mt-3 flex items-center justify-between text-xs text-text-muted">
+                <span>Turns: {Math.min(contractState.currentTurn, contractState.currentTurnLimit)} / {contractState.currentTurnLimit}</span>
+                {deadline && <span className="text-amber-300 font-semibold animate-pulse">Deadline</span>}
+              </div>
+
+              <div className="mt-2 h-2 w-full rounded-full bg-bg-dark/60 overflow-hidden">
+                <div
+                  className={cn("h-full transition-all", deadline ? "bg-amber-400" : "bg-class-mage")}
+                  style={{ width: `${Math.round(pct * 100)}%` }}
+                />
+              </div>
+
+              <div className="mt-3 text-xs text-text-secondary flex flex-wrap gap-2">
+                <span>+{Math.round(contractState.crystalBonus * 100)}% Crystals</span>
+                <span>+{Math.round(contractState.expBonus * 100)}% EXP</span>
+                {contractState.goldBonus > 0 && <span>+{contractState.goldBonus} Gold</span>}
+              </div>
+
+              <div className="mt-3 flex items-center justify-between text-xs text-text-muted">
+                <span>Streak: <span className="font-semibold text-text-primary">{contractState.streak}</span></span>
+                <span>Completed: <span className="font-semibold text-text-primary">{contractState.completed}</span></span>
+              </div>
+            </div>
+          );
+        })()
+      )}
     </div>
   );
 }

@@ -1,80 +1,16 @@
-import { Difficulty, GamePhase, ItemInstance, MonsterBaseStats, MonsterType, TurnPhase } from "@/types";
+import type {
+  ContractState,
+  Difficulty,
+  GamePhase,
+  ItemInstance,
+  MonsterBaseStats,
+  MonsterType,
+  RunDecisionKind,
+  RunState,
+} from "@/types";
 import type { ShopState } from "@/types";
 
-export type RunDecisionKind =
-  | "basic_attack"
-  | "cast_ability"
-  | "skip_turn"
-  | "end_run"
-  | "next_encounter"
-  | "enter_shop"
-  | "skip_shop"
-  | "shop_buy_offer"
-  | "shop_buy_potion"
-  | "shop_continue";
-
-export interface RunDecisionEvent {
-  seq: number;
-  at: string; // ISO timestamp
-  kind: RunDecisionKind;
-  phase: GamePhase;
-  heroId: string;
-  difficulty: Difficulty;
-  encounter: number;
-  internalEncounter: number;
-  currentLevel: number;
-  turnCount?: number;
-  turnPhase?: TurnPhase;
-  payload?: Record<string, unknown>;
-}
-
-export interface RunState {
-  heroId: string;
-  difficulty: Difficulty;
-
-  // Counters
-  encounter: number;
-  internalEncounter: number;
-  currentLevel: number;
-
-  // Monster snapshots, captured at level up
-  monsterSnapshots: Record<MonsterType, MonsterBaseStats>;
-
-  // Economy
-  crystals: number;
-  crystalsEarned: number;
-  crystalsSpent: number;
-  gold: number;
-
-  // Progression
-  exp: number;
-
-  // Tracking
-  score: number;
-  monstersKilled: Record<MonsterType, number>;
-  totalItemsOffered: number;
-  totalShopClears: number;
-
-  // Inventory
-  purchasedItems: ItemInstance[];
-  healthPotionsUsedThisLevel: number;
-  shopsSkipped: number;
-
-  // Balancing / analytics (not persisted)
-  decisionLog: RunDecisionEvent[];
-  crystalsEarnedPerLevel: Record<number, number>;
-  crystalsSpentPerLevel: Record<number, number>;
-
-  // Hero-specific (Shade contracts, etc.)
-  contractState?: {
-    currentTurnLimit: number;
-    currentTurn: number;
-    crystalBonus: number;
-    expBonus: number;
-    streak: number;
-  };
-
-}
+export type { ContractState, RunDecisionEvent, RunDecisionKind, RunState } from "@/types";
 
 export interface ShopSlice {
   shop: ShopState | null;
@@ -104,6 +40,11 @@ export interface RunSlice {
   addExp: (amount: number) => void;
   getMonsterSnapshot: (monsterType: MonsterType) => MonsterBaseStats;
   recordDecision: (kind: RunDecisionKind, payload?: Record<string, unknown>) => void;
+  assignContract: () => void;
+  setContractState: (state: ContractState | undefined) => void;
+  updateContractState: (
+    updater: ContractState | Partial<ContractState> | ((prev: ContractState) => ContractState)
+  ) => void;
 }
 
 export interface EconomySlice {

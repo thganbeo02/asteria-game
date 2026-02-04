@@ -5,7 +5,7 @@ import { useGameStore } from "@/stores";
 import { getHeroDefinition } from "@/data/heroes";
 import { HealthBar, HeroMedallion, StatDisplay } from "@/components/ui";
 import { cn } from "@/lib/cn";
-import { getDefenseModifier } from "@/systems/combat/statusEffects";
+import { getDefenseModifier, getEffectModifiers } from "@/systems/combat/statusEffects";
 import { EXP_THRESHOLDS, MAX_LEVEL } from "@/lib/constants";
 
 export function HeroPanel() {
@@ -53,6 +53,10 @@ export function HeroPanel() {
   const effectiveDef = Math.floor(baseDef * defModifier);
   const tempDefDelta = Math.max(0, effectiveDef - baseDef);
 
+  const basePen = stats.penetration + stats.bonusPenetration;
+  const tempPenDelta = Math.max(0, getEffectModifiers(hero.statusEffects).penetrationBonus);
+  const effectivePen = basePen + tempPenDelta;
+
   const displayStats = [
     { label: "ATK", value: stats.atk + stats.bonusAtk, numericValue: stats.atk + stats.bonusAtk },
     {
@@ -85,8 +89,16 @@ export function HeroPanel() {
     },
     {
       label: "PEN",
-      value: `${stats.penetration + stats.bonusPenetration}%`,
-      numericValue: stats.penetration + stats.bonusPenetration,
+      value:
+        tempPenDelta > 0 ? (
+          <span>
+            {effectivePen}%
+            <span className="text-emerald-400 text-sm font-semibold"> (+{tempPenDelta})</span>
+          </span>
+        ) : (
+          `${basePen}%`
+        ),
+      numericValue: effectivePen,
     },
   ];
 

@@ -4,6 +4,7 @@ The Village Defender
 Unlock: Starter (Free)
 Difficulty: Beginner
 Class: Warrior (Guardian)
+Innate: Basic attacks deal 80% ATK + 20% DEF as damage.
 
 LORE
 

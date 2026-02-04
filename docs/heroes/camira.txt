@@ -4,6 +4,7 @@ The Arrow of People
 Unlock: Starter (Free)
 Difficulty: Beginner
 Class: Ranger (Marksman)
+Innate: Every 1% excess crit chance is converted to 0.1x damage multiplier and 1% penetration.
 
 LORE
 
